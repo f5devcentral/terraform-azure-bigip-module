@@ -3,7 +3,7 @@ output "f5_public_ip" {
 }
 
 output "f5_private_ip" {
-  value = azurerm_network_interface.mgmt_nic.private_ip_address
+  value = azurerm_network_interface.bigip1_nic.private_ip_address
 }
 output "f5_username" {
   value = var.f5_username

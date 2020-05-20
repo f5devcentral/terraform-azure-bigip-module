@@ -4,14 +4,14 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-        name = "testResourceGroup"
-        location = "westus"
+  name     = "testResourceGroup"
+  location = "southindia"
 }
 
-module "bigip3nic" {
-  source = "./Bigip3Nic"
-  resource_group_name           = azurerm_resource_group.rg.name
-  vnet_subnet_id                = module.network.vnet_subnets[0]
+module "bigip1nic" {
+  source              = "./1NIC"
+  resource_group_name = azurerm_resource_group.rg.name
+  vnet_subnet_id      = module.network.vnet_subnets[0]
 }
 
 
