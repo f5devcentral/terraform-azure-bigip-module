@@ -8,3 +8,13 @@ output "f5_private_ip" {
 output "f5_username" {
   value = var.f5_username
 }
+
+output "public_ip_address" {
+  description = "The actual ip address allocated for the resource."
+  value       = azurerm_public_ip.mgmt_public_ip.*.ip_address
+}
+
+output "public_ip_dns_name" {
+  description = "fqdn to connect to the first vm provisioned."
+  value       = azurerm_public_ip.mgmt_public_ip.*.fqdn
+}

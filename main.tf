@@ -22,6 +22,10 @@ module "network" {
   subnet_prefixes     = ["10.0.1.0/24"]
 }
 
+output "f5vm_public_name" {
+  value = module.bigip1nic.public_ip_dns_name
+}
+
 
 // module "linuxservers" {
 //   source                        = "Azure/compute/azurerm"
