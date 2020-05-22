@@ -8,8 +8,14 @@ resource "azurerm_resource_group" "rg" {
   location = "southindia"
 }
 
-module "bigip1nic" {
-  source              = "./1NIC"
+// module "bigip1nic" {
+//   source              = "./1NIC"
+//   resource_group_name = azurerm_resource_group.rg.name
+//   vnet_subnet_id      = module.network.vnet_subnets[0]
+// }
+
+module "bigip3nic" {
+  source              = "./3NIC"
   resource_group_name = azurerm_resource_group.rg.name
   vnet_subnet_id      = module.network.vnet_subnets[0]
 }
@@ -23,7 +29,7 @@ module "network" {
 }
 
 output "f5vm_public_name" {
-  value = module.bigip1nic.public_ip_dns_name
+  value = module.bigip3nic.public_ip_dns_name
 }
 
 

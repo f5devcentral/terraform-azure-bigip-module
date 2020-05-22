@@ -1,104 +1,88 @@
-provider "azurerm" {
-  version = "~>2.0"
-  features {}
+data "azurerm_resource_group" "bigiprg" {
+  name = var.resource_group_name
 }
 
-resource "azurerm_resource_group" "example" {
-  name     = "testResourceGroup"
-  location = "westus"
-}
-
-resource "azurerm_virtual_network" "example" {
-  name                = "example-network"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-}
-
-resource "azurerm_subnet" "example" {
-  name                 = "internal"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.example.name
-  address_prefix       = "10.0.2.0/24"
-}
-
-resource "azurerm_network_interface" "example" {
-  name                = "example-nic"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.example.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
-
-# Create a Public IP for bigip1
-resource "azurerm_public_ip" "bigip1_public_ip" {
-  name                      = "${var.owner}-bigip1-public-ip"
-  location                  = azurerm_resource_group.example.location
-  resource_group_name       = azurerm_resource_group.example.name
-  allocation_method         = "Dynamic"
+# Create a Public IP for bigip
+resource "azurerm_public_ip" "mgmt_public_ip" {
+  count               = var.nb_instances
+  name                = "${var.dnsLabel}-pip-${count.index}"
+  location            = data.azurerm_resource_group.bigiprg.location
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  allocation_method   = var.allocation_method
+  domain_name_label   = element(var.public_ip_dns, count.index)
 
   tags = {
-    Name           = "${var.owner}-bigip1-public-ip"
-    owner          = var.owner
+    Name   = "${var.dnsLabel}-pip-${count.index}"
+    owner  = var.dnsLabel
+    source = "terraform"
   }
 }
 
 # Create the 1nic interface for BIG-IP 01
-resource "azurerm_network_interface" "bigip1_nic" {
-  name                      = "${var.owner}-bigip1-mgmt-nic"
-  location                  = azurerm_resource_group.example.location
-  resource_group_name       = azurerm_resource_group.example.name
-  //network_security_group_id = azurerm_network_security_group.bigip_sg.id
+resource "azurerm_network_interface" "mgmt_nic" {
+  count               = var.nb_instances
+  name                = "${var.dnsLabel}-nic-${count.index}"
+  location            = data.azurerm_resource_group.bigiprg.location
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  //enable_accelerated_networking = var.enable_accelerated_networking
 
   ip_configuration {
-    name                          = "primary"
-    subnet_id                     = azurerm_subnet.example.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.bigip1_public_ip.id
+    name                          = "${var.dnsLabel}-ip-${count.index}"
+    subnet_id                     = var.vnet_subnet_id
+    private_ip_address_allocation = var.allocation_method
+    public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > 0 ? element(concat(azurerm_public_ip.mgmt_public_ip.*.id, list("")), count.index) : ""
+    //public_ip_address_id          = azurerm_public_ip.mgmt_public_ip.id
   }
-
   tags = {
-    Name           = "${var.owner}-bigip1-mgmt-nic"
-    owner          = var.owner
+    owner  = var.dnsLabel
+    Name   = "${var.dnsLabel}-nic-${count.index}"
+    source = "terraform"
   }
-  
-  #depends_on=[azurerm_network_security_group.bigip_sg]
+}
+resource "azurerm_network_security_group" "bigip_sg" {
+  name                = "${var.dnsLabel}-nsg"
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  location            = data.azurerm_resource_group.bigiprg.location
+  security_rule {
+    name                       = "allow_SSH"
+    description                = "Allow SSH access"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+  tags = {
+    owner  = var.dnsLabel
+    Name   = "${var.dnsLabel}-bigip_sg"
+    source = "terraform"
+  }
 }
 
-
-// data "template_file" "f5_bigip_onboard" {
-//   template = file("./templates/f5_onboard.tpl")
-
-//   vars = {
-//     DO_URL          = var.DO_URL
-//     AS3_URL		      = var.AS3_URL
-//     TS_URL          = var.TS_URL
-//     ADMIN_PASSWD    = var.ADMIN_PASSWD
-//     libs_dir		    = var.libs_dir
-//     onboard_log		  = var.onboard_log
-//   }
-// }
+resource "azurerm_network_interface_security_group_association" "nicnsg" {
+  count                     = var.nb_instances
+  network_interface_id      = azurerm_network_interface.mgmt_nic[count.index].id
+  network_security_group_id = azurerm_network_security_group.bigip_sg.id
+}
 
 # Create F5 BIGIP1
-resource "azurerm_virtual_machine" "f5-bigip1" {
-  name                         = "${var.owner}-f5-bigip1"
-  location                     = azurerm_resource_group.example.location
-  resource_group_name          = azurerm_resource_group.example.name
-  primary_network_interface_id = azurerm_network_interface.bigip1_nic.id
-  network_interface_ids        = [azurerm_network_interface.bigip1_nic.id]
+resource "azurerm_virtual_machine" "f5vm01" {
+  name                         = "${var.dnsLabel}-f5vm01"
+  location                     = data.azurerm_resource_group.bigiprg.location
+  resource_group_name          = data.azurerm_resource_group.bigiprg.name
+  primary_network_interface_id = element(azurerm_network_interface.mgmt_nic.*.id, 0)
+  network_interface_ids        = azurerm_network_interface.mgmt_nic.*.id
   vm_size                      = var.f5_instance_type
-  
+
   # Uncomment this line to delete the OS disk automatically when deleting the VM
-   delete_os_disk_on_termination = true
+  delete_os_disk_on_termination = true
 
 
   # Uncomment this line to delete the data disks automatically when deleting the VM
-   delete_data_disks_on_termination = true
+  delete_data_disks_on_termination = true
 
   storage_image_reference {
     publisher = "f5-networks"
@@ -108,72 +92,37 @@ resource "azurerm_virtual_machine" "f5-bigip1" {
   }
 
   storage_os_disk {
-    name              = "${var.owner}-bigip1-osdisk"
+    name              = "osdisk-${var.dnsLabel}-f5vm01"
     caching           = "ReadWrite"
     create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
+    managed_disk_type = var.storage_account_type
   }
 
   os_profile {
-    computer_name  = "${var.owner}-bigip1-os"
+    computer_name  = "${var.dnsLabel}-f5vm01"
     admin_username = var.f5_username
     admin_password = var.ADMIN_PASSWD
     #custom_data    = data.template_file.f5_bigip_onboard.rendered
   }
-
   os_profile_linux_config {
-    disable_password_authentication = false
-    // ssh_keys {
-    //     path     = "/home/azureuser/.ssh/authorized_keys"
-    //     key_data = var.f5_ssh_publickey
-    // }
-  }
-  
-#  os_profile_linux_config {
-#    disable_password_authentication = false
-#  }
+    disable_password_authentication = var.enable_ssh_key
 
+    dynamic ssh_keys {
+      for_each = var.enable_ssh_key ? [var.f5_ssh_publickey] : []
+      content {
+        path     = "/home/${var.f5_username}/.ssh/authorized_keys"
+        key_data = file(var.f5_ssh_publickey)
+      }
+    }
+  }
   plan {
-    name          = var.f5_image_name
-    publisher     = "f5-networks"
-    product       = var.f5_product_name
+    name      = var.f5_image_name
+    publisher = "f5-networks"
+    product   = var.f5_product_name
   }
-
   tags = {
-    Name           = "${var.owner}-f5bigip1"
-    owner          = var.owner
+    owner  = var.dnsLabel
+    Name   = "${var.dnsLabel}-f5vm01"
+    source = "terraform"
   }
-}
-
-
-// # Run Startup Script
-// resource "azurerm_virtual_machine_extension" "f5-bigip1-run-startup-cmd" {
-//   name                 = "${var.owner}-f5-bigip1-run-startup-cmd"
-//   depends_on           = [azurerm_virtual_machine.f5-bigip1]
-//   location             = azurerm_resource_group.example.location
-//   resource_group_name  = azurerm_resource_group.example.name
-//   virtual_machine_name = azurerm_virtual_machine.f5-bigip1.name
-//   publisher            = "Microsoft.OSTCExtensions"
-//   type                 = "CustomScriptForLinux"
-//   type_handler_version = "1.2"
-
-//   settings = <<SETTINGS
-//     {
-//         "commandToExecute": "bash /var/lib/waagent/CustomData"
-//     }
-//   SETTINGS
-
-//   tags = {
-//     Name           = "${var.owner}-f5-bigip1-startup-cmd"
-//     owner          = var.owner
-//   }
-// }
-
-
-#Needed to retrieve the F5 public IP when doing dynamic IP allocation
-data "azurerm_public_ip" "bigip1-public-ip" {
-  name                = azurerm_public_ip.bigip1_public_ip.name
-  resource_group_name = azurerm_resource_group.example.name
-
-  depends_on = [azurerm_virtual_machine.f5-bigip1]
 }

@@ -5,22 +5,22 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-        name = "testResourceGroup"
-        location = "westus"
+  name     = "testResourceGroup"
+  location = "westus"
 }
 
 resource "azurerm_network_security_group" "bigip-nsg-ext" {
   name                = "${var.dns_lable}-ext-nsg"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_network_security_group" "bigip-nsg-mgmt" {
   name                = "${var.dns_lable}-mgmt-nsg"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_public_ip" "bigip-mgmt" {

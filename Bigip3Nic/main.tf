@@ -1,6 +1,6 @@
 
 data "azurerm_resource_group" "bigiprg" {
-   name = var.resource_group_name
+  name = var.resource_group_name
 }
 
 resource "azurerm_network_security_group" "bigip_sg" {
@@ -74,41 +74,41 @@ resource "azurerm_network_security_group" "bigip_sg" {
   }
 
   tags = {
-    owner          = var.dnsLabel
-    Name           = "${var.dnsLabel}-bigip-sg"
-    }
+    owner = var.dnsLabel
+    Name  = "${var.dnsLabel}-bigip-sg"
+  }
 }
 
 # Create a Public IP for bigip
 resource "azurerm_public_ip" "mgmt_public_ip" {
-  name                      = "${var.dnsLabel}-mgmt-pip"
-  location                  = data.azurerm_resource_group.bigiprg.location
-  resource_group_name       = data.azurerm_resource_group.bigiprg.name
-  allocation_method         = var.allocation_method
+  name                = "${var.dnsLabel}-mgmt-pip"
+  location            = data.azurerm_resource_group.bigiprg.location
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  allocation_method   = var.allocation_method
 
   tags = {
-    Name           = "${var.dnsLabel}-mgmt-pip"
-    owner          = var.dnsLabel
+    Name  = "${var.dnsLabel}-mgmt-pip"
+    owner = var.dnsLabel
   }
 }
 
 # Create the 1nic interface for BIG-IP 01
 resource "azurerm_network_interface" "mgmt_nic" {
-  name                      = "${var.dnsLabel}-mgmt-nic"
-  location                  = data.azurerm_resource_group.bigiprg.location
-  resource_group_name       = data.azurerm_resource_group.bigiprg.name
+  name                = "${var.dnsLabel}-mgmt-nic"
+  location            = data.azurerm_resource_group.bigiprg.location
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
   //network_security_group_id = azurerm_network_security_group.bigip_sg.id
 
   ip_configuration {
-    name                          = "primary"
+    name = "primary"
     #subnet_id                     = azurerm_subnet.example.id
     subnet_id                     = var.vnet_subnet_id
     private_ip_address_allocation = var.allocation_method
     public_ip_address_id          = azurerm_public_ip.mgmt_public_ip.id
   }
   tags = {
-    owner          = var.dnsLabel
-    Name           = "${var.dnsLabel}-mgmt-nic"
+    owner = var.dnsLabel
+    Name  = "${var.dnsLabel}-mgmt-nic"
   }
 }
 
@@ -134,13 +134,13 @@ resource "azurerm_virtual_machine" "f5vm01" {
   primary_network_interface_id = azurerm_network_interface.mgmt_nic.id
   network_interface_ids        = [azurerm_network_interface.mgmt_nic.id]
   vm_size                      = var.f5_instance_type
-  
+
   # Uncomment this line to delete the OS disk automatically when deleting the VM
-   delete_os_disk_on_termination = true
+  delete_os_disk_on_termination = true
 
 
   # Uncomment this line to delete the data disks automatically when deleting the VM
-   delete_data_disks_on_termination = true
+  delete_data_disks_on_termination = true
 
   storage_image_reference {
     publisher = "f5-networks"
@@ -170,21 +170,21 @@ resource "azurerm_virtual_machine" "f5vm01" {
     //     key_data = var.f5_ssh_publickey
     // }
   }
-  
-#  os_profile_linux_config {
-#    disable_password_authentication = false
-#  }
+
+  #  os_profile_linux_config {
+  #    disable_password_authentication = false
+  #  }
 
   plan {
-    name          = var.f5_image_name
-    publisher     = "f5-networks"
-    product       = var.f5_product_name
+    name      = var.f5_image_name
+    publisher = "f5-networks"
+    product   = var.f5_product_name
   }
 
   tags = {
-    owner          = var.dnsLabel
-    Name           = "${var.dnsLabel}-f5vm01"
-    
+    owner = var.dnsLabel
+    Name  = "${var.dnsLabel}-f5vm01"
+
   }
 }
 
