@@ -15,7 +15,7 @@ resource "azurerm_resource_group" "rg" {
 // }
 
 module "bigip3nic" {
-  source              = "./3NIC"
+  source              = "./2NIC"
   resource_group_name = azurerm_resource_group.rg.name
   vnet_subnet_id      = module.network.vnet_subnets[0]
 }
