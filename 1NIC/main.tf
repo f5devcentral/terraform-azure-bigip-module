@@ -85,6 +85,7 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   location            = data.azurerm_resource_group.bigiprg.location
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   allocation_method   = var.allocation_method
+  domain_name_label   = var.dnsLabel
 
   tags = {
     Name   = "${var.dnsLabel}-mgmt-pip"
@@ -98,11 +99,9 @@ resource "azurerm_network_interface" "mgmt_nic" {
   name                = "${var.dnsLabel}-mgmt-nic"
   location            = data.azurerm_resource_group.bigiprg.location
   resource_group_name = data.azurerm_resource_group.bigiprg.name
-  //network_security_group_id = azurerm_network_security_group.bigip_sg.id
 
   ip_configuration {
-    name = "primary"
-    #subnet_id                     = azurerm_subnet.example.id
+    name                          = "primary"
     subnet_id                     = var.vnet_subnet_id
     private_ip_address_allocation = var.allocation_method
     public_ip_address_id          = azurerm_public_ip.mgmt_public_ip.id
@@ -114,19 +113,11 @@ resource "azurerm_network_interface" "mgmt_nic" {
   }
 }
 
-
-// data "template_file" "f5_bigip_onboard" {
-//   template = file("./templates/f5_onboard.tpl")
-
-//   vars = {
-//     DO_URL          = var.DO_URL
-//     AS3_URL		      = var.AS3_URL
-//     TS_URL          = var.TS_URL
-//     ADMIN_PASSWD    = var.ADMIN_PASSWD
-//     libs_dir		    = var.libs_dir
-//     onboard_log		  = var.onboard_log
-//   }
-// }
+#Attach Securitygroup to Mgmt Interface
+resource "azurerm_network_interface_security_group_association" "mgmtnicnsg" {
+  network_interface_id      = azurerm_network_interface.mgmt_nic.id
+  network_security_group_id = azurerm_network_security_group.bigip_sg.id
+}
 
 # Create F5 BIGIP1
 resource "azurerm_virtual_machine" "f5vm01" {
@@ -191,6 +182,5 @@ resource "azurerm_virtual_machine" "f5vm01" {
 data "azurerm_public_ip" "bigip1-public-ip" {
   name                = azurerm_public_ip.mgmt_public_ip.name
   resource_group_name = data.azurerm_resource_group.bigiprg.name
-
-  depends_on = [azurerm_virtual_machine.f5vm01]
+  depends_on          = [azurerm_virtual_machine.f5vm01]
 }

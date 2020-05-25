@@ -1,13 +1,12 @@
 ## Deploys F5 BIGIP to your provided VNet/Network
 
-This Terraform module deploys F5 BIGIP-1Nic in Azure with the following characteristics:
+This Terraform module deploys F5 BIGIPin Azure with the following characteristics:
 
 - VM nics attached to a single virtual network subnet of your choice (new or existing) via `var.vnet_subnet_id`.
-- Control the number of Public IP addresses assigned to VMs via `var.nb_public_ip`. Create and attach one Public IP per VM up to the number of VMs or create NO public IPs via setting `var.nb_public_ip` to `0`.
 
 ## Simple Usage
 
-This contains the bare minimum options to be configured for the F5 BIGIP to be provisioned.  The entire code block provisions F5 BIGIP VM, but feel free to delete one or the other and corresponding outputs. The outputs are also not necessary to provision, but included to make it convenient to know the address to connect to the VMs after provisioning completes.
+This contains the bare minimum options to be configured for the F5 BIGIP to be provisioned.  The entire code block provisions F5 BIGIP VM,
 
 The F5 BIGIP will use the ssh key found in the default location `~/.ssh/id_rsa.pub`.
 
@@ -23,8 +22,23 @@ resource "azurerm_resource_group" "rg" {
   location = "southindia"
 }
 
-module "bigip1nic" {
+# BIGIP 1NIC Deployment
+module "bigip3nic" {
   source              = "./1NIC"
+  resource_group_name = azurerm_resource_group.rg.name
+  vnet_subnet_id      = module.network.vnet_subnets[0]
+}
+
+# BIGIP 2NIC Deployment
+module "bigip3nic" {
+  source              = "./2NIC"
+  resource_group_name = azurerm_resource_group.rg.name
+  vnet_subnet_id      = module.network.vnet_subnets[0]
+}
+
+# BIGIP 3NIC Deployment
+module "bigip3nic" {
+  source              = "./3NIC"
   resource_group_name = azurerm_resource_group.rg.name
   vnet_subnet_id      = module.network.vnet_subnets[0]
 }
@@ -37,7 +51,7 @@ module "network" {
 }
 
 output "f5vm_public_name" {
-  value = module.bigip1nic.public_ip_dns_name
+  value = module.bigip3nic.public_ip_dns_name
 }
 
 ```

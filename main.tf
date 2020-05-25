@@ -15,7 +15,7 @@ resource "azurerm_resource_group" "rg" {
 // }
 
 module "bigip3nic" {
-  source              = "./2NIC"
+  source              = "./1NIC"
   resource_group_name = azurerm_resource_group.rg.name
   vnet_subnet_id      = module.network.vnet_subnets[0]
 }
@@ -25,7 +25,8 @@ module "network" {
   source              = "Azure/network/azurerm"
   version             = "3.0.0"
   resource_group_name = azurerm_resource_group.rg.name
-  subnet_prefixes     = ["10.0.1.0/24"]
+  subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  subnet_names        = ["subnet1", "subnet2", "subnet3"]
 }
 
 output "f5vm_public_name" {
