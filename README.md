@@ -22,21 +22,22 @@ resource "azurerm_resource_group" "rg" {
   location = "southindia"
 }
 
-# BIGIP 1NIC Deployment
+# BIGIP 1NIC Deployment Module
 module "bigip3nic" {
   source              = "./1NIC"
   resource_group_name = azurerm_resource_group.rg.name
   vnet_subnet_id      = module.network.vnet_subnets[0]
 }
 
-# BIGIP 2NIC Deployment
+# BIGIP 2NIC Deployment Module
 module "bigip3nic" {
   source              = "./2NIC"
   resource_group_name = azurerm_resource_group.rg.name
   vnet_subnet_id      = module.network.vnet_subnets[0]
 }
 
-# BIGIP 3NIC Deployment
+# BIGIP 3NIC Deployment Module
+
 module "bigip3nic" {
   source              = "./3NIC"
   resource_group_name = azurerm_resource_group.rg.name
