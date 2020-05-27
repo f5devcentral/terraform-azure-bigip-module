@@ -12,8 +12,6 @@
 
 This solution uses an Terraform template to launch a two NIC deployment of a cloud-focused BIG-IP VE standalone device in Microsoft Azure. Traffic flows to the BIG-IP VE which then flows to DVWA app server. This is the standard cloud design where the BIG-IP VE instance is running with a dual interface, and both management and data plane traffic is processed on each separate NIC.  
 
-The BIG-IP VE has the [Local Traffic Manager (LTM)](https://f5.com/products/big-ip/local-traffic-manager-ltm) and [Application Security Module (ASM)](https://www.f5.com/products/security/advanced-waf) modules enabled to provide advanced traffic management functionality. This means you can also configure the BIG-IP VE to enable F5's L4/L7 security features, access control, Advance WAF and intelligent traffic management.
-
 Terraform is beneficial as it allows composing resources a bit differently to account for dependencies into Immutable/Mutable elements. For example, mutable  includes items you would typically frequently change/mutate, such as traditional configs on the BIG-IP. Once the template is deployed, there are certain resources (network infrastructure) that are fixed while others (BIG-IP VMs and configurations) can be changed.
 
 ## Version
@@ -22,7 +20,6 @@ This template is tested and worked in the following version
 Terraform v0.12.25
 
 * provider.azurerm v2.1
-* provider.local v1.4
 * provider.null v2.1
 * provider.template v2.1
 
