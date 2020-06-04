@@ -8,7 +8,3 @@ variable "prefix" {
   type        = string
   default     = "terraform-azure-bigip-1nic"
 }
-
-output "f5vm_public_name" {
-  value = module.bigip3nic.public_ip_dns_name
-}
