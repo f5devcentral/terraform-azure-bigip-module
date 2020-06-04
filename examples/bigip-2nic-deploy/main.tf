@@ -1,29 +1,39 @@
-provider "azurerm" {
+provider azurerm {
   version = "~>2.0"
   features {}
 }
-resource "azurerm_resource_group" "rg" {
-  name     = "testResourceGroup"
-  location = "southindia"
+
+#
+# Create a random id
+#
+resource random_id id {
+  byte_length = 2
 }
 
-module "bigip3nic" {
-  source              = "../../"
+#
+# Create a resource group
+#
+resource azurerm_resource_group rg {
+  name     = format("%s-rg-%s", var.prefix, random_id.id.hex)
+  location = var.location
+}
+
+#
+# Create a BIG-IP
+#
+module bigip2nic {
+  source              = "../../modules/2NIC"
   resource_group_name = azurerm_resource_group.rg.name
-  vnet_subnet_id      = [module.network.vnet_subnets[0], module.network.vnet_subnets[1], module.network.vnet_subnets[2]]
-  nb_public_ip        = 2
-  nb_nics             = 2
+  vnet_subnet_id      = [module.network.vnet_subnets[0], module.network.vnet_subnets[1]]
 }
 
-
-module "network" {
+#
+# Create the Azure network resources
+#
+module network {
   source              = "Azure/network/azurerm"
-  version             = "3.0.0"
+  version             = "3.1.1"
   resource_group_name = azurerm_resource_group.rg.name
-  subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  subnet_names        = ["mgmt-subnet", "external-subnet","internal-subnet"]
-}
-
-output "f5vm_public_name" {
-  value = module.bigip3nic.public_ip_dns_name
+  subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24"]
+  subnet_names        = ["mgmt-subnet", "external-subnet"]
 }
