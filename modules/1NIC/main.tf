@@ -102,7 +102,7 @@ resource "azurerm_network_interface" "mgmt_nic" {
 
   ip_configuration {
     name                          = "primary"
-    subnet_id                     = var.vnet_subnet_id
+    subnet_id                     = var.vnet_subnet_id[0]
     private_ip_address_allocation = var.allocation_method
     public_ip_address_id          = azurerm_public_ip.mgmt_public_ip.id
   }
