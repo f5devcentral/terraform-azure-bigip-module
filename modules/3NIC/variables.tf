@@ -1,11 +1,9 @@
 variable "resource_group_name" {
   description = "The name of the resource group in which the resources will be created"
-  type        = "string"
+  type        = string
 }
 variable "vnet_subnet_id" {
   description = "The subnet id of the virtual network where the virtual machines will reside."
-  type        = list
-  default     = []
 }
 
 variable "f5_username" {
@@ -20,21 +18,21 @@ variable "AllowedIPs" {
 
 variable "f5_instance_type" {
   description = "Specifies the size of the virtual machine."
-  type        = "string"
+  type        = string
   default     = "Standard_DS3_v2"
 }
 
 variable "f5_image_name" {
-  type    = "string"
+  type    = string
   default = "f5-bigip-virtual-edition-25m-best-hourly"
 }
 variable "f5_version" {
-  type    = "string"
+  type    = string
   default = "latest"
 }
 
 variable "f5_product_name" {
-  type    = "string"
+  type    = string
   default = "f5-big-ip-best"
 }
 
@@ -73,32 +71,28 @@ variable "f5_ssh_publickey" {
 }
 
 variable "dnsLabel" {
-  type    = "string"
+  type    = string
   default = "ecosysf5hyd"
 }
-variable "nb_nics" {
+variable "nb_instances" {
   description = "Specify the number of nic interfaces"
   default     = "3"
-}
-variable "nb_public_ip" {
-  description = "Number of public IPs to assign corresponding to one IP per vm. Set to 0 to not assign any public IP addresses."
-  default     = "1"
 }
 
 
 // variable "AS3_URL" { 
-//   type = "string"
+//   type = string
 // }
 // variable "DO_URL" { 
-//   type = "string"
+//   type = string
 // }
 
 // variable "TS_URL" { 
-//   type = "string"
+//   type = string
 // }
 
 variable "ADMIN_PASSWD" {
-  type    = "string"
+  type    = string
   default = "RaviAzure@2020"
 }
 
