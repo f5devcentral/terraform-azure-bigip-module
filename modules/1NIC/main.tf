@@ -2,84 +2,9 @@ data "azurerm_resource_group" "bigiprg" {
   name = var.resource_group_name
 }
 
-resource "azurerm_network_security_group" "bigip_sg" {
-  name                = "${var.dnsLabel}-bigip-sg"
-  location            = data.azurerm_resource_group.bigiprg.location
-  resource_group_name = data.azurerm_resource_group.bigiprg.name
-
-  security_rule {
-    name                       = "allow_SSH"
-    description                = "Allow SSH access"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefixes    = var.AllowedIPs
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "allow_HTTP"
-    description                = "Allow HTTP access"
-    priority                   = 110
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "80"
-    source_address_prefixes    = var.AllowedIPs
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "allow_HTTPS"
-    description                = "Allow HTTPS access"
-    priority                   = 120
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefixes    = var.AllowedIPs
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "allow_RDP"
-    description                = "Allow RDP access"
-    priority                   = 130
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "3389"
-    source_address_prefixes    = var.AllowedIPs
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "allow_APP_HTTPS"
-    description                = "Allow HTTPS access"
-    priority                   = 140
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "8443"
-    source_address_prefixes    = var.AllowedIPs
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    owner  = var.dnsLabel
-    Name   = "${var.dnsLabel}-bigip-sg"
-    source = "terraform"
-  }
-}
-
+#
 # Create a Public IP for bigip
+#
 resource "azurerm_public_ip" "mgmt_public_ip" {
   name                = "${var.dnsLabel}-mgmt-pip"
   location            = data.azurerm_resource_group.bigiprg.location
@@ -94,7 +19,9 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   }
 }
 
-# Create the 1nic interface for BIG-IP 01
+#
+# Create the 1nic interface for BIG-IP
+#
 resource "azurerm_network_interface" "mgmt_nic" {
   name                = "${var.dnsLabel}-mgmt-nic"
   location            = data.azurerm_resource_group.bigiprg.location
@@ -113,13 +40,18 @@ resource "azurerm_network_interface" "mgmt_nic" {
   }
 }
 
-#Attach Securitygroup to Mgmt Interface
+#
+# Attach Securitygroup to Mgmt Interface
+#
 resource "azurerm_network_interface_security_group_association" "mgmtnicnsg" {
-  network_interface_id      = azurerm_network_interface.mgmt_nic.id
-  network_security_group_id = azurerm_network_security_group.bigip_sg.id
+  network_interface_id = azurerm_network_interface.mgmt_nic.id
+  //network_security_group_id = azurerm_network_security_group.bigip_sg.id
+  network_security_group_id = var.vnet_subnet_security_group_ids[0]
 }
 
-# Create F5 BIGIP1
+#
+# Create F5 1NIC BIGIP
+# 
 resource "azurerm_virtual_machine" "f5vm01" {
   name                         = "${var.dnsLabel}-f5vm01"
   location                     = data.azurerm_resource_group.bigiprg.location
@@ -178,7 +110,9 @@ resource "azurerm_virtual_machine" "f5vm01" {
   }
 }
 
-#Needed to retrieve the F5 public IP when doing dynamic IP allocation
+#
+# Needed to retrieve the F5 public IP when doing dynamic IP allocation
+#
 data "azurerm_public_ip" "bigip1-public-ip" {
   name                = azurerm_public_ip.mgmt_public_ip.name
   resource_group_name = data.azurerm_resource_group.bigiprg.name

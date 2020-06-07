@@ -7,6 +7,11 @@ variable vnet_subnet_id {
   type        = list(string)
 }
 
+variable vnet_subnet_security_group_ids {
+  description = "The Network Security Group id of the virtual network "
+  type        = list(string)
+}
+
 variable f5_username {
   description = "The admin username of the F5 Bigip that will be deployed"
   type        = string
