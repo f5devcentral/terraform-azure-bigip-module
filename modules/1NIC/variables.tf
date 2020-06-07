@@ -6,7 +6,6 @@ variable vnet_subnet_id {
   description = "The subnet id of the virtual network where the virtual machines will reside."
   type        = list(string)
 }
-
 variable vnet_subnet_security_group_ids {
   description = "The Network Security Group id of the virtual network "
   type        = list(string)

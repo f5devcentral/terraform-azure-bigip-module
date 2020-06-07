@@ -6,5 +6,5 @@ variable location {
 variable "prefix" {
   description = "Prefix for resources created by this module"
   type        = string
-  default     = "terraform-azure-bigip-1nic"
+  default     = "terraform-azure-bigip-3nic"
 }
