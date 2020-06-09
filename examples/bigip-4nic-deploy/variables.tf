@@ -6,5 +6,13 @@ variable location {
 variable "prefix" {
   description = "Prefix for resources created by this module"
   type        = string
-  default     = "terraform-azure-bigip-1nic"
+  default     = "terraform-azure-bigip-4nic"
+}
+variable nb_nics {
+  description = "Specify the number of nic interfaces"
+  //default     = "3"
+}
+variable nb_public_ip {
+  description = "Number of public IPs to assign corresponding to one IP per vm. Set to 0 to not assign any public IP addresses."
+  //default     = "1"
 }
