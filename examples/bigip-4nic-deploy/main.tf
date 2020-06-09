@@ -116,7 +116,5 @@ module "internal-network-security-group" {
 }
 
 locals {
-  # Ids for multiple sets of EC2 instances, merged together
   vnet_subnet_network_security_group_ids = concat([module.mgmt-network-security-group.network_security_group_id, module.external-network-security-group.network_security_group_id, module.internal-network-security-group.network_security_group_id])
-  //vnet_subnet_network_security_group_ids = concat(module.*.network_security_group_id)
 }
