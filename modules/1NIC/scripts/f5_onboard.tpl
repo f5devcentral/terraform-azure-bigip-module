@@ -27,6 +27,11 @@ if [ $? -ne 0 ]; then
   sleep 30
 fi
 
+# Getting Management Port
+dfl_mgmt_port=`tmsh list sys httpd ssl-port | grep ssl-port | sed 's/ssl-port //;s/ //g'`
+echo "Management Port:$dfl_mgmt_port"
+
+
 ### DOWNLOAD ONBOARDING PKGS
 # Could be pre-packaged or hosted internally
 mkdir -p ${libs_dir}
@@ -41,20 +46,40 @@ FAST_FN=$(basename "$FAST_URL")
 CFE_URL='${CFE_URL}'
 CFE_FN=$(basename "$CFE_URL")
 echo -e "\n"$(date) "Download Declarative Onboarding Pkg"
-curl -L -o ${libs_dir}/$DO_FN $DO_URL
-sleep 20
+response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$DO_FN $DO_URL)
+echo "Response Code:'$response_code'"
+if [[ $response_code != 200 ]]; then
+    echo "Failed to download application '"$DO_FN"' with response code '"$response_code"'"
+fi
+sleep 2
 echo -e "\n"$(date) "Download AS3 Pkg"
-curl -L -o ${libs_dir}/$AS3_FN $AS3_URL
-sleep 20
+response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$AS3_FN $AS3_URL)
+echo "Response Code:'$response_code'"
+if [[ $response_code != 200 ]]; then
+    echo "Failed to download application '"$AS3_FN"' with response code '"$response_code"'"
+fi
+sleep 2
 echo -e "\n"$(date) "Download TS Pkg"
-curl -L -o ${libs_dir}/$TS_FN $TS_URL
-sleep 20
+response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$TS_FN $TS_URL)
+echo "Response Code:'$response_code'"
+if [[ $response_code != 200 ]]; then
+    echo "Failed to download application '"$TS_FN"' with response code '"$response_code"'"
+fi
+sleep 2
 echo -e "\n"$(date) "Download FAST Pkg"
-curl -L -o ${libs_dir}/$FAST_FN $FAST_URL
-sleep 20
+response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$FAST_FN $FAST_URL)
+echo "Response Code:'$response_code'"
+if [[ $response_code != 200 ]]; then
+    echo "Failed to download application '"$FAST_FN"' with response code '"$response_code"'"
+fi
+sleep 2
 echo -e "\n"$(date) "Download CFE Pkg"
-curl -L -o ${libs_dir}/$CFE_FN $CFE_URL
-sleep 20
+response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$CFE_FN $CFE_URL)
+echo "Response Code:'$response_code'"
+if [[ $response_code != 200 ]]; then
+    echo "Failed to download application '"$CFE_FN"' with response code '"$response_code"'"
+fi
+sleep 2
 # Copy the RPM Pkg to the file location
 cp ${libs_dir}/*.rpm /var/config/rest/downloads/
 # Install Declarative Onboarding Pkg

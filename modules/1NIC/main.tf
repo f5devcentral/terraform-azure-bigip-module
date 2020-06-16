@@ -7,12 +7,12 @@ data "template_file" "init_file" {
   template = "${file("${path.module}/scripts/${var.script_name}.tpl")}"
   vars = {
     onboard_log = var.onboard_log
-    libs_dir= var.libs_dir
-    DO_URL=var.DO_URL
-    AS3_URL=var.AS3_URL
-    TS_URL=var.TS_URL
-    FAST_URL=var.FAST_URL
-    CFE_URL=var.CFE_URL
+    libs_dir    = var.libs_dir
+    DO_URL      = var.DO_URL
+    AS3_URL     = var.AS3_URL
+    TS_URL      = var.TS_URL
+    FAST_URL    = var.FAST_URL
+    CFE_URL     = var.CFE_URL
   }
 }
 
@@ -128,9 +128,9 @@ resource "azurerm_virtual_machine" "f5vm01" {
 ## ..:: Run Startup Script ::..
 resource "azurerm_virtual_machine_extension" "vmext" {
 
-  name                 = "${var.dnsLabel}-vmext1"
-  depends_on           = [azurerm_virtual_machine.f5vm01]
-  virtual_machine_id   = azurerm_virtual_machine.f5vm01.id
+  name               = "${var.dnsLabel}-vmext1"
+  depends_on         = [azurerm_virtual_machine.f5vm01]
+  virtual_machine_id = azurerm_virtual_machine.f5vm01.id
 
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"

@@ -23,6 +23,7 @@ resource azurerm_resource_group rg {
 #
 module bigip1nic {
   source                         = "../../modules/1NIC"
+  dnsLabel                       = format("%s-%s", var.prefix, random_id.id.hex)
   resource_group_name            = azurerm_resource_group.rg.name
   vnet_subnet_id                 = [module.network.vnet_subnets[0]]
   vnet_subnet_security_group_ids = [module.network-security-group.network_security_group_id]

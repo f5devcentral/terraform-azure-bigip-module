@@ -72,8 +72,8 @@ variable f5_ssh_publickey {
 }
 
 variable dnsLabel {
-  type    = string
-  default = "ecosysf5hyd"
+  type = string
+  //default = "ecosysf5hyd-ravi"
 }
 
 variable ADMIN_PASSWD {
@@ -88,23 +88,23 @@ variable script_name {
 
 variable do_rpm_filename {
   description = ""
-  default="f5-declarative-onboarding-1.13.0-5.noarch.rpm"
-  type = string
+  default     = "f5-declarative-onboarding-1.13.0-5.noarch.rpm"
+  type        = string
 }
 variable do_version {
   description = ""
-  default="v1.13.0"
-  type = string
+  default     = "v1.13.0"
+  type        = string
 }
 variable as3_rpm_filename {
   description = ""
-  default="f5-appsvcs-3.20.0-3.noarch.rpm"
-  type = string
+  default     = "f5-appsvcs-3.20.0-3.noarch.rpm"
+  type        = string
 }
 variable as3_version {
   description = ""
-  default="v3.20.0"
-  type = string
+  default     = "v3.20.0"
+  type        = string
 }
 
 ## Please check and update the latest DO URL from https://github.com/F5Networks/f5-declarative-onboarding/releases
@@ -138,21 +138,21 @@ variable FAST_URL {
   default     = "https://github.com/F5Networks/f5-appsvcs-templates/releases/download/v1.1.0/f5-appsvcs-templates-1.1.0-1.noarch.rpm"
 }
 
-## Please check and update the latest Failover Extension URL from https://github.com/f5devcentral/f5-cloud-failover-extension/releases/latest 
+## Please check and update the latest Failover Extension URL from https://github.com/F5Networks/f5-cloud-failover-extension/releases/latest 
 # always point to a specific version in order to avoid inadvertent configuration inconsistency
 variable CFE_URL {
   description = "URL to download the BIG-IP Cloud Failover Extension module"
   type        = string
-  default     = "https://github.com/f5devcentral/f5-cloud-failover-extension/releases/download/v1.1.0/f5-cloud-failover-1.1.0-0.noarch.rpm"
+  default     = "https://github.com/F5Networks/f5-cloud-failover-extension/releases/download/v1.3.0/f5-cloud-failover-1.3.0-0.noarch.rpm"
 }
 
 variable libs_dir {
   description = "Directory on the BIG-IP to download the A&O Toolchain into"
-  default = "/config/cloud/azure/node_modules"
-  type    = string
+  default     = "/config/cloud/azure/node_modules"
+  type        = string
 }
 variable onboard_log {
   description = "Directory on the BIG-IP to store the cloud-init logs"
-  default = "/var/log/startup-script.log"
-  type    = string
+  default     = "/var/log/startup-script.log"
+  type        = string
 }
