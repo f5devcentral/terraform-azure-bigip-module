@@ -6,7 +6,7 @@ variable location {
 variable "prefix" {
   description = "Prefix for resources created by this module"
   type        = string
-  default     = "terraform-azure-bigip-4nic"
+  default     = "terraform-azure-bigip"
 }
 variable nb_nics {
   description = "Specify the number of nic interfaces"

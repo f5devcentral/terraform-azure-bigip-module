@@ -47,16 +47,6 @@ variable storage_account_type {
   type        = string
   default     = "Standard_LRS"
 }
-
-variable libs_dir {
-  default = "/config/cloud/azure/node_modules"
-  type    = string
-}
-variable onboard_log {
-  default = "/var/log/startup-script.log"
-  type    = string
-}
-
 variable allocation_method {
   description = "Defines how an IP address is assigned. Options are Static or Dynamic."
   type        = string
@@ -72,7 +62,7 @@ variable enable_accelerated_networking {
 variable enable_ssh_key {
   type        = bool
   description = "(Optional) Enable ssh key authentication in Linux virtual Machine"
-  default     = true
+  default     = false
 }
 
 variable f5_ssh_publickey {
@@ -86,19 +76,83 @@ variable dnsLabel {
   default = "ecosysf5hyd"
 }
 
-
-// variable "AS3_URL" { 
-//   type = "string"
-// }
-// variable "DO_URL" { 
-//   type = "string"
-// }
-
-// variable "TS_URL" { 
-//   type = "string"
-// }
-
-variable "ADMIN_PASSWD" {
+variable ADMIN_PASSWD {
   type    = string
   default = "RaviAzure@2020"
+}
+
+variable script_name {
+  type    = string
+  default = "f5_onboard"
+}
+
+variable do_rpm_filename {
+  description = ""
+  default="f5-declarative-onboarding-1.13.0-5.noarch.rpm"
+  type = string
+}
+variable do_version {
+  description = ""
+  default="v1.13.0"
+  type = string
+}
+variable as3_rpm_filename {
+  description = ""
+  default="f5-appsvcs-3.20.0-3.noarch.rpm"
+  type = string
+}
+variable as3_version {
+  description = ""
+  default="v3.20.0"
+  type = string
+}
+
+## Please check and update the latest DO URL from https://github.com/F5Networks/f5-declarative-onboarding/releases
+# always point to a specific version in order to avoid inadvertent configuration inconsistency
+variable DO_URL {
+  description = "URL to download the BIG-IP Declarative Onboarding module"
+  type        = string
+  default     = "https://github.com/F5Networks/f5-declarative-onboarding/releases/download/v1.13.0/f5-declarative-onboarding-1.13.0-5.noarch.rpm"
+}
+## Please check and update the latest AS3 URL from https://github.com/F5Networks/f5-appsvcs-extension/releases/latest 
+# always point to a specific version in order to avoid inadvertent configuration inconsistency
+variable AS3_URL {
+  description = "URL to download the BIG-IP Application Service Extension 3 (AS3) module"
+  type        = string
+  default     = "https://github.com/F5Networks/f5-appsvcs-extension/releases/download/v3.20.0/f5-appsvcs-3.20.0-3.noarch.rpm"
+}
+
+## Please check and update the latest TS URL from https://github.com/F5Networks/f5-telemetry-streaming/releases/latest 
+# always point to a specific version in order to avoid inadvertent configuration inconsistency
+variable TS_URL {
+  description = "URL to download the BIG-IP Telemetry Streaming module"
+  type        = string
+  default     = "https://github.com/F5Networks/f5-telemetry-streaming/releases/download/v1.12.0/f5-telemetry-1.12.0-3.noarch.rpm"
+}
+
+## Please check and update the latest FAST URL from https://github.com/F5Networks/f5-appsvcs-templates/releases/latest 
+# always point to a specific version in order to avoid inadvertent configuration inconsistency
+variable FAST_URL {
+  description = "URL to download the BIG-IP FAST module"
+  type        = string
+  default     = "https://github.com/F5Networks/f5-appsvcs-templates/releases/download/v1.1.0/f5-appsvcs-templates-1.1.0-1.noarch.rpm"
+}
+
+## Please check and update the latest Failover Extension URL from https://github.com/f5devcentral/f5-cloud-failover-extension/releases/latest 
+# always point to a specific version in order to avoid inadvertent configuration inconsistency
+variable CFE_URL {
+  description = "URL to download the BIG-IP Cloud Failover Extension module"
+  type        = string
+  default     = "https://github.com/f5devcentral/f5-cloud-failover-extension/releases/download/v1.1.0/f5-cloud-failover-1.1.0-0.noarch.rpm"
+}
+
+variable libs_dir {
+  description = "Directory on the BIG-IP to download the A&O Toolchain into"
+  default = "/config/cloud/azure/node_modules"
+  type    = string
+}
+variable onboard_log {
+  description = "Directory on the BIG-IP to store the cloud-init logs"
+  default = "/var/log/startup-script.log"
+  type    = string
 }

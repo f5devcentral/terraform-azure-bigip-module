@@ -46,10 +46,6 @@ module "network-security-group" {
   source_address_prefix = ["10.0.3.0/24"]
   predefined_rules = [
     {
-      name     = "SSH"
-      priority = "500"
-    },
-    {
       name              = "LDAP"
       source_port_range = "1024-1026"
     }
@@ -61,8 +57,17 @@ module "network-security-group" {
       direction              = "Inbound"
       access                 = "Allow"
       protocol               = "tcp"
-      destination_port_range = "8080"
+      destination_port_range = "8443"
       description            = "description-myhttp"
+    },
+    {
+      name                   = "allow_ssh"
+      priority               = "201"
+      direction              = "Inbound"
+      access                 = "Allow"
+      protocol               = "tcp"
+      destination_port_range = "22"
+      description            = "Allow ssh connections"
     }
   ]
   tags = {
