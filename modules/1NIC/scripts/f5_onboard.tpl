@@ -36,50 +36,94 @@ echo "Management Port:$dfl_mgmt_port"
 # Could be pre-packaged or hosted internally
 mkdir -p ${libs_dir}
 DO_URL='${DO_URL}'
-DO_FN=$(basename "$DO_URL")
 AS3_URL='${AS3_URL}'
-AS3_FN=$(basename "$AS3_URL")
 TS_URL='${TS_URL}'
-TS_FN=$(basename "$TS_URL")
 FAST_URL='${FAST_URL}'
-FAST_FN=$(basename "$FAST_URL")
 CFE_URL='${CFE_URL}'
+
+as3_api="https://api.github.com/repos/F5Networks/f5-appsvcs-extension/releases/latest"
+do_api="https://api.github.com/repos/F5Networks/f5-declarative-onboarding/releases/latest"
+ts_api="https://api.github.com/repos/F5Networks/f5-telemetry-streaming/releases/latest"
+fast_api="https://api.github.com/repos/F5Networks/f5-appsvcs-templates/releases/latest"
+cfe_api="https://api.github.com/repos/F5Networks/f5-cloud-failover-extension/releases/latest"
+
+
+if [[ $AS3_URL == "" ]]; then
+    echo "Getting Default AS3_URL"    
+    AS3_URL=$(curl -sLk $as3_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    sleep 2
+fi
+echo "AS3_URL=$AS3_URL"
+
+if [[ $DO_URL == "" ]]; then
+    echo "Getting Default DO_URL"    
+    DO_URL=$(curl -sLk $do_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    sleep 2
+fi
+echo "DO_URL=$DO_URL"
+
+if [[ $TS_URL == "" ]]; then
+    echo "Getting Default TS_URL"    
+    TS_URL=$(curl -sLk $ts_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    sleep 2
+fi
+echo "TS_URL=$TS_URL"
+
+if [[ $FAST_URL == "" ]]; then
+    echo "Getting Default FAST_URL"    
+    FAST_URL=$(curl -sLk $fast_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    sleep 2
+fi
+echo "FAST_URL=$FAST_URL"
+
+if [[ $CFE_URL == "" ]]; then
+    echo "Getting Default CFE_URL"    
+    CFE_URL=$(curl -sLk $cfe_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    sleep 3
+fi
+echo "CFE_URL=$CFE_URL"
+
+DO_FN=$(basename "$DO_URL")
+AS3_FN=$(basename "$AS3_URL")
+TS_FN=$(basename "$TS_URL")
+FAST_FN=$(basename "$FAST_URL")
 CFE_FN=$(basename "$CFE_URL")
+
 echo -e "\n"$(date) "Download Declarative Onboarding Pkg"
 response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$DO_FN $DO_URL)
+sleep 5
 echo "Response Code:'$response_code'"
 if [[ $response_code != 200 ]]; then
     echo "Failed to download application '"$DO_FN"' with response code '"$response_code"'"
 fi
-sleep 2
 echo -e "\n"$(date) "Download AS3 Pkg"
 response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$AS3_FN $AS3_URL)
+sleep 5
 echo "Response Code:'$response_code'"
 if [[ $response_code != 200 ]]; then
     echo "Failed to download application '"$AS3_FN"' with response code '"$response_code"'"
 fi
-sleep 2
 echo -e "\n"$(date) "Download TS Pkg"
 response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$TS_FN $TS_URL)
+sleep 5
 echo "Response Code:'$response_code'"
 if [[ $response_code != 200 ]]; then
     echo "Failed to download application '"$TS_FN"' with response code '"$response_code"'"
 fi
-sleep 2
 echo -e "\n"$(date) "Download FAST Pkg"
 response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$FAST_FN $FAST_URL)
+sleep 5
 echo "Response Code:'$response_code'"
 if [[ $response_code != 200 ]]; then
     echo "Failed to download application '"$FAST_FN"' with response code '"$response_code"'"
 fi
-sleep 2
 echo -e "\n"$(date) "Download CFE Pkg"
 response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$CFE_FN $CFE_URL)
+sleep 5
 echo "Response Code:'$response_code'"
 if [[ $response_code != 200 ]]; then
     echo "Failed to download application '"$CFE_FN"' with response code '"$response_code"'"
 fi
-sleep 2
 # Copy the RPM Pkg to the file location
 cp ${libs_dir}/*.rpm /var/config/rest/downloads/
 # Install Declarative Onboarding Pkg
