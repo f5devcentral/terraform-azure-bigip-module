@@ -47,38 +47,44 @@ ts_api="https://api.github.com/repos/F5Networks/f5-telemetry-streaming/releases/
 fast_api="https://api.github.com/repos/F5Networks/f5-appsvcs-templates/releases/latest"
 cfe_api="https://api.github.com/repos/F5Networks/f5-cloud-failover-extension/releases/latest"
 
+sleep 2
 
 if [[ $AS3_URL == "" ]]; then
     echo "Getting Default AS3_URL"    
-    AS3_URL=$(curl -sLk $as3_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    #AS3_URL=$(curl -sLk $as3_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    AS3_URL=`curl -sLk $as3_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
     sleep 2
 fi
 echo "AS3_URL=$AS3_URL"
 
 if [[ $DO_URL == "" ]]; then
     echo "Getting Default DO_URL"    
-    DO_URL=$(curl -sLk $do_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    #DO_URL=$(curl -sLk $do_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    DO_URL=`curl -sLk $do_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
     sleep 2
 fi
 echo "DO_URL=$DO_URL"
 
 if [[ $TS_URL == "" ]]; then
     echo "Getting Default TS_URL"    
-    TS_URL=$(curl -sLk $ts_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    #TS_URL=$(curl -sLk $ts_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    TS_URL=`curl -sLk $ts_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
     sleep 2
 fi
 echo "TS_URL=$TS_URL"
 
 if [[ $FAST_URL == "" ]]; then
     echo "Getting Default FAST_URL"    
-    FAST_URL=$(curl -sLk $fast_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    #FAST_URL=$(curl -sLk $fast_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    FAST_URL=`curl -sLk $fast_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
     sleep 2
 fi
 echo "FAST_URL=$FAST_URL"
 
 if [[ $CFE_URL == "" ]]; then
     echo "Getting Default CFE_URL"    
-    CFE_URL=$(curl -sLk $cfe_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    #CFE_URL=$(curl -sLk $cfe_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
+    CFE_URL=`curl -sLk $cfe_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
     sleep 3
 fi
 echo "CFE_URL=$CFE_URL"
