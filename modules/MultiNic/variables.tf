@@ -1,3 +1,19 @@
+variable dnsLabel {
+  description = "Prefix for resources created by this module"
+  type        = string
+  //default = "ecosysf5hyd"
+}
+
+variable f5_username {
+  description = "The admin username of the F5 Bigip that will be deployed"
+  default     = "raviadmin"
+}
+
+variable ADMIN_PASSWD {
+  type    = string
+  default = "F5hydsite@2020"
+}
+
 variable resource_group_name {
   description = "The name of the resource group in which the resources will be created"
   type        = string
@@ -11,11 +27,6 @@ variable vnet_subnet_security_group_ids {
   description = "The Network Security Group id of the virtual network "
   type        = list(string)
   default     = []
-}
-
-variable f5_username {
-  description = "The admin username of the F5 Bigip that will be deployed"
-  default     = "azureuser"
 }
 
 variable AllowedIPs {
@@ -70,11 +81,6 @@ variable f5_ssh_publickey {
   default     = "~/.ssh/id_rsa.pub"
 }
 
-variable dnsLabel {
-  type = string
-  //default = "ecosysf5hyd"
-}
-
 variable nb_nics {
   description = "Specify the number of nic interfaces"
   //default     = "3"
@@ -82,11 +88,6 @@ variable nb_nics {
 variable nb_public_ip {
   description = "Number of public IPs to assign corresponding to one IP per vm. Set to 0 to not assign any public IP addresses."
   //default     = "1"
-}
-
-variable ADMIN_PASSWD {
-  type    = string
-  default = "RaviAzure@2020"
 }
 
 variable script_name {
