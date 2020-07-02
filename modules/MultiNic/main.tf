@@ -8,11 +8,11 @@ data "template_file" "init_file" {
   vars = {
     onboard_log = var.onboard_log
     libs_dir    = var.libs_dir
-    DO_URL      = var.DO_URL
-    AS3_URL     = var.AS3_URL
-    TS_URL      = var.TS_URL
-    FAST_URL    = var.FAST_URL
-    CFE_URL     = var.CFE_URL
+    DO_URL      = var.doPackageUrl
+    AS3_URL     = var.as3PackageUrl
+    TS_URL      = var.tsPackageUrl
+    FAST_URL    = var.fastPackageUrl
+    CFE_URL     = var.cfePackageUrl
   }
 }
 

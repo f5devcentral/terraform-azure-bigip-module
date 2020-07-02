@@ -97,7 +97,7 @@ variable script_name {
 
 ## Please check and update the latest DO URL from https://github.com/F5Networks/f5-declarative-onboarding/releases
 # always point to a specific version in order to avoid inadvertent configuration inconsistency
-variable DO_URL {
+variable doPackageUrl {
   description = "URL to download the BIG-IP Declarative Onboarding module"
   type        = string
   default     = ""
@@ -105,7 +105,7 @@ variable DO_URL {
 }
 ## Please check and update the latest AS3 URL from https://github.com/F5Networks/f5-appsvcs-extension/releases/latest 
 # always point to a specific version in order to avoid inadvertent configuration inconsistency
-variable AS3_URL {
+variable as3PackageUrl {
   description = "URL to download the BIG-IP Application Service Extension 3 (AS3) module"
   type        = string
   default     = ""
@@ -114,7 +114,7 @@ variable AS3_URL {
 
 ## Please check and update the latest TS URL from https://github.com/F5Networks/f5-telemetry-streaming/releases/latest 
 # always point to a specific version in order to avoid inadvertent configuration inconsistency
-variable TS_URL {
+variable tsPackageUrl {
   description = "URL to download the BIG-IP Telemetry Streaming module"
   type        = string
   default     = ""
@@ -123,7 +123,7 @@ variable TS_URL {
 
 ## Please check and update the latest FAST URL from https://github.com/F5Networks/f5-appsvcs-templates/releases/latest 
 # always point to a specific version in order to avoid inadvertent configuration inconsistency
-variable FAST_URL {
+variable fastPackageUrl {
   description = "URL to download the BIG-IP FAST module"
   type        = string
   default     = ""
@@ -132,7 +132,7 @@ variable FAST_URL {
 
 ## Please check and update the latest Failover Extension URL from https://github.com/F5Networks/f5-cloud-failover-extension/releases/latest 
 # always point to a specific version in order to avoid inadvertent configuration inconsistency
-variable CFE_URL {
+variable cfePackageUrl {
   description = "URL to download the BIG-IP Cloud Failover Extension module"
   type        = string
   default     = ""
