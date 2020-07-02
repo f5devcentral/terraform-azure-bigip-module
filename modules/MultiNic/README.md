@@ -81,23 +81,30 @@ module "network" {
 
 ### Template parameters
 
-| Parameter 	| Required 	| Default 	| Description 	|
-|------------	|----------	|---------	| ------------	|
-| dnsLabel  | Yes 	| ecosysf5hyd 	| This value is inserted in the beginning of each Azure   object. Note: requires alpha-numeric without special character 	|
-| resource_group_name 	| yes 	|   	| The name of the   resource group in which the resources will be created 	|
-| vnet_subnet_id 	| yes 	|   	| The subnet id of the   virtual network where the virtual machines will reside 	|
-| f5_username 	| yes 	| azureuser 	| The admin username of   the F5 Bigip that will be deployed 	|
-| f5_instance_type 	| yes 	| Standard_DS3_v2 	| Specifies the size of   the virtual machine 	|
-| f5_image_name 	| yes 	|   	| F5 SKU (image) to you want to deploy. Note: The disk size of   the VM will be determined based on the option you select. Important: If intending to provision   multiple modules, ensure the appropriate value is selected, such as AllTwoBootLocations or AllOneBootLocation. 	|
-| f5_version 	| yes 	| latest 	| It is set to default to use the latest software. 	|
-| f5_product_name 	| yes 	| f5-big-ip-best 	| Azure BIG-IP VE Offer. 	|
-| storage_account_type 	| yes 	| Standard_LRS 	| Defines the type of   storage account to be created. Valid options are Standard_LRS, Standard_ZRS, Standard_GRS, Standard_RAGRS, Premium_LRS 	|
-| allocation_method 	| yes 	| Dynamic 	| Defines how an IP   address is assigned. Options are Static or Dynamic 	|
-| enable_accelerated_networking 	| no 	| FALSE 	| (Optional) Enable   accelerated networking on Network interface 	|
-| enable_ssh_key 	| no 	| TRUE 	| (Optional) Enable ssh   key authentication in Linux virtual Machine 	|
-| f5_ssh_publickey 	| no 	| ~/.ssh/id_rsa.pub 	| Path to the public   key to be used for ssh access to the VM.    Only used with non-Windows vms and can be left as-is even if using   Windows vms. If specifying a path to a certification on a Windows machine to   provision a linux vm use the / in the path versus backslash. e.g.   c:/home/id_rsa.pub 	|
-| ADMIN_PASSWD 	| yes 	| Default@1234 	| Password for the Virtual Machine. 	|
-| nb_instances 	| no 	| 3                             	| Specify the number of   nic interfaces 	|
+|Parameter 	| Type 	| Required 	| Default 	| Description 	|  	|
+|-	|-	|-	|-	|-	|-	|
+| dnsLabel/prefix 	| string 	| yes 	| ecosysf5hyd 	| This value is inserted in the beginning   of each Azure object. Note: requires alpha-numeric without special character 	|  	|
+| resource_group_name 	| string 	| yes 	|  	| The name of the resource group in which   the resources will be created 	|  	|
+| vnet_subnet_id 	| list 	| yes 	|  	| The subnet id of the virtual network   where the virtual machines will reside 	|  	|
+| vnet_subnet_security_group_ids 	| list 	| yes 	|  	| The Network Security Group id   of the virtual network 	|  	|
+| f5_username 	| string 	| yes 	| azureuser 	| The admin username of the F5 Bigip that   will be deployed 	|  	|
+| f5_instance_type 	| string 	| yes 	| Standard_DS3_v2 	| Specifies the size of the virtual machine 	|  	|
+| f5_image_name 	| string 	| yes 	|  	| F5 SKU (image) to you want to deploy.   Note: The disk size of the VM will be determined based on the option you   select. Important: If intending to provision multiple modules, ensure the   appropriate value is selected, such as AllTwoBootLocations or AllOneBootLocation. 	|  	|
+| f5_version 	| string 	| yes 	| latest 	| It is set to default to use the latest   software. 	|  	|
+| f5_product_name 	| string 	| yes 	| f5-big-ip-best 	| Azure BIG-IP VE Offer. 	|  	|
+| storage_account_type 	| string 	| yes 	| Standard_LRS 	| Defines the type of storage account to be   created. Valid options are Standard_LRS, Standard_ZRS, Standard_GRS,   Standard_RAGRS, Premium_LRS 	|  	|
+| allocation_method 	| string 	| yes 	| Dynamic 	| Defines how an IP address is assigned.   Options are Static or Dynamic 	|  	|
+| enable_accelerated_networking 	| bool 	| no 	| FALSE 	| (Optional) Enable accelerated networking   on Network interface 	|  	|
+| enable_ssh_key 	| bool 	| no 	| TRUE 	| (Optional) Enable ssh key authentication   in Linux virtual Machine 	|  	|
+| f5_ssh_publickey 	| string 	| no 	| ~/.ssh/id_rsa.pub 	| Path to the public key to be used for ssh   access to the VM. Only used with non-Windows vms and can be left as-is even   if using Windows vms. If specifying a path to a certification on a Windows   machine to provision a linux vm use the / in the path versus backslash. e.g.   c:/home/id_rsa.pub 	|  	|
+| ADMIN_PASSWD 	| string 	| yes 	| Default@1234 	| Password for the Virtual Machine. 	|  	|
+| nb_nics 	| int 	| yes 	| 1 	| Specify the number of nic interfaces 	|  	|
+| nb_public_ip 	| int 	| yes 	| 1 	| Number of public IPs to assign   corresponding to one IP per vm. Set to 0 to not assign any public IP   addresses 	|  	|
+| DO_URL 	| string 	| optional 	| latest 	| URL to download the BIG-IP   Declarative Onboarding module 	|  	|
+| AS3_URL 	| string 	| optional 	| latest 	| URL to download the BIG-IP   Application Service Extension 3 (AS3) module 	|  	|
+| TS_URL 	| string 	| optional 	| latest 	| URL to download the BIG-IP   Telemetry Streaming module 	|  	|
+| FAST_URL 	| string 	| optional 	| latest 	| URL to download the BIG-IP FAST   module 	|  	|
+| CFE_URL 	| string 	| optional 	| latest 	| URL to download the BIG-IP   Cloud Failover Extension module 	|  	|
 
 ## Installation Example
 

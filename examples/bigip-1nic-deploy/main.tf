@@ -44,7 +44,7 @@ module "network-security-group" {
   source                = "Azure/network-security-group/azurerm"
   resource_group_name   = azurerm_resource_group.rg.name
   security_group_name   = format("%s-nsg-%s", var.prefix, random_id.id.hex)
-  source_address_prefix = ["10.0.3.0/24"]
+  source_address_prefix = ["10.0.1.0/24"]
   predefined_rules = [
     {
       name              = "LDAP"

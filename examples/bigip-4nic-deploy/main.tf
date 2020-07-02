@@ -23,6 +23,7 @@ resource azurerm_resource_group rg {
 #
 module "bigip" {
   source                         = "../../modules/MultiNic"
+  dnsLabel                       = format("%s-%s", var.prefix, random_id.id.hex)
   resource_group_name            = azurerm_resource_group.rg.name
   vnet_subnet_id                 = module.network.vnet_subnets
   vnet_subnet_security_group_ids = local.vnet_subnet_network_security_group_ids
@@ -61,12 +62,21 @@ module "mgmt-network-security-group" {
   ]
   custom_rules = [
     {
-      name                   = "myhttp"
+      name                   = "Allow_Https_1nic"
       priority               = "200"
       direction              = "Inbound"
       access                 = "Allow"
       protocol               = "tcp"
-      destination_port_range = "8080"
+      destination_port_range = "8443"
+      description            = "description-myhttp-1nic"
+    },
+    {
+      name                   = "Allow_Https"
+      priority               = "300"
+      direction              = "Inbound"
+      access                 = "Allow"
+      protocol               = "tcp"
+      destination_port_range = "443"
       description            = "description-myhttp"
     }
   ]
