@@ -21,14 +21,12 @@ resource azurerm_resource_group rg {
 #
 # Create the 1Nic BIGIP
 #
-module bigip {
-  source                         = "../../"
+module bigip1nic {
+  source                         = "../"
   dnsLabel                       = format("%s-%s", var.prefix, random_id.id.hex)
   resource_group_name            = azurerm_resource_group.rg.name
-  vnet_subnet_id                 = module.network.vnet_subnets
+  vnet_subnet_id                 = [module.network.vnet_subnets[0]]
   vnet_subnet_security_group_ids = [module.network-security-group.network_security_group_id]
-  nb_nics                        = var.nb_nics
-  nb_public_ip                   = var.nb_public_ip
 }
 
 #
@@ -60,7 +58,7 @@ module "network-security-group" {
       direction              = "Inbound"
       access                 = "Allow"
       protocol               = "tcp"
-      destination_port_range = var.nb_nics > 1 ? "443" : "8443"
+      destination_port_range = "8443"
       description            = "description-myhttp"
     },
     {
