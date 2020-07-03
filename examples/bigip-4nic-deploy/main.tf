@@ -22,7 +22,7 @@ resource azurerm_resource_group rg {
 # Create BIGIP with specified no. of Nics
 #
 module "bigip" {
-  source                         = "../../modules/MultiNic"
+  source                         = "../../"
   dnsLabel                       = format("%s-%s", var.prefix, random_id.id.hex)
   resource_group_name            = azurerm_resource_group.rg.name
   vnet_subnet_id                 = module.network.vnet_subnets
