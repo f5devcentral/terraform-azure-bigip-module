@@ -62,21 +62,12 @@ module "mgmt-network-security-group" {
   ]
   custom_rules = [
     {
-      name                   = "Allow_Https_1nic"
+      name                   = "Allow_Https"
       priority               = "200"
       direction              = "Inbound"
       access                 = "Allow"
       protocol               = "tcp"
-      destination_port_range = "8443"
-      description            = "description-myhttp-1nic"
-    },
-    {
-      name                   = "Allow_Https"
-      priority               = "300"
-      direction              = "Inbound"
-      access                 = "Allow"
-      protocol               = "tcp"
-      destination_port_range = "443"
+      destination_port_range = var.nb_nics > 1 ? "443" : "8443"
       description            = "description-myhttp"
     }
   ]

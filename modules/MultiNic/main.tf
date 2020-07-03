@@ -23,7 +23,8 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   location            = data.azurerm_resource_group.bigiprg.location
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   allocation_method   = var.allocation_method
-  domain_name_label   = element(var.public_ip_dns, count.index)
+  //domain_name_label   = element(var.public_ip_dns, count.index)
+  domain_name_label = format("%s-%s", var.dnsLabel, count.index)
 
   tags = {
     Name   = "${var.dnsLabel}-pip-${count.index}"
@@ -32,7 +33,7 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   }
 }
 
-# Create the 1nic interface for BIG-IP 01
+# Deploy BIG-IP with N-Nic interface 
 resource "azurerm_network_interface" "mgmt_nic" {
   count               = var.nb_nics
   name                = "${var.dnsLabel}-nic-${count.index}"
