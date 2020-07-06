@@ -22,9 +22,12 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   name                = "${var.dnsLabel}-pip-${count.index}"
   location            = data.azurerm_resource_group.bigiprg.location
   resource_group_name = data.azurerm_resource_group.bigiprg.name
-  allocation_method   = var.allocation_method
+  //allocation_method   = var.allocation_method
   //domain_name_label   = element(var.public_ip_dns, count.index)
   domain_name_label = format("%s-%s", var.dnsLabel, count.index)
+  allocation_method = "Static"   # Static is required due to the use of the Standard sku
+  sku               = "Standard" # the Standard sku is required due to the use of availability zones
+  zones             = var.availabilityZones
 
   tags = {
     Name   = "${var.dnsLabel}-pip-${count.index}"
@@ -114,6 +117,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
     publisher = "f5-networks"
     product   = var.f5_product_name
   }
+  zones = var.availabilityZones
   tags = {
     owner  = var.dnsLabel
     Name   = "${var.dnsLabel}-f5vm01"

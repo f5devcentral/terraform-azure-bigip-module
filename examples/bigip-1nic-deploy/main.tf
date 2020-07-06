@@ -27,6 +27,7 @@ module bigip {
   resource_group_name            = azurerm_resource_group.rg.name
   vnet_subnet_id                 = module.network.vnet_subnets
   vnet_subnet_security_group_ids = [module.network-security-group.network_security_group_id]
+  availabilityZones              = var.availabilityZones
   nb_nics                        = var.nb_nics
   nb_public_ip                   = var.nb_public_ip
 }
