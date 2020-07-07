@@ -19,22 +19,25 @@ resource azurerm_resource_group rg {
 }
 
 #
-# Create a BIG-IP
+# Create the 1Nic BIGIP
 #
-module bigip2nic {
-  source              = "../../modules/2NIC"
-  dnsLabel            = format("%s-%s", var.prefix, random_id.id.hex)
-  resource_group_name = azurerm_resource_group.rg.name
-  vnet_subnet_id      = module.network.vnet_subnets
-  //vnet_subnet_id      = [module.network.vnet_subnets[0], module.network.vnet_subnets[1]]
+module bigip {
+  source                         = "../../"
+  dnsLabel                       = format("%s-%s", var.prefix, random_id.id.hex)
+  resource_group_name            = azurerm_resource_group.rg.name
+  vnet_subnet_id                 = module.network.vnet_subnets
   vnet_subnet_security_group_ids = local.vnet_subnet_network_security_group_ids
+  availabilityZones              = var.availabilityZones
+  nb_nics                        = var.nb_nics
+  nb_public_ip                   = var.nb_public_ip
 }
 
 #
-# Create the Azure network resources
+# Create the Network Module to associate with BIGIP
 #
 module network {
   source = "Azure/network/azurerm"
+  //name   = format("%s-vnet-%s", var.prefix, random_id.id.hex)
   //version             = "3.1.1"
   resource_group_name = azurerm_resource_group.rg.name
   subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -66,7 +69,7 @@ module "mgmt-network-security-group" {
       direction              = "Inbound"
       access                 = "Allow"
       protocol               = "tcp"
-      destination_port_range = "443"
+      destination_port_range = var.nb_nics > 1 ? "443" : "8443"
       description            = "description-myhttp"
     }
   ]

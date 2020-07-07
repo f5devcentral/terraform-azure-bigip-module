@@ -1,14 +1,19 @@
-output "bigip_public_ip" {
-  value = module.bigip3nic.public_ip_address
+output mgmtPublicIP {
+  value = module.bigip.mgmtPublicIP
 }
 
-output "bigip_public_dns_name" {
-  value = module.bigip3nic.public_ip_dns_name
+output mgmtPublicDNS {
+  value = module.bigip.mgmtPublicDNS
 }
-output "bigip_username" {
-  value = module.bigip3nic.f5_username
+output adminUsername {
+  value = module.bigip.f5_username
 }
 
-output "f5vm_public_name" {
-  value = module.bigip3nic.public_ip_dns_name
+output mgmtPort {
+  value = module.bigip.mgmtPort
+}
+
+output mgmtPublicURL {
+  description = "mgmtPublicURL"
+  value       = format("https://%s:%s", module.bigip.mgmtPublicDNS, module.bigip.mgmtPort)
 }
