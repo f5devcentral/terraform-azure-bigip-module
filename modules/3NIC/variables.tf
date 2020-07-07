@@ -83,7 +83,7 @@ variable f5_ssh_publickey {
 
 variable dnsLabel {
   type    = string
-  default = "ecosysf5hyd"
+  //default = "ecosysf5hyd"
 }
 variable nb_instances {
   description = "Specify the number of nic interfaces"
