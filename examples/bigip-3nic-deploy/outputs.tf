@@ -5,13 +5,9 @@ output mgmtPublicIP {
 output mgmtPublicDNS {
   value = module.bigip.mgmtPublicDNS
 }
-output "bigip_username" {
+output adminUsername {
   value = module.bigip.f5_username
 }
-
-// output "f5vm_public_name" {
-//   value = module.bigip.mgmtPublicDNS
-// }
 
 output mgmtPort {
   value = module.bigip.mgmtPort
