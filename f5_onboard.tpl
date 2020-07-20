@@ -5,6 +5,8 @@
 LOG_FILE='${onboard_log}'
 LIBS_DIR='${libs_dir}'
 
+BIGIP_USERNAME='${bigip_username}'
+BIGIP_PASSWORD='${bigip_password}'
 
 if [ ! -e $LOG_FILE ]
 then
@@ -26,6 +28,10 @@ if [ $? -ne 0 ]; then
   echo "DNS NOT READY, SLEEP 30 SECS"
   sleep 30
 fi
+
+# Adding bigip user and password 
+response_status = $(tmsh create auth user $BIGIP_USERNAME password $BIGIP_PASSWORD partition-access add { all-partitions { role admin } })
+echo "Response Code for setting user and password:$response_status"
 
 # Getting Management Port
 dfl_mgmt_port=`tmsh list sys httpd ssl-port | grep ssl-port | sed 's/ssl-port //;s/ //g'`

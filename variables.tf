@@ -160,3 +160,24 @@ variable availabilityZones {
   type        = list
   default     = []
 }
+
+variable azure_secret_rg {
+  description = "The name of the resource group in which the resources will be created"
+  type        = string
+}
+
+variable az_key_vault_authentication {
+  description = "The name of the resource group in which the resources will be created"
+  type        = bool
+}
+
+variable azure_keyvault_name {
+  description = "The name of the resource group in which the resources will be created"
+  type        = string
+}
+
+variable azure_keyvault_secret_name {
+  description = "The name of the resource group in which the resources will be created"
+  type        = string
+}
+

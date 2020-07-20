@@ -2,17 +2,45 @@ data "azurerm_resource_group" "bigiprg" {
   name = var.resource_group_name
 }
 
+data "azurerm_resource_group" "rg_keyvault" {
+  name  = var.azure_secret_rg
+  count = var.az_key_vault_authentication ? 1 : 0
+}
+
+data "azurerm_key_vault" "keyvault" {
+  count               = var.az_key_vault_authentication ? 1 : 0
+  name                = var.azure_keyvault_name
+  resource_group_name = data.azurerm_resource_group.rg_keyvault[count.index].name
+}
+
+data "azurerm_key_vault_secret" "bigip_admin_password" {
+  count        = var.az_key_vault_authentication ? 1 : 0
+  name         = var.azure_keyvault_secret_name
+  key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
+}
+
+#
+# Create random password for BIG-IP
+#
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = " #%*+,-./:=?@[]^_~"
+}
+
 data "template_file" "init_file" {
 
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
-    onboard_log = var.onboard_log
-    libs_dir    = var.libs_dir
-    DO_URL      = var.doPackageUrl
-    AS3_URL     = var.as3PackageUrl
-    TS_URL      = var.tsPackageUrl
-    FAST_URL    = var.fastPackageUrl
-    CFE_URL     = var.cfePackageUrl
+    onboard_log    = var.onboard_log
+    libs_dir       = var.libs_dir
+    DO_URL         = var.doPackageUrl
+    AS3_URL        = var.as3PackageUrl
+    TS_URL         = var.tsPackageUrl
+    FAST_URL       = var.fastPackageUrl
+    CFE_URL        = var.cfePackageUrl
+    bigip_username = var.f5_username
+    bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_password.password.result
   }
 }
 
@@ -98,7 +126,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
   os_profile {
     computer_name  = "${var.dnsLabel}-f5vm01"
     admin_username = var.f5_username
-    admin_password = var.ADMIN_PASSWD
+    admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_password.password.result
     #custom_data    = data.template_file.f5_bigip_onboard.rendered
   }
   os_profile_linux_config {
