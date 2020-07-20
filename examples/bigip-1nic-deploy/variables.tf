@@ -25,7 +25,7 @@ variable availabilityZones {
 variable az_key_vault_authentication {
   description = "The name of the resource group in which the resources will be created"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable azure_secret_rg {

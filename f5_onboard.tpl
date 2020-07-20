@@ -4,7 +4,6 @@
 ## ----------------------------------------------------------------------------
 LOG_FILE='${onboard_log}'
 LIBS_DIR='${libs_dir}'
-
 BIGIP_USERNAME='${bigip_username}'
 BIGIP_PASSWORD='${bigip_password}'
 
@@ -30,8 +29,16 @@ if [ $? -ne 0 ]; then
 fi
 
 # Adding bigip user and password 
-response_status = $(tmsh create auth user $BIGIP_USERNAME password $BIGIP_PASSWORD partition-access add { all-partitions { role admin } })
-echo "Response Code for setting user and password:$response_status"
+
+user_status=`tmsh list auth user $BIGIP_USERNAME`
+if [[ $user_status != "" ]]; then
+   response_status=`tmsh modify auth user $BIGIP_USERNAME password $BIGIP_PASSWORD`
+   echo "Response Code for setting user and password:$response_status"
+fi
+if [[ $user_status == "" ]]; then
+   response_status=`tmsh create auth user $BIGIP_USERNAME password $BIGIP_PASSWORD partition-access add { all-partitions { role admin } }`
+   echo "Response Code for setting user and password:$response_status"
+fi
 
 # Getting Management Port
 dfl_mgmt_port=`tmsh list sys httpd ssl-port | grep ssl-port | sed 's/ssl-port //;s/ //g'`
