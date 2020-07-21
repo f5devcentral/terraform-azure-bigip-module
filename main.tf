@@ -114,7 +114,7 @@ data "template_file" "clustermemberDO2" {
     vlan-name     = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
     self-ip       = azurerm_network_interface.mgmt_nic[1].private_ip_address
   }
-  depends_on = [azurerm_network_interface.mgmt_nic]
+  //depends_on = [azurerm_network_interface.mgmt_nic]
 }
 
 data "template_file" "clustermemberDO3" {
@@ -130,7 +130,7 @@ data "template_file" "clustermemberDO3" {
     vlan-name2    = "${element(split("/", var.vnet_subnet_id[2]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
     self-ip2      = azurerm_network_interface.mgmt_nic[2].private_ip_address
   }
-  depends_on = [azurerm_network_interface.mgmt_nic]
+  //depends_on = [azurerm_network_interface.mgmt_nic]
 }
 
 # Create F5 BIGIP1

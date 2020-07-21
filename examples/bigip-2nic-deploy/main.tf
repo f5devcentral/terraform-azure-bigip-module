@@ -44,7 +44,7 @@ resource "local_file" "DOjson1" {
 #
 # Create the Network Module to associate with BIGIP
 #
-module network {
+module network {  
   source = "Azure/network/azurerm"
   //name   = format("%s-vnet-%s", var.prefix, random_id.id.hex)
   //version             = "3.1.1"

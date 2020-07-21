@@ -6,12 +6,12 @@ variable dnsLabel {
 
 variable f5_username {
   description = "The admin username of the F5 Bigip that will be deployed"
-  default     = "raviadmin"
+  default     = "bigipuser"
 }
 
 variable ADMIN_PASSWD {
   type    = string
-  default = "F5hydsite@2020"
+  default = "F5bigipsite@2020"
 }
 
 variable resource_group_name {
