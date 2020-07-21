@@ -24,3 +24,7 @@ output bigip_password {
   EOT
   value       = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].name : random_password.password.result
 }
+
+output onboard_do {
+  value = var.nb_nics > 1 ? (var.nb_nics == 2 ? data.template_file.clustermemberDO2[0].rendered : data.template_file.clustermemberDO3[0].rendered) : data.template_file.clustermemberDO1[0].rendered
+}

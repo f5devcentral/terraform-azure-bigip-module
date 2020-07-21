@@ -108,6 +108,27 @@ module bigip {
   nb_public_ip                   = var.nb_public_ip
 }
 
+resource "local_file" "DOjson1" {
+  content  = module.bigip.onboard_do
+  filename = "DO.json"
+  //depends_on = [azurerm_virtual_machine.f5vm01]
+}
+
+// resource "local_file" "DOjson2" {
+//   count      = var.nb_nics == 2 ? 1 : 0
+//   content    = "${data.template_file.clustermemberDO2[0].rendered}"
+//   filename   = "${path.module}/DO.json"
+//   depends_on = [azurerm_virtual_machine.f5vm01]
+// }
+// resource "local_file" "DOjson3" {
+//   count      = var.nb_nics == 3 ? 1 : 0 
+//   content    = "${data.template_file.clustermemberDO3[0].rendered}"
+//   filename   = "${path.module}/DO.json"
+//   depends_on = [azurerm_virtual_machine.f5vm01]
+// }
+
+
+
 #
 # Create the Network Module to associate with BIGIP
 #

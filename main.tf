@@ -212,25 +212,6 @@ resource "azurerm_virtual_machine_extension" "vmext" {
   PROT
 }
 
-resource "local_file" "DOjson1" {
-  count      = var.nb_nics == 1 ? 1 : 0
-  content    = "${data.template_file.clustermemberDO1[0].rendered}"
-  filename   = "${path.module}/DO.json"
-  depends_on = [azurerm_virtual_machine.f5vm01]
-}
-resource "local_file" "DOjson2" {
-  count      = var.nb_nics == 2 ? 1 : 0
-  content    = "${data.template_file.clustermemberDO2[0].rendered}"
-  filename   = "${path.module}/DO.json"
-  depends_on = [azurerm_virtual_machine.f5vm01]
-}
-resource "local_file" "DOjson3" {
-  count      = var.nb_nics == 3 ? 1 : 0
-  content    = "${data.template_file.clustermemberDO3[0].rendered}"
-  filename   = "${path.module}/DO.json"
-  depends_on = [azurerm_virtual_machine.f5vm01]
-}
-
 #Getting Public IP Assigned to BIGIP
 data "azurerm_public_ip" "f5vm01mgmtpip" {
   //count               = var.nb_public_ip
