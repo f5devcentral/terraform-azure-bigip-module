@@ -4,7 +4,8 @@
 ## ----------------------------------------------------------------------------
 LOG_FILE='${onboard_log}'
 LIBS_DIR='${libs_dir}'
-
+BIGIP_USERNAME='${bigip_username}'
+BIGIP_PASSWORD='${bigip_password}'
 
 if [ ! -e $LOG_FILE ]
 then
@@ -25,6 +26,18 @@ nslookup github.com
 if [ $? -ne 0 ]; then
   echo "DNS NOT READY, SLEEP 30 SECS"
   sleep 30
+fi
+
+# Adding bigip user and password 
+
+user_status=`tmsh list auth user $BIGIP_USERNAME`
+if [[ $user_status != "" ]]; then
+   response_status=`tmsh modify auth user $BIGIP_USERNAME password $BIGIP_PASSWORD`
+   echo "Response Code for setting user and password:$response_status"
+fi
+if [[ $user_status == "" ]]; then
+   response_status=`tmsh create auth user $BIGIP_USERNAME password $BIGIP_PASSWORD partition-access add { all-partitions { role admin } }`
+   echo "Response Code for setting user and password:$response_status"
 fi
 
 # Getting Management Port

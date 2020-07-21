@@ -2,17 +2,45 @@ data "azurerm_resource_group" "bigiprg" {
   name = var.resource_group_name
 }
 
+data "azurerm_resource_group" "rg_keyvault" {
+  name  = var.azure_secret_rg
+  count = var.az_key_vault_authentication ? 1 : 0
+}
+
+data "azurerm_key_vault" "keyvault" {
+  count               = var.az_key_vault_authentication ? 1 : 0
+  name                = var.azure_keyvault_name
+  resource_group_name = data.azurerm_resource_group.rg_keyvault[count.index].name
+}
+
+data "azurerm_key_vault_secret" "bigip_admin_password" {
+  count        = var.az_key_vault_authentication ? 1 : 0
+  name         = var.azure_keyvault_secret_name
+  key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
+}
+
+#
+# Create random password for BIG-IP
+#
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = " #%*+,-./:=?@[]^_~"
+}
+
 data "template_file" "init_file" {
 
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
-    onboard_log = var.onboard_log
-    libs_dir    = var.libs_dir
-    DO_URL      = var.doPackageUrl
-    AS3_URL     = var.as3PackageUrl
-    TS_URL      = var.tsPackageUrl
-    FAST_URL    = var.fastPackageUrl
-    CFE_URL     = var.cfePackageUrl
+    onboard_log    = var.onboard_log
+    libs_dir       = var.libs_dir
+    DO_URL         = var.doPackageUrl
+    AS3_URL        = var.as3PackageUrl
+    TS_URL         = var.tsPackageUrl
+    FAST_URL       = var.fastPackageUrl
+    CFE_URL        = var.cfePackageUrl
+    bigip_username = "admin"
+    bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_password.password.result
   }
 }
 
@@ -64,6 +92,46 @@ resource "azurerm_network_interface_security_group_association" "nicnsg" {
   network_security_group_id = var.vnet_subnet_security_group_ids[count.index]
 }
 
+data "template_file" "clustermemberDO1" {
+  count    = var.nb_nics == 1 ? 1 : 0
+  template = "${file("${path.module}/onboard_do_1nic.tpl")}"
+  vars = {
+    hostname      = "${var.dnsLabel}-f5vm01"
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+  }
+}
+
+data "template_file" "clustermemberDO2" {
+  count    = var.nb_nics == 2 ? 1 : 0
+  template = file("${path.module}/onboard_do_2nic.tpl")
+  vars = {
+    hostname      = "${var.dnsLabel}-f5vm01"
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    vlan-name     = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
+    self-ip       = azurerm_network_interface.mgmt_nic[1].private_ip_address
+  }
+  depends_on = [azurerm_network_interface.mgmt_nic]
+}
+
+data "template_file" "clustermemberDO3" {
+  count    = var.nb_nics == 3 ? 1 : 0
+  template = file("${path.module}/onboard_do_3nic.tpl")
+  vars = {
+    hostname      = "${var.dnsLabel}-f5vm01"
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    vlan-name1    = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
+    self-ip1      = azurerm_network_interface.mgmt_nic[1].private_ip_address
+    vlan-name2    = "${element(split("/", var.vnet_subnet_id[2]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
+    self-ip2      = azurerm_network_interface.mgmt_nic[2].private_ip_address
+  }
+  depends_on = [azurerm_network_interface.mgmt_nic]
+}
 
 # Create F5 BIGIP1
 resource "azurerm_virtual_machine" "f5vm01" {
@@ -98,7 +166,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
   os_profile {
     computer_name  = "${var.dnsLabel}-f5vm01"
     admin_username = var.f5_username
-    admin_password = var.ADMIN_PASSWD
+    admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_password.password.result
     #custom_data    = data.template_file.f5_bigip_onboard.rendered
   }
   os_profile_linux_config {

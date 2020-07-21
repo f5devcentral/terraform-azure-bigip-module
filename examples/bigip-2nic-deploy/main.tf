@@ -19,7 +19,7 @@ resource azurerm_resource_group rg {
 }
 
 #
-# Create the 1Nic BIGIP
+# Create the 2Nic BIGIP
 #
 module bigip {
   source                         = "../../"
@@ -28,8 +28,17 @@ module bigip {
   vnet_subnet_id                 = module.network.vnet_subnets
   vnet_subnet_security_group_ids = local.vnet_subnet_network_security_group_ids
   availabilityZones              = var.availabilityZones
+  az_key_vault_authentication    = var.az_key_vault_authentication
+  azure_secret_rg                = var.az_key_vault_authentication ? azurerm_resource_group.rgkeyvault.name : ""
+  azure_keyvault_name            = var.az_key_vault_authentication ? azurerm_key_vault.azkv.name : ""
+  azure_keyvault_secret_name     = var.az_key_vault_authentication ? azurerm_key_vault_secret.azkvsec.name : ""
   nb_nics                        = var.nb_nics
   nb_public_ip                   = var.nb_public_ip
+}
+
+resource "local_file" "DOjson1" {
+  content  = module.bigip.onboard_do
+  filename = "DO.json"
 }
 
 #
