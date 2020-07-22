@@ -162,22 +162,25 @@ variable availabilityZones {
 }
 
 variable azure_secret_rg {
-  description = "The name of the resource group in which the resources will be created"
+  description = "The name of the resource group in which the Azure Key Vault exists"
   type        = string
+  default     = ""
 }
 
 variable az_key_vault_authentication {
-  description = "The name of the resource group in which the resources will be created"
+  description = "Whether to use key vault to pass authentication"
   type        = bool
 }
 
 variable azure_keyvault_name {
-  description = "The name of the resource group in which the resources will be created"
+  description = "The name of the Azure Key Vault to use"
   type        = string
+  default     = ""
 }
 
 variable azure_keyvault_secret_name {
-  description = "The name of the resource group in which the resources will be created"
+  description = "The name of the Azure Key Vault secret containing the password"
   type        = string
+  default     = ""
 }
 
