@@ -170,7 +170,6 @@ variable azure_secret_rg {
 variable az_key_vault_authentication {
   description = "Whether to use key vault to pass authentication"
   type        = bool
-  default     = false
 }
 
 variable azure_keyvault_name {
