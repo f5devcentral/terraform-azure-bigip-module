@@ -2,7 +2,7 @@ data "azurerm_client_config" "current" {
 }
 
 resource azurerm_resource_group rgkeyvault {
-  name     = format("%s-%s", var.azure_secret_rg, random_id.id.hex)
+  name     = format("%s-%s", "mykvrg", random_id.id.hex)
   location = var.location
 }
 
@@ -69,4 +69,3 @@ resource azurerm_key_vault_secret azkvsec {
     environment = "Testing"
   }
 }
-
