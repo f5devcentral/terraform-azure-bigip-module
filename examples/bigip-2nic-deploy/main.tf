@@ -44,10 +44,10 @@ resource "local_file" "DOjson1" {
 #
 # Create the Network Module to associate with BIGIP
 #
-module network {  
+module network {
   source = "Azure/network/azurerm"
   //name   = format("%s-vnet-%s", var.prefix, random_id.id.hex)
-  //version             = "3.1.1"
+  version             = "3.1.1"
   resource_group_name = azurerm_resource_group.rg.name
   subnet_prefixes     = ["10.0.1.0/24", "10.0.2.0/24"]
   subnet_names        = ["mgmt-subnet", "external-subnet"]
@@ -61,16 +61,6 @@ module "mgmt-network-security-group" {
   resource_group_name   = azurerm_resource_group.rg.name
   security_group_name   = format("%s-mgmt-nsg-%s", var.prefix, random_id.id.hex)
   source_address_prefix = ["10.0.1.0/24"]
-  predefined_rules = [
-    {
-      name     = "SSH"
-      priority = "500"
-    },
-    {
-      name              = "LDAP"
-      source_port_range = "1024-1026"
-    }
-  ]
   custom_rules = [
     {
       name                   = "myhttp"
@@ -80,6 +70,15 @@ module "mgmt-network-security-group" {
       protocol               = "tcp"
       destination_port_range = var.nb_nics > 1 ? "443" : "8443"
       description            = "description-myhttp"
+    },
+    {
+      name                   = "allow_ssh"
+      priority               = "201"
+      direction              = "Inbound"
+      access                 = "Allow"
+      protocol               = "tcp"
+      destination_port_range = "22"
+      description            = "Allow ssh connections"
     }
   ]
   tags = {
@@ -112,7 +111,6 @@ module "external-network-security-group" {
     costcenter  = "terraform"
   }
 }
-
 locals {
   vnet_subnet_network_security_group_ids = concat([module.mgmt-network-security-group.network_security_group_id, module.external-network-security-group.network_security_group_id])
 }

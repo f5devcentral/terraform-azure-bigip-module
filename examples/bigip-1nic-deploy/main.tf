@@ -73,12 +73,6 @@ module "network-security-group" {
   resource_group_name   = azurerm_resource_group.rg.name
   security_group_name   = format("%s-nsg-%s", var.prefix, random_id.id.hex)
   source_address_prefix = ["10.0.1.0/24"]
-  predefined_rules = [
-    {
-      name              = "LDAP"
-      source_port_range = "1024-1026"
-    }
-  ]
   custom_rules = [
     {
       name                   = "myhttp"

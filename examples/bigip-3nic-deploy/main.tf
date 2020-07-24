@@ -1,4 +1,4 @@
-provider "azurerm" {
+provider azurerm {
   version = "~>2.0"
   features {}
 }
@@ -28,8 +28,17 @@ module "bigip" {
   vnet_subnet_id                 = module.network.vnet_subnets
   vnet_subnet_security_group_ids = local.vnet_subnet_network_security_group_ids
   availabilityZones              = var.availabilityZones
+  az_key_vault_authentication    = var.az_key_vault_authentication
+  azure_secret_rg                = var.az_key_vault_authentication ? azurerm_resource_group.rgkeyvault.name : ""
+  azure_keyvault_name            = var.az_key_vault_authentication ? azurerm_key_vault.azkv.name : ""
+  azure_keyvault_secret_name     = var.az_key_vault_authentication ? azurerm_key_vault_secret.azkvsec.name : ""
   nb_nics                        = var.nb_nics
   nb_public_ip                   = var.nb_public_ip
+}
+
+resource "local_file" "DOjson1" {
+  content  = module.bigip.onboard_do
+  filename = "DO.json"
 }
 
 #
@@ -51,16 +60,6 @@ module "mgmt-network-security-group" {
   resource_group_name   = azurerm_resource_group.rg.name
   security_group_name   = format("%s-mgmt-nsg-%s", var.prefix, random_id.id.hex)
   source_address_prefix = ["10.0.1.0/24"]
-  predefined_rules = [
-    {
-      name     = "SSH"
-      priority = "500"
-    },
-    {
-      name              = "LDAP"
-      source_port_range = "1024-1026"
-    }
-  ]
   custom_rules = [
     {
       name                   = "Allow_Https"
@@ -70,6 +69,15 @@ module "mgmt-network-security-group" {
       protocol               = "tcp"
       destination_port_range = var.nb_nics > 1 ? "443" : "8443"
       description            = "description-myhttp"
+    },
+    {
+      name                   = "allow_ssh"
+      priority               = "201"
+      direction              = "Inbound"
+      access                 = "Allow"
+      protocol               = "tcp"
+      destination_port_range = "22"
+      description            = "Allow ssh connections"
     }
   ]
   tags = {
@@ -95,6 +103,15 @@ module "external-network-security-group" {
       protocol               = "tcp"
       destination_port_range = "8080"
       description            = "description-myhttp"
+    },
+    {
+      name                   = "allow_ssh"
+      priority               = "201"
+      direction              = "Inbound"
+      access                 = "Allow"
+      protocol               = "tcp"
+      destination_port_range = "22"
+      description            = "Allow ssh connections"
     }
   ]
   tags = {

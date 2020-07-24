@@ -39,7 +39,7 @@ data "template_file" "init_file" {
     TS_URL         = var.tsPackageUrl
     FAST_URL       = var.fastPackageUrl
     CFE_URL        = var.cfePackageUrl
-    bigip_username = "admin"
+    bigip_username = var.f5_username
     bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_password.password.result
   }
 }

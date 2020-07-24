@@ -1,6 +1,6 @@
 # BIG-IP Environment
-location                    = "southindia"
-az_key_vault_authentication = true
+location                    = "eastus"
+az_key_vault_authentication = false
 
 # Prefix for objects being created
 prefix = "terraform-azure-bigip"
