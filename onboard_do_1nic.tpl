@@ -5,8 +5,8 @@
 "label": "Onboard BIG-IP",
 "Common": {
 "class": "Tenant",
-"hostname": "${hostname}",
-}
+"hostname": "${hostname}"
+},
 "myDns": {
 "class": "DNS",
 "nameServers": [

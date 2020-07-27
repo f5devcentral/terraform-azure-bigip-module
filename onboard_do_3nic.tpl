@@ -6,7 +6,7 @@
     "Common": {
         "class": "Tenant",
         "hostname": "${hostname}",
-    }
+    },
      "myDns": {
         "class": "DNS",
         "nameServers": [
