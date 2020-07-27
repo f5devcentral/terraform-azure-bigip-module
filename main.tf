@@ -92,47 +92,6 @@ resource "azurerm_network_interface_security_group_association" "nicnsg" {
   network_security_group_id = var.vnet_subnet_security_group_ids[count.index]
 }
 
-data "template_file" "clustermemberDO1" {
-  count    = var.nb_nics == 1 ? 1 : 0
-  template = "${file("${path.module}/onboard_do_1nic.tpl")}"
-  vars = {
-    hostname      = "${var.dnsLabel}-f5vm01"
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
-    search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
-  }
-}
-
-data "template_file" "clustermemberDO2" {
-  count    = var.nb_nics == 2 ? 1 : 0
-  template = file("${path.module}/onboard_do_2nic.tpl")
-  vars = {
-    hostname      = "${var.dnsLabel}-f5vm01"
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
-    search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
-    vlan-name     = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
-    self-ip       = azurerm_network_interface.mgmt_nic[1].private_ip_address
-  }
-  //depends_on = [azurerm_network_interface.mgmt_nic]
-}
-
-data "template_file" "clustermemberDO3" {
-  count    = var.nb_nics == 3 ? 1 : 0
-  template = file("${path.module}/onboard_do_3nic.tpl")
-  vars = {
-    hostname      = "${var.dnsLabel}-f5vm01"
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
-    search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
-    vlan-name1    = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
-    self-ip1      = azurerm_network_interface.mgmt_nic[1].private_ip_address
-    vlan-name2    = "${element(split("/", var.vnet_subnet_id[2]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
-    self-ip2      = azurerm_network_interface.mgmt_nic[2].private_ip_address
-  }
-  //depends_on = [azurerm_network_interface.mgmt_nic]
-}
-
 # Create F5 BIGIP1
 resource "azurerm_virtual_machine" "f5vm01" {
   name                         = "${var.dnsLabel}-f5vm01"
@@ -219,3 +178,45 @@ data "azurerm_public_ip" "f5vm01mgmtpip" {
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   depends_on          = [azurerm_virtual_machine.f5vm01,azurerm_virtual_machine_extension.vmext]
 }
+
+data "template_file" "clustermemberDO1" {
+  count    = var.nb_nics == 1 ? 1 : 0
+  template = "${file("${path.module}/onboard_do_1nic.tpl")}"
+  vars = {
+    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+  }
+}
+
+data "template_file" "clustermemberDO2" {
+  count    = var.nb_nics == 2 ? 1 : 0
+  template = file("${path.module}/onboard_do_2nic.tpl")
+  vars = {
+    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    vlan-name     = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
+    self-ip       = azurerm_network_interface.mgmt_nic[1].private_ip_address
+  }
+  //depends_on = [azurerm_network_interface.mgmt_nic]
+}
+
+data "template_file" "clustermemberDO3" {
+  count    = var.nb_nics == 3 ? 1 : 0
+  template = file("${path.module}/onboard_do_3nic.tpl")
+  vars = {
+    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    vlan-name1    = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
+    self-ip1      = azurerm_network_interface.mgmt_nic[1].private_ip_address
+    vlan-name2    = "${element(split("/", var.vnet_subnet_id[2]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
+    self-ip2      = azurerm_network_interface.mgmt_nic[2].private_ip_address
+  }
+  //depends_on = [azurerm_network_interface.mgmt_nic]
+}
+
