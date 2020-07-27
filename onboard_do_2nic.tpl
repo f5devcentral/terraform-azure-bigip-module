@@ -5,8 +5,10 @@
     "label": "Onboard BIG-IP",
     "Common": {
         "class": "Tenant",
-        "hostname": "${hostname}",
-    },
+        "mySystem": {
+                "class": "System",
+                "hostname": "${hostname}"
+            },
     "myDns": {
         "class": "DNS",
         "nameServers": [
@@ -22,9 +24,8 @@
                 ${ntp_servers}
         ],
         "timezone": "UTC"
-    } 
- 
-    "${vlan-name}: {
+    },
+    "${vlan-name}": {
             "class": "VLAN",
     "tag": 4093,
     "mtu": 1500,
@@ -38,9 +39,10 @@
 },
 "${vlan-name}-self": {
     "class": "SelfIp",
-    "address": "${self-ip}",
-    "vlan": "{vlan-name}",
+    "address": "${self-ip}/24",
+    "vlan": "${vlan-name}",
     "allowService": "default",
     "trafficGroup": "traffic-group-local-only"
-}
+ }
+ }
 }
