@@ -176,7 +176,7 @@ data "azurerm_public_ip" "f5vm01mgmtpip" {
   //count               = var.nb_public_ip
   name                = azurerm_public_ip.mgmt_public_ip[0].name
   resource_group_name = data.azurerm_resource_group.bigiprg.name
-  depends_on          = [azurerm_virtual_machine.f5vm01,azurerm_virtual_machine_extension.vmext]
+  depends_on          = [azurerm_virtual_machine.f5vm01, azurerm_virtual_machine_extension.vmext]
 }
 
 data "template_file" "clustermemberDO1" {

@@ -21,20 +21,24 @@ variable availabilityZones {
 variable az_key_vault_authentication {
   description = "Type of Authentication [Keyvault/Random generated password] for BIGIP Authentication,If this az_key_vault_authentication set to true, keyvault authentication will be used"
   type        = bool
+  default     = false
 }
 
 variable azure_secret_rg {
   description = "The name of the resource group for azure keyvault"
   type        = string
+  default     = "mykvrg"
 }
 
 variable azure_keyvault_name {
   description = "The name of the azure keyvault"
   type        = string
+  default     = "mykv"
 }
 
 variable azure_keyvault_secret_name {
   description = "The name of the azure keyvault secret name"
   type        = string
+  default     = "mykvsec"
 }
 

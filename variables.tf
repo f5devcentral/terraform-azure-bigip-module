@@ -101,7 +101,7 @@ variable doPackageUrl {
   description = "URL to download the BIG-IP Declarative Onboarding module"
   type        = string
   //default     = ""
-  default     = "https://github.com/F5Networks/f5-declarative-onboarding/releases/download/v1.13.0/f5-declarative-onboarding-1.13.0-5.noarch.rpm"
+  default = "https://github.com/F5Networks/f5-declarative-onboarding/releases/download/v1.13.0/f5-declarative-onboarding-1.13.0-5.noarch.rpm"
 }
 ## Please check and update the latest AS3 URL from https://github.com/F5Networks/f5-appsvcs-extension/releases/latest 
 # always point to a specific version in order to avoid inadvertent configuration inconsistency
@@ -109,7 +109,7 @@ variable as3PackageUrl {
   description = "URL to download the BIG-IP Application Service Extension 3 (AS3) module"
   type        = string
   //default     = ""
-  default     = "https://github.com/F5Networks/f5-appsvcs-extension/releases/download/v3.20.0/f5-appsvcs-3.20.0-3.noarch.rpm"
+  default = "https://github.com/F5Networks/f5-appsvcs-extension/releases/download/v3.20.0/f5-appsvcs-3.20.0-3.noarch.rpm"
 }
 
 ## Please check and update the latest TS URL from https://github.com/F5Networks/f5-telemetry-streaming/releases/latest 
