@@ -22,14 +22,17 @@ data "azurerm_key_vault_secret" "bigip_admin_password" {
 #
 # Create random password for BIG-IP
 #
-resource "random_password" "password" {
-  length           = 16
-  special          = true
-  override_special = " #%*+,-./:=?@[]^_~"
+
+
+resource random_string password {
+  length      = 16
+  min_upper   = 1
+  min_lower   = 1
+  min_numeric = 1
+  special     = false
 }
 
 data "template_file" "init_file" {
-
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
     onboard_log    = var.onboard_log
@@ -40,57 +43,105 @@ data "template_file" "init_file" {
     FAST_URL       = var.fastPackageUrl
     CFE_URL        = var.cfePackageUrl
     bigip_username = var.f5_username
-    bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_password.password.result
+    bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
   }
 }
 
 # Create a Public IP for bigip
 resource "azurerm_public_ip" "mgmt_public_ip" {
-  count               = var.nb_public_ip
+  count               = length(var.bigip_map["mgmt_subnet_id"])
   name                = "${var.dnsLabel}-pip-${count.index}"
   location            = data.azurerm_resource_group.bigiprg.location
   resource_group_name = data.azurerm_resource_group.bigiprg.name
-  //allocation_method   = var.allocation_method
-  //domain_name_label   = element(var.public_ip_dns, count.index)
-  domain_name_label = format("%s-%s", var.dnsLabel, count.index)
-  allocation_method = "Static"   # Static is required due to the use of the Standard sku
-  sku               = "Standard" # the Standard sku is required due to the use of availability zones
-  zones             = var.availabilityZones
-
+  domain_name_label   = format("%s-%s", var.dnsLabel, count.index)
+  allocation_method   = "Static"   # Static is required due to the use of the Standard sku
+  sku                 = "Standard" # the Standard sku is required due to the use of availability zones
+  zones               = var.availabilityZones
   tags = {
     Name   = "${var.dnsLabel}-pip-${count.index}"
-    owner  = var.dnsLabel
     source = "terraform"
   }
 }
 
 # Deploy BIG-IP with N-Nic interface 
 resource "azurerm_network_interface" "mgmt_nic" {
-  count               = var.nb_nics
-  name                = "${var.dnsLabel}-nic-${count.index}"
+  count               = length(var.bigip_map["mgmt_subnet_id"])
+  name                = "${var.dnsLabel}-mgmt-nic${count.index}"
   location            = data.azurerm_resource_group.bigiprg.location
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   //enable_accelerated_networking = var.enable_accelerated_networking
 
   ip_configuration {
-    name                          = "${var.dnsLabel}-ip-${count.index}"
-    subnet_id                     = var.vnet_subnet_id[count.index]
+    name                          = "${var.dnsLabel}-mgmt-ip-${count.index}"
+    subnet_id                     = var.bigip_map["mgmt_subnet_id"][count.index]
     private_ip_address_allocation = var.allocation_method
-    public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
+    public_ip_address_id          = var.mgmt_publicip ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   tags = {
-    owner  = var.dnsLabel
     Name   = "${var.dnsLabel}-nic-${count.index}"
     source = "terraform"
   }
 }
 
-resource "azurerm_network_interface_security_group_association" "nicnsg" {
-  count                = var.nb_nics
+resource "azurerm_network_interface" "external_nic" {
+  count               = length(var.bigip_map["external_subnet_id"])
+  name                = "${var.dnsLabel}-ext-nic${count.index}"
+  location            = data.azurerm_resource_group.bigiprg.location
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  //enable_accelerated_networking = var.enable_accelerated_networking
+
+  ip_configuration {
+    name                          = "${var.dnsLabel}-ext-ip-${count.index}"
+    subnet_id                     = var.bigip_map["external_subnet_id"][count.index]
+    private_ip_address_allocation = var.allocation_method
+    //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
+  }
+  tags = {
+    Name   = "${var.dnsLabel}-nic-${count.index}"
+    source = "terraform"
+  }
+}
+
+resource "azurerm_network_interface" "internal_nic" {
+  count               = length(var.bigip_map["internal_subnet_id"])
+  name                = "${var.dnsLabel}-int-nic${count.index}"
+  location            = data.azurerm_resource_group.bigiprg.location
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  //enable_accelerated_networking = var.enable_accelerated_networking
+
+  ip_configuration {
+    name                          = "${var.dnsLabel}-int-ip-${count.index}"
+    subnet_id                     = var.bigip_map["internal_subnet_id"][count.index]
+    private_ip_address_allocation = var.allocation_method
+    //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
+  }
+  tags = {
+    Name   = "${var.dnsLabel}-nic-${count.index}"
+    source = "terraform"
+  }
+}
+
+resource "azurerm_network_interface_security_group_association" "mgmt_security" {
+  count                = length(var.bigip_map["mgmt_securitygroup_id"])
   network_interface_id = azurerm_network_interface.mgmt_nic[count.index].id
   //network_security_group_id = azurerm_network_security_group.bigip_sg.id
-  network_security_group_id = var.vnet_subnet_security_group_ids[count.index]
+  network_security_group_id = var.bigip_map["mgmt_securitygroup_id"][count.index]
 }
+
+resource "azurerm_network_interface_security_group_association" "external_security" {
+  count                = length(var.bigip_map["external_securitygroup_id"])
+  network_interface_id = azurerm_network_interface.external_nic[count.index].id
+  //network_security_group_id = azurerm_network_security_group.bigip_sg.id
+  network_security_group_id = var.bigip_map["external_securitygroup_id"][count.index]
+}
+
+resource "azurerm_network_interface_security_group_association" "internal_security" {
+  count                = length(var.bigip_map["internal_securitygroup_id"])
+  network_interface_id = azurerm_network_interface.internal_nic[count.index].id
+  //network_security_group_id = azurerm_network_security_group.bigip_sg.id
+  network_security_group_id = var.bigip_map["internal_securitygroup_id"][count.index]
+}
+
 
 # Create F5 BIGIP1
 resource "azurerm_virtual_machine" "f5vm01" {
@@ -98,7 +149,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
   location                     = data.azurerm_resource_group.bigiprg.location
   resource_group_name          = data.azurerm_resource_group.bigiprg.name
   primary_network_interface_id = element(azurerm_network_interface.mgmt_nic.*.id, 0)
-  network_interface_ids        = azurerm_network_interface.mgmt_nic.*.id
+  network_interface_ids        = concat(azurerm_network_interface.mgmt_nic.*.id, azurerm_network_interface.external_nic.*.id, azurerm_network_interface.internal_nic.*.id)
   vm_size                      = var.f5_instance_type
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
@@ -125,7 +176,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
   os_profile {
     computer_name  = "${var.dnsLabel}-f5vm01"
     admin_username = var.f5_username
-    admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_password.password.result
+    admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
     #custom_data    = data.template_file.f5_bigip_onboard.rendered
   }
   os_profile_linux_config {
@@ -146,12 +197,13 @@ resource "azurerm_virtual_machine" "f5vm01" {
   }
   zones = var.availabilityZones
   tags = {
-    owner  = var.dnsLabel
     Name   = "${var.dnsLabel}-f5vm01"
     source = "terraform"
   }
-  depends_on = [azurerm_network_interface_security_group_association.nicnsg]
+  depends_on = [azurerm_network_interface_security_group_association.mgmt_security, azurerm_network_interface_security_group_association.internal_security, azurerm_network_interface_security_group_association.external_security]
+  //depends_on = [azurerm_network_interface_security_group_association.nicnsg]
 }
+
 
 ## ..:: Run Startup Script ::..
 resource "azurerm_virtual_machine_extension" "vmext" {
@@ -171,52 +223,10 @@ resource "azurerm_virtual_machine_extension" "vmext" {
   PROT
 }
 
-#Getting Public IP Assigned to BIGIP
-data "azurerm_public_ip" "f5vm01mgmtpip" {
-  //count               = var.nb_public_ip
-  name                = azurerm_public_ip.mgmt_public_ip[0].name
-  resource_group_name = data.azurerm_resource_group.bigiprg.name
-  depends_on          = [azurerm_virtual_machine.f5vm01, azurerm_virtual_machine_extension.vmext]
-}
-
-data "template_file" "clustermemberDO1" {
-  count    = var.nb_nics == 1 ? 1 : 0
-  template = "${file("${path.module}/onboard_do_1nic.tpl")}"
-  vars = {
-    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
-    search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
-  }
-}
-
-data "template_file" "clustermemberDO2" {
-  count    = var.nb_nics == 2 ? 1 : 0
-  template = file("${path.module}/onboard_do_2nic.tpl")
-  vars = {
-    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
-    search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
-    vlan-name     = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
-    self-ip       = azurerm_network_interface.mgmt_nic[1].private_ip_address
-  }
-  //depends_on = [azurerm_network_interface.mgmt_nic]
-}
-
-data "template_file" "clustermemberDO3" {
-  count    = var.nb_nics == 3 ? 1 : 0
-  template = file("${path.module}/onboard_do_3nic.tpl")
-  vars = {
-    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
-    search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
-    vlan-name1    = "${element(split("/", var.vnet_subnet_id[1]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
-    self-ip1      = azurerm_network_interface.mgmt_nic[1].private_ip_address
-    vlan-name2    = "${element(split("/", var.vnet_subnet_id[2]), length(split("/", var.vnet_subnet_id[1])) - 1)}"
-    self-ip2      = azurerm_network_interface.mgmt_nic[2].private_ip_address
-  }
-  //depends_on = [azurerm_network_interface.mgmt_nic]
-}
-
+// #Getting Public IP Assigned to BIGIP
+// data "azurerm_public_ip" "f5vm01mgmtpip" {
+//   //count               = var.nb_public_ip
+//   name                = azurerm_public_ip.mgmt_public_ip[0].name
+//   resource_group_name = data.azurerm_resource_group.bigiprg.name
+//   depends_on          = [azurerm_virtual_machine.f5vm01,azurerm_virtual_machine_extension.vmext]
+// }

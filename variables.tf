@@ -81,14 +81,24 @@ variable f5_ssh_publickey {
   default     = "~/.ssh/id_rsa.pub"
 }
 
-variable nb_nics {
-  description = "Specify the number of nic interfaces"
-  //default     = "3"
+variable mgmt_publicip {
+  description = "Public ip assignment to management nics"
+  type = bool
 }
-variable nb_public_ip {
-  description = "Number of public IPs to assign corresponding to one IP per vm. Set to 0 to not assign any public IP addresses."
-  //default     = "1"
+
+variable bigip_map {
+     description = "Map of subnet ids, security group ids for management,external and internal nics for bigip"
+     type = map(object({
+       mgmt_subnet_id = list(string)
+       mgmt_securitygroup_id = list(string)
+       external_subnet_id = list(string)
+       external_securitygroup_id = list(string)
+       internal_subnet_id = list(string)
+       internal_securitygroup_id = list(string)
+    }))
+  }
 }
+
 
 variable script_name {
   type    = string
@@ -158,7 +168,7 @@ variable public_ip_dns {
 variable availabilityZones {
   description = "If you want the VM placed in an Azure Availability Zone, and the Azure region you are deploying to supports it, specify the numbers of the existing Availability Zone you want to use."
   type        = list
-  default     = []
+  default     = [1]
 }
 
 variable azure_secret_rg {
@@ -170,6 +180,7 @@ variable azure_secret_rg {
 variable az_key_vault_authentication {
   description = "Whether to use key vault to pass authentication"
   type        = bool
+  default     = false
 }
 
 variable azure_keyvault_name {
