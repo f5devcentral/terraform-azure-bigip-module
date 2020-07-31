@@ -11,7 +11,6 @@ variable f5_username {
 
 variable ADMIN_PASSWD {
   type    = string
-  default = "F5bigipsite@2020"
 }
 
 variable resource_group_name {
