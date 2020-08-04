@@ -7,7 +7,7 @@ This Terraform module deploys F5 BIGIP in Azure with the following characteristi
 
 We have provided some common deployment examples below.(1-nic,2-nic,3-nic )
 
-
+```
 Example 1-NIC Deployment
 
 module bigip {
@@ -56,10 +56,10 @@ module bigip {
 }
 
 
-
-
-
 ```
+
+
+
 
 ## Template parameters
 
