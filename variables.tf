@@ -17,6 +17,8 @@ variable resource_group_name {
   description = "The name of the resource group in which the resources will be created"
   type        = string
 }
+
+/*
 variable vnet_subnet_id {
   description = "The subnet id of the virtual network where the virtual machines will reside."
   type        = list
@@ -27,6 +29,47 @@ variable vnet_subnet_security_group_ids {
   type        = list(string)
   default     = []
 }
+*/
+
+variable mgmt_subnet_id {
+  description = "The subnet id of the virtual network where the virtual machines will reside."
+  type        = list(object({
+                    subnet_id = string 
+                    public_ip = bool
+     }))       
+}
+
+variable external_subnet_id {
+  description = "The subnet id of the virtual network where the virtual machines will reside."
+  type        = list(object({
+                    subnet_id = string 
+                    public_ip = bool 
+     }))
+}
+
+variable internal_subnet_id {
+  description = "The subnet id of the virtual network where the virtual machines will reside."
+  type        = list(object({
+                    subnet_id = string 
+                    public_ip = bool 
+	 }))     
+}
+
+variable mgmt_securitygroup_id {
+  description = "The Network Security Group ids for management network "
+  type        = list(string)
+}
+
+variable external_securitygroup_id {
+  description = "The Network Security Group ids for external network "
+  type        = list(string)
+}
+
+variable internal_securitygroup_id {
+  description = "The Network Security Group ids for internal network "
+  type        = list(string)
+}
+
 
 variable AllowedIPs {
   type    = list(string)
@@ -80,10 +123,45 @@ variable f5_ssh_publickey {
   default     = "~/.ssh/id_rsa.pub"
 }
 
+/*
 variable mgmt_publicip {
   description = "Public ip assignment to management nics"
   type = bool
 }
+
+
+variable mgmt_subnet_map {
+  description = "List of management subnet map which includes key as subnetid and value as publicip_enable  [ {subnetid1:True},{subnetid2:True},..] "
+  type        = list(map)
+  default = []
+}
+
+variable mgmt_securitygroup_id {
+  description = "List of management subnet ids"
+  type        = list(string)
+  default = []
+}
+variable external_subnet_map {
+  description = "List of external subnet map which includes key as subnetid and value as publicip_enable  [ {subnetid1:True},{subnetid2:True},...] "
+  type        = list(map)
+  default = []
+}
+variable external_securitygroup_id {
+  description = "List of external subnet ids"
+  type        = list(string)
+  default = []
+}
+variable internal_subnet_map {
+  description = "List of internal subnet map which includes key as subnetid and value as publicip_enable  [ {subnetid1:False},{subnetid2:False},...] "
+  type        = list(map)
+  default = []
+}
+variable internal_securitygroup_id {
+  description = "List of internal security  ids"
+  type        = list(string)
+  default = []
+}
+
 
 variable bigip_map {
      description = "Map of subnet ids, security group ids for management,external and internal nics for bigip"
@@ -97,7 +175,7 @@ variable bigip_map {
     }))
   }
 }
-
+*/
 
 variable script_name {
   type    = string
