@@ -11,6 +11,7 @@ variable f5_username {
 
 variable ADMIN_PASSWD {
   type    = string
+  default = "Test123"
 }
 
 variable resource_group_name {
@@ -36,7 +37,7 @@ variable mgmt_subnet_id {
   type        = list(object({
                     subnet_id = string 
                     public_ip = bool
-     }))       
+     }))
 }
 
 variable external_subnet_id {
@@ -45,6 +46,7 @@ variable external_subnet_id {
                     subnet_id = string 
                     public_ip = bool 
      }))
+  default = [{ "subnet_id" = null , "public_ip" = null}]
 }
 
 variable internal_subnet_id {
@@ -53,7 +55,9 @@ variable internal_subnet_id {
                     subnet_id = string 
                     public_ip = bool 
 	 }))     
+  default = [{"subnet_id" = null , "public_ip" = null}]
 }
+
 
 variable mgmt_securitygroup_id {
   description = "The Network Security Group ids for management network "
@@ -63,12 +67,15 @@ variable mgmt_securitygroup_id {
 variable external_securitygroup_id {
   description = "The Network Security Group ids for external network "
   type        = list(string)
+  default  = []
 }
 
 variable internal_securitygroup_id {
   description = "The Network Security Group ids for internal network "
   type        = list(string)
+  default = []
 }
+
 
 
 variable AllowedIPs {

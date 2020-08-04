@@ -189,7 +189,7 @@ resource "azurerm_network_interface" "external_public_nic" {
 }
 
 resource "azurerm_network_interface" "internal_nic" {
-  count               = length(local.bigip_map["internal_subnet_id"])
+  count               = length(local.bigip_map["internal_subnet_id"]) == 1 ? ( local.bigip_map["internal_subnet_id"][0]["subnet_id"] == null ? 0 : 1 ) : length(local.bigip_map["internal_subnet_id"])
   name                = "${var.dnsLabel}-int-nic${count.index}"
   location            = data.azurerm_resource_group.bigiprg.location
   resource_group_name = data.azurerm_resource_group.bigiprg.name

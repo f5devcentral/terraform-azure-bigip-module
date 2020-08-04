@@ -2,97 +2,63 @@
 
 This Terraform module deploys F5 BIGIP in Azure with the following characteristics:
 
-- VM nics attached to a virtual network subnets of your choice (new or existing) via `var.vnet_subnet_id`.
 
-## Exaple Usage
+## Example Usage
 
-This contains the bare minimum options to be configured for the F5 BIGIP to be provisioned.  The entire code block provisions F5 BIGIP VM,
+We have provided some common deployment examples below.(1-nic,2-nic,3-nic )
 
-The F5 BIGIP will use the ssh key found in the default location `~/.ssh/id_rsa.pub`.
 
-```hcl
+Example 1-NIC Deployment
 
-provider azurerm {
-  version = "~>2.0"
-  features {}
-}
-
-#
-# Create a random id
-#
-resource random_id id {
-  byte_length = 2
-}
-
-#
-# Create a resource group
-#
-resource azurerm_resource_group rg {
-  name     = format("%s-rg-%s", var.prefix, random_id.id.hex)
-  location = var.location
-}
-
-#
-# Create the 1Nic BIGIP
-#
 module bigip {
-  source                         = "./"
-  dnsLabel                       = format("%s-%s", var.prefix, random_id.id.hex)
-  resource_group_name            = azurerm_resource_group.rg.name
-  vnet_subnet_id                 = module.network.vnet_subnets
-  vnet_subnet_security_group_ids = [module.network-security-group.network_security_group_id]
-  availabilityZones              = var.availabilityZones
-  nb_nics                        = 1
-  nb_public_ip                   = 1
+ source                      = "../"
+  dnsLabel                    = "bigip-azure-1nic"
+  resource_group_name         = "testbigip"
+  mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
+  availabilityZones           =  var.availabilityZones
+
+
 }
 
-#
-# Create the Network Module to associate with BIGIP
-#
-module network {
-  source              = "Azure/network/azurerm"
-  version             = "3.1.1"
-  resource_group_name = azurerm_resource_group.rg.name
-  subnet_prefixes     = ["10.0.1.0/24"]
-  subnet_names        = ["mgmt-subnet"]
+
+Example 2-NIC Deployment
+
+module bigip {
+  source                      = "../"
+  dnsLabel                    = "bigip-azure-2nic"
+  resource_group_name         = "testbigip"
+  mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
+  external_subnet_id          = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
+  external_securitygroup_id   = ["securitygroup_id_external"]
+  availabilityZones           =  var.availabilityZones
 }
 
-module "network-security-group" {
-  source                = "Azure/network-security-group/azurerm"
-  resource_group_name   = azurerm_resource_group.rg.name
-  security_group_name   = format("%s-nsg-%s", var.prefix, random_id.id.hex)
-  source_address_prefix = ["10.0.1.0/24"]
-  predefined_rules = [
-    {
-      name              = "LDAP"
-      source_port_range = "1024-1026"
-    }
-  ]
-  custom_rules = [
-    {
-      name                   = "myhttp"
-      priority               = "200"
-      direction              = "Inbound"
-      access                 = "Allow"
-      protocol               = "tcp"
-      destination_port_range = var.nb_nics > 1 ? "443" : "8443"
-      description            = "description-myhttp"
-    },
-    {
-      name                   = "allow_ssh"
-      priority               = "201"
-      direction              = "Inbound"
-      access                 = "Allow"
-      protocol               = "tcp"
-      destination_port_range = "22"
-      description            = "Allow ssh connections"
-    }
-  ]
-  tags = {
-    environment = "dev"
-    costcenter  = "terraform"
-  }
+
+
+
+
+Example 3-NIC Deployment
+
+
+module bigip {
+  source                      = "../"
+  dnsLabel                    = "bigip-azure-3nic"
+  resource_group_name         = "testbigip"
+  mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
+  external_subnet_id          = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
+  external_securitygroup_id   = ["securitygroup_id_external"]
+  internal_subnet_id          = [{"subnet_id" =  "subnet_id_internal", "public_ip"=false }]
+  internal_securitygroup_id   = ["securitygropu_id_internal"]
+  availabilityZones           =  var.availabilityZones
 }
+
+
+
+
+
 ```
 
 ## Template parameters
