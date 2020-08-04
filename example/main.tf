@@ -27,9 +27,9 @@ module bigip {
   resource_group_name = azurerm_resource_group.rg.name
   mgmt_subnet_id      = [{"subnet_id" = data.azurerm_subnet.mgmt.id , "public_ip" = true}]
   mgmt_securitygroup_id    = [module.mgmt-network-security-group.network_security_group_id ]
-  external_subnet_id  = [{"subnet_id" =  data.azurerm_subnet.external-public.id, "public_ip" = true },
-			 {"subnet_id" =  data.azurerm_subnet.external-private.id, "public_ip" = false}]
-  external_securitygroup_id = [module.external-network-security-group-public.network_security_group_id, module.external-network-security-group-private.network_security_group_id]
+  external_subnet_id  = [{"subnet_id" =  data.azurerm_subnet.external-public.id, "public_ip" = true }]
+//			 {"subnet_id" =  data.azurerm_subnet.external-private.id, "public_ip" = false}]
+  external_securitygroup_id = [module.external-network-security-group-public.network_security_group_id]
   internal_subnet_id  = [{"subnet_id" =  data.azurerm_subnet.internal.id, "public_ip"=false }]
   internal_securitygroup_id = [module.internal-network-security-group.network_security_group_id]
   availabilityZones   =  var.availabilityZones
