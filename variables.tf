@@ -72,11 +72,11 @@ variable f5_instance_type {
 
 variable f5_image_name {
   type    = string
-  default = "f5-bigip-virtual-edition-25m-best-hourly"
+  default = "f5-bigip-virtual-edition-200m-best-hourly"
 }
 variable f5_version {
   type    = string
-  default = "latest"
+  default = "14.1.206000"
 }
 
 variable f5_product_name {

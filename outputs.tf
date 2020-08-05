@@ -28,7 +28,7 @@ output bigip_password {
 
 /*
 output onboard_do {
-  value      = var.nb_nics > 1 ? (var.nb_nics == 2 ? data.template_file.clustermemberDO2[0].rendered : data.template_file.clustermemberDO3[0].rendered) : data.template_file.clustermemberDO1[0].rendered
+   value      = local.total_nics > 1 ? (local.total_nics == 2 ? data.template_file.clustermemberDO2[0].rendered : data.template_file.clustermemberDO3[0].rendered) : data.template_file.clustermemberDO1[0].rendered
   depends_on = [data.template_file.clustermemberDO1[0].rendered, data.template_file.clustermemberDO2[0].rendered, data.template_file.clustermemberDO3[0].rendered]
 }
 */

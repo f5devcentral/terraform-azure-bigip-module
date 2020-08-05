@@ -30,6 +30,12 @@ module bigip {
   availabilityZones   =  var.availabilityZones
 }
 
+/*
+resource "local_file" "DOjson1" {
+  content  = module.bigip.onboard_do
+  filename = "DO.json"
+}
+*/
 
 #
 # Create the Network Module to associate with BIGIP

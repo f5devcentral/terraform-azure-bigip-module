@@ -8,6 +8,34 @@ locals {
     "internal_securitygroup_id" = var.internal_securitygroup_id
   }
  
+
+  mgmt_public_subnet_id = [ for subnet in local.bigip_map["mgmt_subnet_id"]:
+               subnet["subnet_id"]
+               if subnet["public_ip"] == true ]
+
+ mgmt_public_index = [ for index,subnet in local.bigip_map["mgmt_subnet_id"]:
+               index
+               if subnet["public_ip"] == true ]
+
+   mgmt_public_security_id = [ for i in local.mgmt_public_index: local.bigip_map["mgmt_securitygroup_id"][i] ]
+
+
+  mgmt_private_subnet_id = [ for subnet in local.bigip_map["mgmt_subnet_id"]:
+               subnet["subnet_id"]
+               if subnet["public_ip"] == false ]
+
+ mgmt_private_index = [ for index,subnet in local.bigip_map["mgmt_subnet_id"]:
+               index
+               if subnet["public_ip"] == false ]
+
+   mgmt_private_security_id = [ for i in local.external_private_index: local.bigip_map["mgmt_securitygroup_id"][i] ]
+
+
+
+
+
+
+
   external_public_subnet_id = [ for subnet in local.bigip_map["external_subnet_id"]:
                subnet["subnet_id"]
                if subnet["public_ip"] == true ]
@@ -31,7 +59,7 @@ locals {
 
 
 
-internal_public_subnet_id = [ for subnet in local.bigip_map["internal_subnet_id"]:
+ internal_public_subnet_id = [ for subnet in local.bigip_map["internal_subnet_id"]:
                subnet["subnet_id"]
                if subnet["public_ip"] == true ]
 
@@ -52,9 +80,12 @@ internal_public_subnet_id = [ for subnet in local.bigip_map["internal_subnet_id"
 
    internal_private_security_id = [ for i in local.internal_private_index: local.bigip_map["internal_securitygroup_id"][i] ]
 
+  
+   
+ total_nics = length(concat(local.mgmt_public_subnet_id,local.mgmt_private_subnet_id,local.external_public_subnet_id,local.external_private_subnet_id,local.internal_public_subnet_id,local.internal_private_subnet_id))
 
-
-
+  vlan_list = concat(local.external_public_subnet_id,local.external_private_subnet_id,local.internal_public_subnet_id,local.internal_private_subnet_id)
+  selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address,azurerm_network_interface.external_public_nic.*.private_ip_address,azurerm_network_interface.internal_nic.*.private_ip_address)
 }
 
 
@@ -353,4 +384,67 @@ data "azurerm_public_ip" "f5vm01mgmtpip" {
    depends_on          = [azurerm_virtual_machine.f5vm01,azurerm_virtual_machine_extension.vmext]
  }
 
+
+data "template_file" "clustermemberDO1" {
+  count    = local.total_nics == 1 ? 1 : 0
+  template = "${file("${path.module}/onboard_do_1nic.tpl")}"
+  vars = {
+    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+  }
+}
+
+data "template_file" "clustermemberDO2" {
+  count    = local.total_nics == 2 ? 1 : 0
+  template = file("${path.module}/onboard_do_2nic.tpl")
+  vars = {
+    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    vlan-name     = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
+    self-ip       = local.selfip_list[0]
+  }
+  depends_on = [azurerm_network_interface.external_nic,azurerm_network_interface.external_public_nic,azurerm_network_interface.internal_nic]
+}
+
+data "template_file" "clustermemberDO3" {
+  count    = local.total_nics == 3 ? 1 : 0
+  template = file("${path.module}/onboard_do_3nic.tpl")
+  vars = {
+    hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
+    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    search_domain = "f5.com"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    vlan-name1    = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
+    self-ip1      = local.selfip_list[0]
+    vlan-name2    = "${element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)}"
+    self-ip2      = local.selfip_list[1]
+  }
+  depends_on = [azurerm_network_interface.external_nic,azurerm_network_interface.external_public_nic,azurerm_network_interface.internal_nic]
+}
+
+resource "local_file" "DOjson1" {
+  count = local.total_nics == 1 ? 1 : 0
+  content = "${data.template_file.clustermemberDO1[0].rendered}"
+  filename = "${path.module}/DO.json"
+  depends_on = [azurerm_virtual_machine.f5vm01]
+}
+ 
+ 
+resource "local_file" "DOjson2" {
+  count = local.total_nics == 2 ? 1 : 0
+  content = "${data.template_file.clustermemberDO2[0].rendered}"
+  filename = "${path.module}/DO.json"
+  depends_on = [azurerm_virtual_machine.f5vm01]
+}
+ 
+resource "local_file" "DOjson3" {
+  count = local.total_nics == 3 ? 1 : 0
+  content = "${data.template_file.clustermemberDO3[0].rendered}"
+  filename = "${path.module}/DO.json"
+  depends_on = [azurerm_virtual_machine.f5vm01]
+}
 
