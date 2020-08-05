@@ -30,9 +30,9 @@ module bigip {
 
 These variables must be set in the module block when using this module.
 
-dnsLabel/prefix (string)
+`dnsLabel/prefix` (string)
 
-Description: This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character
+`Description:` This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character
 
 resource_group_name (string)
 
