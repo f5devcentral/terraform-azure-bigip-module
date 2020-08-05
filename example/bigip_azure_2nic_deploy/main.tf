@@ -22,16 +22,13 @@ resource azurerm_resource_group rg {
 #Create N-nic bigip
 #
 module bigip {
-  source              = "../"
+  source              = "../.."
   dnsLabel            = format("%s-%s", var.prefix, random_id.id.hex)
   resource_group_name = azurerm_resource_group.rg.name
   mgmt_subnet_id      = [{"subnet_id" = data.azurerm_subnet.mgmt.id , "public_ip" = true}]
   mgmt_securitygroup_id    = [module.mgmt-network-security-group.network_security_group_id ]
   external_subnet_id  = [{"subnet_id" =  data.azurerm_subnet.external-public.id, "public_ip" = true }]
-//			 {"subnet_id" =  data.azurerm_subnet.external-private.id, "public_ip" = false}]
   external_securitygroup_id = [module.external-network-security-group-public.network_security_group_id]
-  internal_subnet_id  = [{"subnet_id" =  data.azurerm_subnet.internal.id, "public_ip"=false }]
-  internal_securitygroup_id = [module.internal-network-security-group.network_security_group_id]
   availabilityZones   =  var.availabilityZones
 }
 
@@ -46,9 +43,9 @@ module "network" {
   resource_group_name = azurerm_resource_group.rg.name
   //address_space       = concat([local.cidr])
   address_space   = [var.cidr]
-  subnet_prefixes = ["10.2.1.0/24", "10.2.2.0/24", "10.2.3.0/24","10.2.4.0/24"]
+  subnet_prefixes = ["10.2.1.0/24", "10.2.2.0/24"]
   //subnet_prefixes = concat([local.mgmt_cidrs, local.public_cidrs, local.private_cidrs])
-  subnet_names = ["mgmt-subnet", "external-public-subnet", "external-private-subnet", "internal-subnet"]
+  subnet_names = ["mgmt-subnet", "external-public-subnet"]
 
   tags = {
     environment = "dev"
@@ -69,21 +66,6 @@ data "azurerm_subnet" "external-public" {
   resource_group_name  = azurerm_resource_group.rg.name
   depends_on = [module.network]
 }
-
-data "azurerm_subnet" "external-private" {
-  name                 = "external-private-subnet"
-  virtual_network_name = module.network.vnet_name
-  resource_group_name  = azurerm_resource_group.rg.name
-  depends_on = [module.network]
-}
-
-data "azurerm_subnet" "internal" {
-  name                 = "internal-subnet"
-  virtual_network_name = module.network.vnet_name
-  resource_group_name  = azurerm_resource_group.rg.name
-  depends_on = [module.network]
-}
-
 
 
 #
@@ -154,52 +136,8 @@ module "external-network-security-group-public" {
   }
 }
 
-module "external-network-security-group-private" {
-  source                = "Azure/network-security-group/azurerm"
-  resource_group_name   = azurerm_resource_group.rg.name
-  security_group_name   = format("%s-external-private-nsg-%s", var.prefix, random_id.id.hex)
-  source_address_prefix = ["10.0.3.0/24"]
-  custom_rules = [
-    {
-      name                   = "myhttp"
-      priority               = "200"
-      direction              = "Inbound"
-      access                 = "Allow"
-      protocol               = "tcp"
-      destination_port_range = "8080"
-      description            = "description-myhttp"
-    },
-    {
-      name                   = "allow_ssh"
-      priority               = "201"
-      direction              = "Inbound"
-      access                 = "Allow"
-      protocol               = "tcp"
-      destination_port_range = "22"
-      description            = "Allow ssh connections"
-    }
-  ]
-  tags = {
-    environment = "dev"
-    costcenter  = "terraform"
-  }
-}
 
 
-
-#
-# Create the Network Security group Module to associate with BIGIP-Internal-Nic
-#
-module "internal-network-security-group" {
-  source                = "Azure/network-security-group/azurerm"
-  resource_group_name   = azurerm_resource_group.rg.name
-  security_group_name   = format("%s-internal-nsg-%s", var.prefix, random_id.id.hex)
-  source_address_prefix = ["10.0.3.0/24"]
-  tags = {
-    environment = "dev"
-    costcenter  = "terraform"
-  }
-}
 
 
 

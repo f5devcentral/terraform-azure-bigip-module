@@ -30,6 +30,31 @@ locals {
    external_private_security_id = [ for i in local.external_private_index: local.bigip_map["external_securitygroup_id"][i] ]
 
 
+
+internal_public_subnet_id = [ for subnet in local.bigip_map["internal_subnet_id"]:
+               subnet["subnet_id"]
+               if subnet["public_ip"] == true ]
+
+ internal_public_index = [ for index,subnet in local.bigip_map["internal_subnet_id"]:
+               index
+               if subnet["public_ip"] == true ]
+
+   internal_public_security_id = [ for i in local.internal_public_index: local.bigip_map["internal_securitygroup_id"][i] ]
+
+
+  internal_private_subnet_id = [ for subnet in local.bigip_map["internal_subnet_id"]:
+               subnet["subnet_id"]
+               if subnet["public_ip"] == false ]
+
+ internal_private_index = [ for index,subnet in local.bigip_map["internal_subnet_id"]:
+               index
+               if subnet["public_ip"] == false ]
+
+   internal_private_security_id = [ for i in local.internal_private_index: local.bigip_map["internal_securitygroup_id"][i] ]
+
+
+
+
 }
 
 
@@ -38,7 +63,7 @@ data "azurerm_resource_group" "bigiprg" {
   name = var.resource_group_name
 }
 
-/*
+
 data "azurerm_resource_group" "rg_keyvault" {
   name  = var.azure_secret_rg
   count = var.az_key_vault_authentication ? 1 : 0
@@ -56,7 +81,7 @@ data "azurerm_key_vault_secret" "bigip_admin_password" {
   key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
 }
 
-*/
+
 
 #
 # Create random password for BIG-IP
@@ -71,7 +96,7 @@ resource random_string password {
   special     = false
 }
 
-/*
+
 
 data "template_file" "init_file" {
   template = "${file("${path.module}/${var.script_name}.tpl")}"
@@ -88,7 +113,7 @@ data "template_file" "init_file" {
   }
 }
 
-*/
+
 
 
 
@@ -189,7 +214,7 @@ resource "azurerm_network_interface" "external_public_nic" {
 }
 
 resource "azurerm_network_interface" "internal_nic" {
-  count               = length(local.bigip_map["internal_subnet_id"]) == 1 ? ( local.bigip_map["internal_subnet_id"][0]["subnet_id"] == null ? 0 : 1 ) : length(local.bigip_map["internal_subnet_id"])
+  count               = length(local.internal_private_subnet_id)
   name                = "${var.dnsLabel}-int-nic${count.index}"
   location            = data.azurerm_resource_group.bigiprg.location
   resource_group_name = data.azurerm_resource_group.bigiprg.name
@@ -197,7 +222,7 @@ resource "azurerm_network_interface" "internal_nic" {
 
   ip_configuration {
     name                          = "${var.dnsLabel}-int-ip-${count.index}"
-    subnet_id                     = local.bigip_map["internal_subnet_id"][count.index]["subnet_id"]
+    subnet_id                     = local.internal_private_subnet_id[count.index]
     private_ip_address_allocation = var.allocation_method
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
@@ -229,10 +254,10 @@ resource "azurerm_network_interface_security_group_association" "external_public
 }
 
 resource "azurerm_network_interface_security_group_association" "internal_security" {
-  count                = length(local.bigip_map["internal_securitygroup_id"])
+  count                = length(local.internal_private_security_id)
   network_interface_id = azurerm_network_interface.internal_nic[count.index].id
   //network_security_group_id = azurerm_network_security_group.bigip_sg.id
-  network_security_group_id = local.bigip_map["internal_securitygroup_id"][count.index]
+  network_security_group_id = local.internal_private_security_id[count.index]
 }
 
 
@@ -269,8 +294,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
   os_profile {
     computer_name  = "${var.dnsLabel}-f5vm01"
     admin_username = var.f5_username
-    admin_password = var.ADMIN_PASSWD
-    #admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
+    admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
     #custom_data    = data.template_file.f5_bigip_onboard.rendered
   }
   os_profile_linux_config {
@@ -295,11 +319,10 @@ resource "azurerm_virtual_machine" "f5vm01" {
     source = "terraform"
   }
   depends_on = [azurerm_network_interface_security_group_association.mgmt_security, azurerm_network_interface_security_group_association.internal_security, azurerm_network_interface_security_group_association.external_security, azurerm_network_interface_security_group_association.external_public_security]
-  //depends_on = [azurerm_network_interface_security_group_association.nicnsg]
 }
 
 
-/*
+
 
 ## ..:: Run Startup Script ::..
 resource "azurerm_virtual_machine_extension" "vmext" {
@@ -320,14 +343,14 @@ resource "azurerm_virtual_machine_extension" "vmext" {
 }
 
 
-*/
 
-// #Getting Public IP Assigned to BIGIP
-// data "azurerm_public_ip" "f5vm01mgmtpip" {
+
+ #Getting Public IP Assigned to BIGIP
+data "azurerm_public_ip" "f5vm01mgmtpip" {
 //   //count               = var.nb_public_ip
-//   name                = azurerm_public_ip.mgmt_public_ip[0].name
-//   resource_group_name = data.azurerm_resource_group.bigiprg.name
-//   depends_on          = [azurerm_virtual_machine.f5vm01,azurerm_virtual_machine_extension.vmext]
-// }
+   name                = azurerm_public_ip.mgmt_public_ip[0].name
+   resource_group_name = data.azurerm_resource_group.bigiprg.name
+   depends_on          = [azurerm_virtual_machine.f5vm01,azurerm_virtual_machine_extension.vmext]
+ }
 
 
