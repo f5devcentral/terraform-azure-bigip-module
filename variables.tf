@@ -9,30 +9,11 @@ variable f5_username {
   default     = "bigipuser"
 }
 
-/*
-variable ADMIN_PASSWD {
-  type    = string
-  default = "Test123"
-}
-*/
 
 variable resource_group_name {
   description = "The name of the resource group in which the resources will be created"
   type        = string
 }
-
-/*
-variable vnet_subnet_id {
-  description = "The subnet id of the virtual network where the virtual machines will reside."
-  type        = list
-  default     = []
-}
-variable vnet_subnet_security_group_ids {
-  description = "The Network Security Group id of the virtual network "
-  type        = list(string)
-  default     = []
-}
-*/
 
 variable mgmt_subnet_id {
   description = "The subnet id of the virtual network where the virtual machines will reside."
@@ -77,8 +58,6 @@ variable internal_securitygroup_id {
   type        = list(string)
   default = []
 }
-
-
 
 variable AllowedIPs {
   type    = list(string)
@@ -132,60 +111,6 @@ variable f5_ssh_publickey {
   default     = "~/.ssh/id_rsa.pub"
 }
 
-/*
-variable mgmt_publicip {
-  description = "Public ip assignment to management nics"
-  type = bool
-}
-
-
-variable mgmt_subnet_map {
-  description = "List of management subnet map which includes key as subnetid and value as publicip_enable  [ {subnetid1:True},{subnetid2:True},..] "
-  type        = list(map)
-  default = []
-}
-
-variable mgmt_securitygroup_id {
-  description = "List of management subnet ids"
-  type        = list(string)
-  default = []
-}
-variable external_subnet_map {
-  description = "List of external subnet map which includes key as subnetid and value as publicip_enable  [ {subnetid1:True},{subnetid2:True},...] "
-  type        = list(map)
-  default = []
-}
-variable external_securitygroup_id {
-  description = "List of external subnet ids"
-  type        = list(string)
-  default = []
-}
-variable internal_subnet_map {
-  description = "List of internal subnet map which includes key as subnetid and value as publicip_enable  [ {subnetid1:False},{subnetid2:False},...] "
-  type        = list(map)
-  default = []
-}
-variable internal_securitygroup_id {
-  description = "List of internal security  ids"
-  type        = list(string)
-  default = []
-}
-
-
-variable bigip_map {
-     description = "Map of subnet ids, security group ids for management,external and internal nics for bigip"
-     type = map(object({
-       mgmt_subnet_id = list(string)
-       mgmt_securitygroup_id = list(string)
-       external_subnet_id = list(string)
-       external_securitygroup_id = list(string)
-       internal_subnet_id = list(string)
-       internal_securitygroup_id = list(string)
-    }))
-  }
-}
-*/
-
 variable script_name {
   type    = string
   default = "f5_onboard"
@@ -213,8 +138,8 @@ variable as3PackageUrl {
 variable tsPackageUrl {
   description = "URL to download the BIG-IP Telemetry Streaming module"
   type        = string
-  default     = ""
-  //default     = "https://github.com/F5Networks/f5-telemetry-streaming/releases/download/v1.12.0/f5-telemetry-1.12.0-3.noarch.rpm"
+  //default     = ""
+  default     = "https://github.com/F5Networks/f5-telemetry-streaming/releases/download/v1.12.0/f5-telemetry-1.12.0-3.noarch.rpm"
 }
 
 ## Please check and update the latest FAST URL from https://github.com/F5Networks/f5-appsvcs-templates/releases/latest 
@@ -244,11 +169,6 @@ variable onboard_log {
   description = "Directory on the BIG-IP to store the cloud-init logs"
   default     = "/var/log/startup-script.log"
   type        = string
-}
-
-variable public_ip_dns {
-  description = "Optional globally unique per datacenter region domain name label to apply to each public ip address. e.g. thisvar.varlocation.cloudapp.azure.com where you specify only thisvar here. This is an array of names which will pair up sequentially to the number of public ips defined in var.nb_public_ip. One name or empty string is required for every public ip. If no public ip is desired, then set this to an array with a single empty string."
-  default     = ["ecosysf5hyd", "external", "internal", null]
 }
 
 variable availabilityZones {
