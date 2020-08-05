@@ -34,21 +34,21 @@ These variables must be set in the module block when using this module.
 
 `Description:` This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character
 
-resource_group_name (string)
+`resource_group_name` (string)
 
-Description: The name of the resource group in which the resources will be created
+`Description:` The name of the resource group in which the resources will be created
 
-mgmt_subnet_ids (List of Maps)
+`mgmt_subnet_ids` (List of Maps)
 
-Description: Map with Subnet-id and public_ip as keys for the management subnet
+`Description:` Map with Subnet-id and public_ip as keys for the management subnet
 
-mgmt_securitygroup_ids (List)
+`mgmt_securitygroup_ids` (List)
 
-Description: securitygroup_ids for the management interface
+`Description:` securitygroup_ids for the management interface
 
-availabilityZones (List)
+`availabilityZones` (List)
 
-Description: availabilityZones 
+`Description:` availabilityZones 
 
 
 # Optional Input Variables
@@ -56,100 +56,92 @@ Description: availabilityZones
 These variables have default values and don't have to be set to use this module. You may set these variables to override their default values.
 
 
-f5_username (string)
+`f5_username` (string)
 
-Description: The admin username of the F5   Bigip that will be deployed
+`Description:` The admin username of the F5   Bigip that will be deployed
 
-Default: bigipuser
+`Default:` bigipuser
 
-f5_instance_type (string)
+`f5_instance_type` (string)
 
-Description: Specifies the size of the   virtual machine 
+`Description:` Specifies the size of the   virtual machine 
 
-Default: Standard_DS3_v2 
+`Default:` Standard_DS3_v2 
 
-f5_image_name (string)
+`f5_image_name` (string)
 
-Description: 5 SKU (image) to you want to   deploy. Note: The disk size of the VM will be determined based on the option   you select. Important: If intending to provision multiple modules, ensure the   appropriate value is selected, such as AllTwoBootLocations or AllOneBootLocation.
+`Description:` 5 SKU (image) to you want to   deploy. Note: The disk size of the VM will be determined based on the option   you select. Important: If intending to provision multiple modules, ensure the   appropriate value is selected, such as AllTwoBootLocations or AllOneBootLocation.
 
-Default: 
+`Default:` 
 
-f5_version (string)
+`f5_version` (string)
 
-Description: It is set to default to use the   latest software.
+`Description:` It is set to default to use the   latest software.
 
-Default: latest
+`Default:` latest
 
-f5_product_name (string)
+`f5_product_name` (string)
 
-Description: Azure BIG-IP VE Offer.
+`Description:` Azure BIG-IP VE Offer.
 
-Default: f5-big-ip-best
+`Default:` f5-big-ip-best
 
-storage_account_type (string)
+`storage_account_type` (string)
 
-Description: Defines the type of storage   account to be created. Valid options are Standard_LRS, Standard_ZRS,   Standard_GRS, Standard_RAGRS, Premium_LRS
+`Description:` Defines the type of storage   account to be created. Valid options are Standard_LRS, Standard_ZRS,   Standard_GRS, Standard_RAGRS, Premium_LRS
 
-Default: Standard_LRS
+`Default:` Standard_LRS
 
-allocation_method (string)
+`allocation_method:` (string)
 
-Description: Defines how an IP address is   assigned. Options are Static or Dynamic
+`Description:` Defines how an IP address is   assigned. Options are Static or Dynamic
 
-Default: Dynamic
+`Default:` Dynamic
 
-enable_accelerated_networking (bool)
+`enable_accelerated_networking` (bool)
 
-Description: Enable accelerated   networking on Network interface
+`Description:` Enable accelerated   networking on Network interface
 
-Default: FALSE
+`Default:` FALSE
 
-enable_ssh_key (bool)
+`enable_ssh_key` (bool)
 
-Description: Enable ssh key   authentication in Linux virtual Machine
+`Description:` Enable ssh key   authentication in Linux virtual Machine
 
-Default: TRUE
+`Default:` TRUE
 
-f5_ssh_publickey (string)
+`f5_ssh_publickey` (string)
 
-Description: Path to the public key to be   used for ssh access to the VM. Only used with non-Windows vms and can be left   as-is even if using Windows vms. If specifying a path to a certification on a   Windows machine to provision a linux vm use the / in the path versus backslash.   e.g. c:/home/id_rsa.pub
+`Description:` Path to the public key to be   used for ssh access to the VM. Only used with non-Windows vms and can be left   as-is even if using Windows vms. If specifying a path to a certification on a   Windows machine to provision a linux vm use the / in the path versus backslash.   e.g. c:/home/id_rsa.pub
 
-Default: ~/.ssh/id_rsa.pub
+`Default:` ~/.ssh/id_rsa.pub
 
-doPackageUrl (string)
+`doPackageUrl` (string)
 
-Description: URL to download the BIG-IP   Declarative Onboarding module
+`Description:` URL to download the BIG-IP   Declarative Onboarding module
 
-Default: latest
+`Default:` latest
 
-as3PackageUrl (string)
+`as3PackageUrl` (string)
 
-Description: URL to download the BIG-IP   Application Service Extension 3 (AS3) module
+`Description:` URL to download the BIG-IP   Application Service Extension 3 (AS3) module
 
-Default: latest
+`Default:` latest
 
-tsPackageUrl (string)
+`tsPackageUrl` (string)
 
-Description: URL to download the BIG-IP  Telemetry Streaming module
+`Description:` URL to download the BIG-IP  Telemetry Streaming module
 
-Default: latest
+`Default:` latest
 
-fastPackageUrl (string)
+`fastPackageUrl` (string)
 
-Description: URL to download the BIG-IP FAST   module
+`Description:` URL to download the BIG-IP FAST   module
 
-Default: latest
+`Default:` latest
 
-cfePackageUrl (string)
+`cfePackageUrl` (string)
 
-Description: URL to download the BIG-IP   Cloud Failover Extension module
+`Description:` URL to download the BIG-IP   Cloud Failover Extension module
 
-Default: latest
-
-
-# Configuration Examples
-
-### Example Diagram for 1-nic:
-
-![Configuration Example](./images/azure_example_1nic.png)
-
+`Default:` latest
