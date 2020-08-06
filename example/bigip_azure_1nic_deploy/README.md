@@ -2,31 +2,28 @@
 
 This Terraform module deploys 1-NIC BIGIP in Azure with the following characteristics:
 
-  Bigip 1 Nic as management interface associated with user provided subnet and security-group
+Bigip 1 Nic as management interface associated with user provided subnet and security-group
   
   
 ## Example Usage
-
 Below are the input parameters required for 1 NIC bigip module to deploy in AZURE
+
 
 ```
 Example 1-NIC Deployment
 
 module bigip {
- source                        = "../"
-  dnsLabel                     = "bigip-azure-1nic"
-  resource_group_name          = "testbigip"
-  mgmt_subnet_ids              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
-  mgmt_securitygroup_ids       = ["securitygroup_id_mgmt"]
-  availabilityZones            =  var.availabilityZones
-
-
+  source                = "../../"
+  dnsLabel              = "bigip-azure-1nic"
+  resource_group_nam    = "testbigip"
+  mgmt_subnet_id        = [{"subnet_id" = "subnet_id_mgmt","public_ip" = true}]
+  mgmt_securitygroup_id = ["securitygroup_id_mgmt"]
+  availabilityZones     = var.availabilityZones
 }
-
 
 ```
 
-## Required Input Variables
+#### Required Input Variables
 
 These variables must be set in the module block when using this module.
 
@@ -46,12 +43,11 @@ These variables must be set in the module block when using this module.
 
 `Description:` securitygroup_ids for the management interface
 
-`availabilityZones` (List)
+`availabilityZones` (List) 
 
 `Description:` availabilityZones 
 
-
-# Optional Input Variables
+#### Optional Input Variables
 
 These variables have default values and don't have to be set to use this module. You may set these variables to override their default values.
 

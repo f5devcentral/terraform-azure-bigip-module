@@ -22,12 +22,12 @@ resource azurerm_resource_group rg {
 #Create N-nic bigip
 #
 module bigip {
-  source              = "../../"
-  dnsLabel            = format("%s-%s", var.prefix, random_id.id.hex)
-  resource_group_name = azurerm_resource_group.rg.name
-  mgmt_subnet_id      = [{"subnet_id" = data.azurerm_subnet.mgmt.id , "public_ip" = true}]
-  mgmt_securitygroup_id    = [module.mgmt-network-security-group.network_security_group_id ]
-  availabilityZones   =  var.availabilityZones
+  source                = "../../"
+  dnsLabel              = format("%s-%s", var.prefix, random_id.id.hex)
+  resource_group_name   = azurerm_resource_group.rg.name
+  mgmt_subnet_id        = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true }]
+  mgmt_securitygroup_id = [module.mgmt-network-security-group.network_security_group_id]
+  availabilityZones     = var.availabilityZones
 }
 
 /*
@@ -59,7 +59,7 @@ data "azurerm_subnet" "mgmt" {
   name                 = "mgmt-subnet"
   virtual_network_name = module.network.vnet_name
   resource_group_name  = azurerm_resource_group.rg.name
-  depends_on = [module.network] 
+  depends_on           = [module.network]
 }
 
 #
@@ -77,7 +77,7 @@ module mgmt-network-security-group {
       direction              = "Inbound"
       access                 = "Allow"
       protocol               = "tcp"
-      destination_port_range = "8443" 
+      destination_port_range = "8443"
       description            = "description-myhttp"
     },
     {

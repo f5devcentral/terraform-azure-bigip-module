@@ -22,14 +22,14 @@ resource azurerm_resource_group rg {
 #Create N-nic bigip
 #
 module bigip {
-  source              = "../.."
-  dnsLabel            = format("%s-%s", var.prefix, random_id.id.hex)
-  resource_group_name = azurerm_resource_group.rg.name
-  mgmt_subnet_id      = [{"subnet_id" = data.azurerm_subnet.mgmt.id , "public_ip" = true}]
-  mgmt_securitygroup_id    = [module.mgmt-network-security-group.network_security_group_id ]
-  external_subnet_id  = [{"subnet_id" =  data.azurerm_subnet.external-public.id, "public_ip" = true }]
+  source                    = "../.."
+  dnsLabel                  = format("%s-%s", var.prefix, random_id.id.hex)
+  resource_group_name       = azurerm_resource_group.rg.name
+  mgmt_subnet_id            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true }]
+  mgmt_securitygroup_id     = [module.mgmt-network-security-group.network_security_group_id]
+  external_subnet_id        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true }]
   external_securitygroup_id = [module.external-network-security-group-public.network_security_group_id]
-  availabilityZones   =  var.availabilityZones
+  availabilityZones         = var.availabilityZones
 }
 
 
@@ -57,14 +57,14 @@ data "azurerm_subnet" "mgmt" {
   name                 = "mgmt-subnet"
   virtual_network_name = module.network.vnet_name
   resource_group_name  = azurerm_resource_group.rg.name
-  depends_on = [module.network] 
+  depends_on           = [module.network]
 }
 
 data "azurerm_subnet" "external-public" {
   name                 = "external-public-subnet"
   virtual_network_name = module.network.vnet_name
   resource_group_name  = azurerm_resource_group.rg.name
-  depends_on = [module.network]
+  depends_on           = [module.network]
 }
 
 
@@ -83,7 +83,7 @@ module mgmt-network-security-group {
       direction              = "Inbound"
       access                 = "Allow"
       protocol               = "tcp"
-      destination_port_range = "443" 
+      destination_port_range = "443"
       description            = "description-myhttp"
     },
     {
