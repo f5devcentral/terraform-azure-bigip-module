@@ -7,93 +7,92 @@ locals {
     "internal_subnet_id"        = var.internal_subnet_id
     "internal_securitygroup_id" = var.internal_securitygroup_id
   }
- 
-
-  mgmt_public_subnet_id = [ for subnet in local.bigip_map["mgmt_subnet_id"]:
-               subnet["subnet_id"]
-               if subnet["public_ip"] == true ]
-
- mgmt_public_index = [ for index,subnet in local.bigip_map["mgmt_subnet_id"]:
-               index
-               if subnet["public_ip"] == true ]
-
-   mgmt_public_security_id = [ for i in local.mgmt_public_index: local.bigip_map["mgmt_securitygroup_id"][i] ]
-
-
-  mgmt_private_subnet_id = [ for subnet in local.bigip_map["mgmt_subnet_id"]:
-               subnet["subnet_id"]
-               if subnet["public_ip"] == false ]
-
- mgmt_private_index = [ for index,subnet in local.bigip_map["mgmt_subnet_id"]:
-               index
-               if subnet["public_ip"] == false ]
-
-   mgmt_private_security_id = [ for i in local.external_private_index: local.bigip_map["mgmt_securitygroup_id"][i] ]
-
-
-
-
-
-
-
-  external_public_subnet_id = [ for subnet in local.bigip_map["external_subnet_id"]:
-               subnet["subnet_id"]
-               if subnet["public_ip"] == true ]
-
- external_public_index = [ for index,subnet in local.bigip_map["external_subnet_id"]:
-               index
-               if subnet["public_ip"] == true ]
-
-   external_public_security_id = [ for i in local.external_public_index: local.bigip_map["external_securitygroup_id"][i] ]
-
-
-  external_private_subnet_id = [ for subnet in local.bigip_map["external_subnet_id"]:
-               subnet["subnet_id"]
-               if subnet["public_ip"] == false ]
-
- external_private_index = [ for index,subnet in local.bigip_map["external_subnet_id"]:
-               index
-               if subnet["public_ip"] == false ]
-
-   external_private_security_id = [ for i in local.external_private_index: local.bigip_map["external_securitygroup_id"][i] ]
-
-
-
- internal_public_subnet_id = [ for subnet in local.bigip_map["internal_subnet_id"]:
-               subnet["subnet_id"]
-               if subnet["public_ip"] == true ]
-
- internal_public_index = [ for index,subnet in local.bigip_map["internal_subnet_id"]:
-               index
-               if subnet["public_ip"] == true ]
-
-   internal_public_security_id = [ for i in local.internal_public_index: local.bigip_map["internal_securitygroup_id"][i] ]
-
-
-  internal_private_subnet_id = [ for subnet in local.bigip_map["internal_subnet_id"]:
-               subnet["subnet_id"]
-               if subnet["public_ip"] == false ]
-
- internal_private_index = [ for index,subnet in local.bigip_map["internal_subnet_id"]:
-               index
-               if subnet["public_ip"] == false ]
-
-   internal_private_security_id = [ for i in local.internal_private_index: local.bigip_map["internal_securitygroup_id"][i] ]
-
-  
-   
- total_nics = length(concat(local.mgmt_public_subnet_id,local.mgmt_private_subnet_id,local.external_public_subnet_id,local.external_private_subnet_id,local.internal_public_subnet_id,local.internal_private_subnet_id))
-
-  vlan_list = concat(local.external_public_subnet_id,local.external_private_subnet_id,local.internal_public_subnet_id,local.internal_private_subnet_id)
-  selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address,azurerm_network_interface.external_public_nic.*.private_ip_address,azurerm_network_interface.internal_nic.*.private_ip_address)
+  mgmt_public_subnet_id = [
+    for subnet in local.bigip_map["mgmt_subnet_id"] :
+    subnet["subnet_id"]
+    if subnet["public_ip"] == true
+  ]
+  mgmt_public_index = [
+    for index, subnet in local.bigip_map["mgmt_subnet_id"] :
+    index
+    if subnet["public_ip"] == true
+  ]
+  mgmt_public_security_id = [
+    for i in local.mgmt_public_index : local.bigip_map["mgmt_securitygroup_id"][i]
+  ]
+  mgmt_private_subnet_id = [
+    for subnet in local.bigip_map["mgmt_subnet_id"] :
+    subnet["subnet_id"]
+    if subnet["public_ip"] == false
+  ]
+  mgmt_private_index = [
+    for index, subnet in local.bigip_map["mgmt_subnet_id"] :
+    index
+    if subnet["public_ip"] == false
+  ]
+  mgmt_private_security_id = [
+    for i in local.external_private_index : local.bigip_map["mgmt_securitygroup_id"][i]
+  ]
+  external_public_subnet_id = [
+    for subnet in local.bigip_map["external_subnet_id"] :
+    subnet["subnet_id"]
+    if subnet["public_ip"] == true
+  ]
+  external_public_index = [
+    for index, subnet in local.bigip_map["external_subnet_id"] :
+    index
+    if subnet["public_ip"] == true
+  ]
+  external_public_security_id = [
+    for i in local.external_public_index : local.bigip_map["external_securitygroup_id"][i]
+  ]
+  external_private_subnet_id = [
+    for subnet in local.bigip_map["external_subnet_id"] :
+    subnet["subnet_id"]
+    if subnet["public_ip"] == false
+  ]
+  external_private_index = [
+    for index, subnet in local.bigip_map["external_subnet_id"] :
+    index
+    if subnet["public_ip"] == false
+  ]
+  external_private_security_id = [
+    for i in local.external_private_index : local.bigip_map["external_securitygroup_id"][i]
+  ]
+  internal_public_subnet_id = [
+    for subnet in local.bigip_map["internal_subnet_id"] :
+    subnet["subnet_id"]
+    if subnet["public_ip"] == true
+  ]
+  internal_public_index = [
+    for index, subnet in local.bigip_map["internal_subnet_id"] :
+    index
+    if subnet["public_ip"] == true
+  ]
+  internal_public_security_id = [
+    for i in local.internal_public_index : local.bigip_map["internal_securitygroup_id"][i]
+  ]
+  internal_private_subnet_id = [
+    for subnet in local.bigip_map["internal_subnet_id"] :
+    subnet["subnet_id"]
+    if subnet["public_ip"] == false
+  ]
+  internal_private_index = [
+    for index, subnet in local.bigip_map["internal_subnet_id"] :
+    index
+    if subnet["public_ip"] == false
+  ]
+  internal_private_security_id = [
+    for i in local.internal_private_index : local.bigip_map["internal_securitygroup_id"][i]
+  ]
+  total_nics  = length(concat(local.mgmt_public_subnet_id, local.mgmt_private_subnet_id, local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id))
+  vlan_list   = concat(local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id)
+  selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
 }
-
-
 
 data "azurerm_resource_group" "bigiprg" {
   name = var.resource_group_name
 }
-
 
 data "azurerm_resource_group" "rg_keyvault" {
   name  = var.azure_secret_rg
@@ -112,13 +111,9 @@ data "azurerm_key_vault_secret" "bigip_admin_password" {
   key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
 }
 
-
-
 #
 # Create random password for BIG-IP
 #
-
-
 resource random_string password {
   length      = 16
   min_upper   = 1
@@ -126,8 +121,6 @@ resource random_string password {
   min_numeric = 1
   special     = false
 }
-
-
 
 data "template_file" "init_file" {
   template = "${file("${path.module}/${var.script_name}.tpl")}"
@@ -143,10 +136,6 @@ data "template_file" "init_file" {
     bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
   }
 }
-
-
-
-
 
 # Create a Public IP for bigip
 resource "azurerm_public_ip" "mgmt_public_ip" {
@@ -181,9 +170,6 @@ resource "azurerm_public_ip" "external_public_ip" {
     source = "terraform"
   }
 }
-
-
-
 
 # Deploy BIG-IP with N-Nic interface 
 resource "azurerm_network_interface" "mgmt_nic" {
@@ -234,9 +220,9 @@ resource "azurerm_network_interface" "external_public_nic" {
 
   ip_configuration {
     name                          = "${var.dnsLabel}-ext-public-ip-${count.index}"
-    subnet_id                     =  local.external_public_subnet_id[count.index]
-    private_ip_address_allocation =  var.allocation_method
-    public_ip_address_id        =    azurerm_public_ip.external_public_ip[count.index].id
+    subnet_id                     = local.external_public_subnet_id[count.index]
+    private_ip_address_allocation = var.allocation_method
+    public_ip_address_id          = azurerm_public_ip.external_public_ip[count.index].id
   }
   tags = {
     Name   = "${var.dnsLabel}-ext-public-nic-${count.index}"
@@ -298,7 +284,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
   location                     = data.azurerm_resource_group.bigiprg.location
   resource_group_name          = data.azurerm_resource_group.bigiprg.name
   primary_network_interface_id = element(azurerm_network_interface.mgmt_nic.*.id, 0)
-  network_interface_ids        =  concat( azurerm_network_interface.mgmt_nic.*.id, azurerm_network_interface.external_nic.*.id, azurerm_network_interface.external_public_nic.*.id, azurerm_network_interface.internal_nic.*.id ) 
+  network_interface_ids        = concat(azurerm_network_interface.mgmt_nic.*.id, azurerm_network_interface.external_nic.*.id, azurerm_network_interface.external_public_nic.*.id, azurerm_network_interface.internal_nic.*.id)
   vm_size                      = var.f5_instance_type
 
   # Uncomment this line to delete the OS disk automatically when deleting the VM
@@ -352,9 +338,6 @@ resource "azurerm_virtual_machine" "f5vm01" {
   depends_on = [azurerm_network_interface_security_group_association.mgmt_security, azurerm_network_interface_security_group_association.internal_security, azurerm_network_interface_security_group_association.external_security, azurerm_network_interface_security_group_association.external_public_security]
 }
 
-
-
-
 ## ..:: Run Startup Script ::..
 resource "azurerm_virtual_machine_extension" "vmext" {
 
@@ -373,17 +356,13 @@ resource "azurerm_virtual_machine_extension" "vmext" {
   PROT
 }
 
-
-
-
- #Getting Public IP Assigned to BIGIP
+# Getting Public IP Assigned to BIGIP
 data "azurerm_public_ip" "f5vm01mgmtpip" {
-//   //count               = var.nb_public_ip
-   name                = azurerm_public_ip.mgmt_public_ip[0].name
-   resource_group_name = data.azurerm_resource_group.bigiprg.name
-   depends_on          = [azurerm_virtual_machine.f5vm01,azurerm_virtual_machine_extension.vmext]
- }
-
+  //   //count               = var.nb_public_ip
+  name                = azurerm_public_ip.mgmt_public_ip[0].name
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  depends_on          = [azurerm_virtual_machine.f5vm01, azurerm_virtual_machine_extension.vmext]
+}
 
 data "template_file" "clustermemberDO1" {
   count    = local.total_nics == 1 ? 1 : 0
@@ -407,7 +386,7 @@ data "template_file" "clustermemberDO2" {
     vlan-name     = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
     self-ip       = local.selfip_list[0]
   }
-  depends_on = [azurerm_network_interface.external_nic,azurerm_network_interface.external_public_nic,azurerm_network_interface.internal_nic]
+  depends_on = [azurerm_network_interface.external_nic, azurerm_network_interface.external_public_nic, azurerm_network_interface.internal_nic]
 }
 
 data "template_file" "clustermemberDO3" {
@@ -423,28 +402,27 @@ data "template_file" "clustermemberDO3" {
     vlan-name2    = "${element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)}"
     self-ip2      = local.selfip_list[1]
   }
-  depends_on = [azurerm_network_interface.external_nic,azurerm_network_interface.external_public_nic,azurerm_network_interface.internal_nic]
+  depends_on = [azurerm_network_interface.external_nic, azurerm_network_interface.external_public_nic, azurerm_network_interface.internal_nic]
 }
 
 resource "local_file" "DOjson1" {
-  count = local.total_nics == 1 ? 1 : 0
-  content = "${data.template_file.clustermemberDO1[0].rendered}"
-  filename = "${path.module}/DO.json"
+  count      = local.total_nics == 1 ? 1 : 0
+  content    = "${data.template_file.clustermemberDO1[0].rendered}"
+  filename   = "${path.module}/DO.json"
   depends_on = [azurerm_virtual_machine.f5vm01]
 }
- 
- 
+
 resource "local_file" "DOjson2" {
-  count = local.total_nics == 2 ? 1 : 0
-  content = "${data.template_file.clustermemberDO2[0].rendered}"
-  filename = "${path.module}/DO.json"
+  count      = local.total_nics == 2 ? 1 : 0
+  content    = "${data.template_file.clustermemberDO2[0].rendered}"
+  filename   = "${path.module}/DO.json"
   depends_on = [azurerm_virtual_machine.f5vm01]
 }
- 
+
 resource "local_file" "DOjson3" {
-  count = local.total_nics == 3 ? 1 : 0
-  content = "${data.template_file.clustermemberDO3[0].rendered}"
-  filename = "${path.module}/DO.json"
+  count      = local.total_nics == 3 ? 1 : 0
+  content    = "${data.template_file.clustermemberDO3[0].rendered}"
+  filename   = "${path.module}/DO.json"
   depends_on = [azurerm_virtual_machine.f5vm01]
 }
 

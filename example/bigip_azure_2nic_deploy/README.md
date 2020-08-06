@@ -2,7 +2,7 @@
 
 This Terraform module deploys 2-NIC BIGIP in Azure with the following characteristics:
 
-  Bigip 2 Nic with management and external interface associated with user provided subnet and security-group
+Bigip 2 Nic with management and external interface associated with user provided subnet and security-group
   
   
 ## Example Usage
@@ -10,26 +10,21 @@ This Terraform module deploys 2-NIC BIGIP in Azure with the following characteri
 Below are the input parameters required for 1 NIC bigip module to deploy in AZURE
 
 ```
-Example 2-NIC Deployment
-
+#Example 2-NIC Deployment
 module bigip {
-  source                      = "../"
-  dnsLabel                    = "bigip-azure-2nic"
-  resource_group_name         = "testbigip"
-  mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
-  mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
-  external_subnet_id          = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
-  external_securitygroup_id   = ["securitygroup_id_external"]
-  availabilityZones           =  var.availabilityZones
+  source                    = "../.."
+  dnsLabel                  = "bigip-azure-2nic"
+  resource_group_name       = "testbigip"
+  mgmt_subnet_id            = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_id     = ["securitygroup_id_mgmt"]
+  external_subnet_id        = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
+  external_securitygroup_id = ["securitygroup_id_external"]
+  availabilityZones         = var.availabilityZones
 }
-
-
-}
-
 
 ```
 
-## Required Input Variables
+#### Required Input Variables
 
 These variables must be set in the module block when using this module.
 
@@ -54,7 +49,7 @@ These variables must be set in the module block when using this module.
 `Description:` availabilityZones 
 
 
-# Optional Input Variables
+#### Optional Input Variables
 
 These variables have default values and don't have to be set to use this module. You may set these variables to override their default values.
 
@@ -184,4 +179,6 @@ These variables have default values and don't have to be set to use this module.
 `Description:` The name of the Azure Key Vault secret containing the password
 
 `Default:` ""
+
+#### Output Variables
 
