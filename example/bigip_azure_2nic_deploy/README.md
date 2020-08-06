@@ -1,8 +1,8 @@
 ## Deploys F5 BIGIP Azure Cloud
 
-This Terraform module deploys 1-NIC BIGIP in Azure with the following characteristics:
+This Terraform module deploys 2-NIC BIGIP in Azure with the following characteristics:
 
-  Bigip 1 Nic as management interface associated with user provided subnet and security-group
+  Bigip 2 Nic with management and external interface associated with user provided subnet and security-group
   
   
 ## Example Usage
@@ -10,15 +10,18 @@ This Terraform module deploys 1-NIC BIGIP in Azure with the following characteri
 Below are the input parameters required for 1 NIC bigip module to deploy in AZURE
 
 ```
-Example 1-NIC Deployment
+Example 2-NIC Deployment
 
 module bigip {
- source                        = "../"
-  dnsLabel                     = "bigip-azure-1nic"
-  resource_group_name          = "testbigip"
-  mgmt_subnet_ids              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
-  mgmt_securitygroup_ids       = ["securitygroup_id_mgmt"]
-  availabilityZones            =  var.availabilityZones
+  source                      = "../"
+  dnsLabel                    = "bigip-azure-2nic"
+  resource_group_name         = "testbigip"
+  mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
+  external_subnet_id          = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
+  external_securitygroup_id   = ["securitygroup_id_external"]
+  availabilityZones           =  var.availabilityZones
+}
 
 
 }

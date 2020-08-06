@@ -8,12 +8,12 @@ output mgmtPublicDNS {
   value       = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
 }
 
-/*
+
 output mgmtPort {
   description = "Mgmt Port"
-  value       = var.nb_nics > 1 ? "443" : "8443"
+  value       = local.total_nics > 1 ? "443" : "8443"
 }
-*/
+
 
 output f5_username {
   value = var.f5_username

@@ -41,7 +41,7 @@
       "class": "SelfIp",
       "address": "${self-ip1}/24",
       "vlan": "${vlan-name1}",
-      "allowService": "default",
+      "allowService": "none",
       "trafficGroup": "traffic-group-local-only"
     },
     "${vlan-name2}": {
