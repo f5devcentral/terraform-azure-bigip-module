@@ -1,27 +1,25 @@
 ## Deploys F5 BIGIP Azure Cloud
 
-This Terraform module deploys 3-NIC BIGIP in Azure with the following characteristics:
+This Terraform module deploys 2-NIC BIGIP in Azure with the following characteristics:
 
-Bigip 3 Nic with management, external, internal interfaces associated with user provided subnet and security-group
+Bigip 2 Nic with management and external interface associated with user provided subnet and security-group
   
+A random generated password for login to bigip ( Default value of az_key_vault_authentication is false )
   
 ## Example Usage
 
 Below are the input parameters required for 1 NIC bigip module to deploy in AZURE
 
 ```
-Example 3-NIC Deployment
-
+#Example 2-NIC Deployment
 module bigip {
-  source                    = "../../"
-  dnsLabel                  = "bigip-azure-3nic"
+  source                    = "../.."
+  dnsLabel                  = "bigip-azure-2nic"
   resource_group_name       = "testbigip"
   mgmt_subnet_id            = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
   mgmt_securitygroup_id     = ["securitygroup_id_mgmt"]
   external_subnet_id        = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
   external_securitygroup_id = ["securitygroup_id_external"]
-  internal_subnet_id        = [{"subnet_id" =  "subnet_id_internal", "public_ip"=false }]
-  internal_securitygroup_id = ["securitygropu_id_internal"]
   availabilityZones         = var.availabilityZones
 }
 
@@ -182,4 +180,28 @@ These variables have default values and don't have to be set to use this module.
 `Description:` The name of the Azure Key Vault secret containing the password
 
 `Default:` ""
+
+
+#### Output Variables
+
+`mgmtPublicIP:`
+
+`Description:` The actual ip address allocated for the resource
+
+`mgmtPublicDNS:`
+
+`Description:` fqdn to connect to the first vm provisioned
+
+`mgmtPort:`
+
+`Description:` Mgmt Port
+
+`f5_username:`
+
+`Description:` Bigip username
+
+`bigip_password:`
+
+`Description:` Bigip Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name )
+
 
