@@ -31,11 +31,6 @@ locals {
    mgmt_private_security_id = [ for i in local.external_private_index: local.bigip_map["mgmt_securitygroup_id"][i] ]
 
 
-
-
-
-
-
   external_public_subnet_id = [ for subnet in local.bigip_map["external_subnet_id"]:
                subnet["subnet_id"]
                if subnet["public_ip"] == true ]
@@ -396,6 +391,20 @@ data "template_file" "clustermemberDO1" {
   }
 }
 
+
+resource "null_resource" "clusterDO1" {
+   count    = local.total_nics == 1 ? 1 : 0
+  provisioner "local-exec" {
+    command = "cat > DO_single_nic.json <<EOL\n${data.template_file.clustermemberDO1[0].rendered}\nEOL"
+  }
+  provisioner "local-exec" {
+    when = destroy
+    command = "rm -rf DO_single_nic.json" 
+   }
+ 
+   depends_on = [azurerm_virtual_machine.f5vm01]
+}
+
 data "template_file" "clustermemberDO2" {
   count    = local.total_nics == 2 ? 1 : 0
   template = file("${path.module}/onboard_do_2nic.tpl")
@@ -408,6 +417,20 @@ data "template_file" "clustermemberDO2" {
     self-ip       = local.selfip_list[0]
   }
   depends_on = [azurerm_network_interface.external_nic,azurerm_network_interface.external_public_nic,azurerm_network_interface.internal_nic]
+}
+
+
+resource "null_resource" "clusterDO2" {
+   count    = local.total_nics == 2 ? 1 : 0
+  provisioner "local-exec" {
+    command = "cat > DO_double_nic.json <<EOL\n${data.template_file.clustermemberDO2[0].rendered}\nEOL"
+  }
+  provisioner "local-exec" {
+    when = destroy
+    command = "rm -rf DO_double_nic.json"
+   }
+
+   depends_on = [azurerm_virtual_machine.f5vm01]
 }
 
 data "template_file" "clustermemberDO3" {
@@ -426,12 +449,29 @@ data "template_file" "clustermemberDO3" {
   depends_on = [azurerm_network_interface.external_nic,azurerm_network_interface.external_public_nic,azurerm_network_interface.internal_nic]
 }
 
+resource "null_resource" "clusterDO3" {
+   count    = local.total_nics == 3 ? 1 : 0
+  provisioner "local-exec" {
+    command = "cat > DO_three_nic.json <<EOL\n${data.template_file.clustermemberDO3[0].rendered}\nEOL"
+  }
+  provisioner "local-exec" {
+    when = destroy
+    command = "rm -rf DO_three_nic.json"
+   }
+
+   depends_on = [azurerm_virtual_machine.f5vm01]
+}
+
+
+/*
 resource "local_file" "DOjson1" {
   count = local.total_nics == 1 ? 1 : 0
   content = "${data.template_file.clustermemberDO1[0].rendered}"
   filename = "${path.module}/DO.json"
   depends_on = [azurerm_virtual_machine.f5vm01]
 }
+
+
  
  
 resource "local_file" "DOjson2" {
@@ -447,4 +487,4 @@ resource "local_file" "DOjson3" {
   filename = "${path.module}/DO.json"
   depends_on = [azurerm_virtual_machine.f5vm01]
 }
-
+*/
