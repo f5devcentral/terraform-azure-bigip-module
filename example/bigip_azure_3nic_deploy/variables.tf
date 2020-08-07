@@ -20,7 +20,7 @@ variable availabilityZones {
 }
 
 
-variable AllowedIPs { }
+variable AllowedIPs {}
 
 
 

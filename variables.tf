@@ -17,28 +17,28 @@ variable resource_group_name {
 
 variable mgmt_subnet_id {
   description = "The subnet id of the virtual network where the virtual machines will reside."
-  type        = list(object({
-                    subnet_id = string 
-                    public_ip = bool
-     }))
+  type = list(object({
+    subnet_id = string
+    public_ip = bool
+  }))
 }
 
 variable external_subnet_id {
   description = "The subnet id of the virtual network where the virtual machines will reside."
-  type        = list(object({
-                    subnet_id = string 
-                    public_ip = bool 
-     }))
-  default = [{ "subnet_id" = null , "public_ip" = null}]
+  type = list(object({
+    subnet_id = string
+    public_ip = bool
+  }))
+  default = [{ "subnet_id" = null, "public_ip" = null }]
 }
 
 variable internal_subnet_id {
   description = "The subnet id of the virtual network where the virtual machines will reside."
-  type        = list(object({
-                    subnet_id = string 
-                    public_ip = bool 
-	 }))     
-  default = [{"subnet_id" = null , "public_ip" = null}]
+  type = list(object({
+    subnet_id = string
+    public_ip = bool
+  }))
+  default = [{ "subnet_id" = null, "public_ip" = null }]
 }
 
 
@@ -50,13 +50,13 @@ variable mgmt_securitygroup_id {
 variable external_securitygroup_id {
   description = "The Network Security Group ids for external network "
   type        = list(string)
-  default  = []
+  default     = []
 }
 
 variable internal_securitygroup_id {
   description = "The Network Security Group ids for internal network "
   type        = list(string)
-  default = []
+  default     = []
 }
 
 variable AllowedIPs {
@@ -139,7 +139,7 @@ variable tsPackageUrl {
   description = "URL to download the BIG-IP Telemetry Streaming module"
   type        = string
   //default     = ""
-  default     = "https://github.com/F5Networks/f5-telemetry-streaming/releases/download/v1.12.0/f5-telemetry-1.12.0-3.noarch.rpm"
+  default = "https://github.com/F5Networks/f5-telemetry-streaming/releases/download/v1.12.0/f5-telemetry-1.12.0-3.noarch.rpm"
 }
 
 ## Please check and update the latest FAST URL from https://github.com/F5Networks/f5-appsvcs-templates/releases/latest 
