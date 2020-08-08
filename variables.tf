@@ -180,24 +180,24 @@ variable availabilityZones {
 variable azure_secret_rg {
   description = "The name of the resource group in which the Azure Key Vault exists"
   type        = string
-  default     = "vaultest"
+  default     = ""
 }
 
 variable az_key_vault_authentication {
   description = "Whether to use key vault to pass authentication"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable azure_keyvault_name {
   description = "The name of the Azure Key Vault to use"
   type        = string
-  default     = "samplekeytest"
+  default     = ""
 }
 
 variable azure_keyvault_secret_name {
   description = "The name of the Azure Key Vault secret containing the password"
   type        = string
-  default     = "testkey123"
+  default     = ""
 }
 

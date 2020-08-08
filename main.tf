@@ -7,7 +7,7 @@ locals {
     "internal_subnet_id"        = var.internal_subnet_id
     "internal_securitygroup_id" = var.internal_securitygroup_id
   }
- 
+
   mgmt_public_subnet_id = [
     for subnet in local.bigip_map["mgmt_subnet_id"] :
     subnet["subnet_id"]
@@ -165,7 +165,6 @@ resource "azurerm_public_ip" "external_public_ip" {
   allocation_method = "Static"   # Static is required due to the use of the Standard sku
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
   zones             = var.availabilityZones
-
   tags = {
     Name   = "${var.dnsLabel}-pip-ext-${count.index}"
     source = "terraform"
@@ -376,18 +375,16 @@ data "template_file" "clustermemberDO1" {
   }
 }
 
-
 resource "null_resource" "clusterDO1" {
-   count    = local.total_nics == 1 ? 1 : 0
+  count = local.total_nics == 1 ? 1 : 0
   provisioner "local-exec" {
     command = "cat > DO_single_nic.json <<EOL\n${data.template_file.clustermemberDO1[0].rendered}\nEOL"
   }
   provisioner "local-exec" {
-    when = destroy
-    command = "rm -rf DO_single_nic.json" 
-   }
- 
-   depends_on = [azurerm_virtual_machine.f5vm01]
+    when    = destroy
+    command = "rm -rf DO_single_nic.json"
+  }
+  depends_on = [azurerm_virtual_machine.f5vm01]
 }
 
 data "template_file" "clustermemberDO2" {
@@ -406,16 +403,16 @@ data "template_file" "clustermemberDO2" {
 
 
 resource "null_resource" "clusterDO2" {
-   count    = local.total_nics == 2 ? 1 : 0
+  count = local.total_nics == 2 ? 1 : 0
   provisioner "local-exec" {
     command = "cat > DO_double_nic.json <<EOL\n${data.template_file.clustermemberDO2[0].rendered}\nEOL"
   }
   provisioner "local-exec" {
-    when = destroy
+    when    = destroy
     command = "rm -rf DO_double_nic.json"
-   }
+  }
 
-   depends_on = [azurerm_virtual_machine.f5vm01]
+  depends_on = [azurerm_virtual_machine.f5vm01]
 }
 
 data "template_file" "clustermemberDO3" {
@@ -435,16 +432,15 @@ data "template_file" "clustermemberDO3" {
 }
 
 resource "null_resource" "clusterDO3" {
-   count    = local.total_nics == 3 ? 1 : 0
+  count = local.total_nics == 3 ? 1 : 0
   provisioner "local-exec" {
     command = "cat > DO_three_nic.json <<EOL\n${data.template_file.clustermemberDO3[0].rendered}\nEOL"
   }
   provisioner "local-exec" {
-    when = destroy
+    when    = destroy
     command = "rm -rf DO_three_nic.json"
-   }
-
-   depends_on = [azurerm_virtual_machine.f5vm01]
+  }
+  depends_on = [azurerm_virtual_machine.f5vm01]
 }
 
 
