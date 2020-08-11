@@ -378,11 +378,11 @@ data "template_file" "clustermemberDO1" {
 resource "null_resource" "clusterDO1" {
   count = local.total_nics == 1 ? 1 : 0
   provisioner "local-exec" {
-    command = "cat > DO_single_nic.json <<EOL\n${data.template_file.clustermemberDO1[0].rendered}\nEOL"
+    command = "cat > DO_1nic.json <<EOL\n${data.template_file.clustermemberDO1[0].rendered}\nEOL"
   }
   provisioner "local-exec" {
     when    = destroy
-    command = "rm -rf DO_single_nic.json"
+    command = "rm -rf DO_1nic.json"
   }
   depends_on = [azurerm_virtual_machine.f5vm01]
 }
@@ -405,11 +405,11 @@ data "template_file" "clustermemberDO2" {
 resource "null_resource" "clusterDO2" {
   count = local.total_nics == 2 ? 1 : 0
   provisioner "local-exec" {
-    command = "cat > DO_double_nic.json <<EOL\n${data.template_file.clustermemberDO2[0].rendered}\nEOL"
+    command = "cat > DO_2nic.json <<EOL\n${data.template_file.clustermemberDO2[0].rendered}\nEOL"
   }
   provisioner "local-exec" {
     when    = destroy
-    command = "rm -rf DO_double_nic.json"
+    command = "rm -rf DO_2nic.json"
   }
 
   depends_on = [azurerm_virtual_machine.f5vm01]
@@ -434,15 +434,14 @@ data "template_file" "clustermemberDO3" {
 resource "null_resource" "clusterDO3" {
   count = local.total_nics == 3 ? 1 : 0
   provisioner "local-exec" {
-    command = "cat > DO_three_nic.json <<EOL\n${data.template_file.clustermemberDO3[0].rendered}\nEOL"
+    command = "cat > DO_3nic.json <<EOL\n${data.template_file.clustermemberDO3[0].rendered}\nEOL"
   }
   provisioner "local-exec" {
     when    = destroy
-    command = "rm -rf DO_three_nic.json"
+    command = "rm -rf DO_3nic.json"
   }
   depends_on = [azurerm_virtual_machine.f5vm01]
 }
-
 
 /*
 resource "local_file" "DOjson1" {
