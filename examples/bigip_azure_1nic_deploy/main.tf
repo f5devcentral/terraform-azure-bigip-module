@@ -30,12 +30,6 @@ module bigip {
   availabilityZones     = var.availabilityZones
 }
 
-/*
-resource "local_file" "DOjson1" {
-  content  = module.bigip.onboard_do
-  filename = "DO.json"
-}
-*/
 
 #
 # Create the Network Module to associate with BIGIP
@@ -69,7 +63,6 @@ module mgmt-network-security-group {
   source              = "Azure/network-security-group/azurerm"
   resource_group_name = azurerm_resource_group.rg.name
   security_group_name = format("%s-mgmt-nsg-%s", var.prefix, random_id.id.hex)
-  //source_address_prefix = ["10.2.1.0/24"]
   tags = {
     environment = "dev"
     costcenter  = "terraform"
