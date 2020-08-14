@@ -97,7 +97,10 @@ These variables have default values and don't have to be set to use this module.
 | az\_key\_vault\_authentication | Whether to use key vault to pass authentication | `string` | false |
 | azure\_keyvault\_name | The name of the Azure Key Vault to use | `string` | "" |
 | azure\_keyvault\_secret\_name | The name of the Azure Key Vault secret containing the password | `string` | "" |
-
+| external\_subnet\_id | he subnet id of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null }] |
+| internal\_subnet\_id | The subnet id of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null }] |
+| external\_securitygroup\_id | The Network Security Group ids for external network | `List` | [] |
+| internal\_securitygroup\_id | The Network Security Group ids for internal network | `List` | [] |
 
 #### Output Variables
 | Name | Description |
