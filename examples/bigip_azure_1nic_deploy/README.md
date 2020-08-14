@@ -42,7 +42,7 @@ Next, Run the following commands to create and destroy your configuration
 | mgmtPort | Mgmt Port |
 | f5\_username | BIG-IP username |
 | bigip\_password | BIG-IP Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name ) |
-  
+| mgmtPublicURL | Complete url including DNS and port|  
 
 ```
 NOTE: A local json file will get generated which contains the DO declaration
