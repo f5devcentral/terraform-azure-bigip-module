@@ -60,31 +60,28 @@ module bigip {
 
 #### Required Input Variables
 
-These variables must be set in the module block when using this module.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:-----:|
+| dnsLabel/prefix | This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character | `string` | n/a | yes |
+| resource\_group\_name | The name of the resource group in which the resources will be created | `string` | n/a | yes |
+| mgmt\_subnet\_ids | Map with Subnet-id and public_ip as keys for the management subnet | `List of Maps` | n/a | yes |
+| mgmt\_securitygroup\_ids | securitygroup\_ids for the management interface | `List` | n/a | yes |
+| availabilityZones | availabilityZones | `List` | n/a | yes |
+| f5\_username | The admin username of the F5   BIG-IP that will be deployed | `string` | bigipuser | no |
+| f5\_instance\_type | Specifies the size of the virtual machine | `string` | Standard\_DS3\_v2| no |
+| f5\_image\_name | 5 SKU (image) to you want to deploy. Note: The disk size of the VM will be determined based on the option you select. Important: If intending to provision multiple modules, ensure the appropriate value is selected, such as AllTwoBootLocations or AllOneBootLocation | `string` | | no |
+| f5\_version | It is set to default to use the latest software | `string` | latest | no |
+| f5\_product\_name | Azure BIG-IP VE Offer | `string` | f5-big-ip-best | no |
+| storage\_account\_type | Defines the type of storage account to be created. Valid options are Standard\_LRS, Standard\_ZRS, Standard\_GRS, Standard\_RAGRS, Premium\_LRS | `string` | Standard\_LRS | no |
+| allocation\_method | Defines how an IP address is assigned. Options are Static or Dynamic | `string` | Dynamic | no |
+| enable\_accelerated\_networking | Enable accelerated networking on Network interface | `bool` | FALSE | no |
+| enable\_ssh\_key | Enable ssh key authentication in Linux virtual Machine | `bool` | TRUE | no |
+| f5\_ssh\_publickey | Path to the public key to be used for ssh access to the VM. Only used with non-Windows vms and can be left as-is even if using Windows vms. If specifying a path to a certification on a Windows machine to provision a linux vm use the / in the path versus backslash. e.g. c:/home/id\_rsa.pub | `string` | ~/.ssh/id\_rsa.pub | no |
+| doPackageUrl | URL to download the BIG-IP Declarative Onboarding module | `string` | latest | no |
+| as3PackageUrl | URL to download the BIG-IP Application Service Extension 3 (AS3) module | `string` | latest | no |
+| tsPackageUrl | URL to download the BIG-IP Telemetry Streaming module | `string` | latest | no |
+| fastPackageUrl | URL to download the BIG-IP FAST module | `string` | latest | no |
 
-`dnsLabel/prefix` (string)
-
-`Description:` This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character
-
-`resource_group_name` (string)
-
-`Description:` The name of the resource group in which the resources will be created
-
-`mgmt_subnet_ids` (List of Maps)
-
-`Description:` Map with Subnet-id and public_ip as keys for the management subnet
-
-`mgmt_securitygroup_ids` (List)
-
-`Description:` securitygroup_ids for the management interface
-
-`availabilityZones` (List)
-
-`Description:` availabilityZones
-
-#### Optional Input Variables
-
-These variables have default values and don't have to be set to use this module. You may set these variables to override their default values.
 
 
 `f5_username` (string)
@@ -223,29 +220,7 @@ These variables have default values and don't have to be set to use this module.
 | f5\_username | BIG-IP username |
 | bigip\_password | BIG-IP Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name ) |
 
-`mgmtPublicIP:`
-
-`Description:` The actual ip address allocated for the resource
-
-`mgmtPublicDNS:`
-
-`Description:` fqdn to connect to the first vm provisioned
-
-`mgmtPort:`
-
-`Description:` Mgmt Port
-
-`f5_username:`
-
-`Description:` BIG-IP username
-
-`bigip_password:`
-
-`Description:` BIG-IP Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name )
-
 
 ```
-
 NOTE: A local json file will get generated which contains the DO declaration
-
 ```
