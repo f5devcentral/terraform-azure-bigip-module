@@ -34,13 +34,6 @@ module bigip {
   availabilityZones         = var.availabilityZones
 }
 
-/*
-resource "local_file" "DOjson1" {
-  content  = module.bigip.onboard_do
-  filename = "DO.json"
-  depends_on = [ module.bigip ]
-}
-*/
 
 #
 # Create the Network Module to associate with BIGIP
@@ -50,10 +43,8 @@ module "network" {
   source              = "Azure/vnet/azurerm"
   vnet_name           = format("%s-vnet-%s", var.prefix, random_id.id.hex)
   resource_group_name = azurerm_resource_group.rg.name
-  //address_space       = concat([local.cidr])
   address_space   = [var.cidr]
   subnet_prefixes = ["10.2.1.0/24", "10.2.2.0/24", "10.2.3.0/24"]
-  //subnet_prefixes = concat([local.mgmt_cidrs, local.public_cidrs, local.private_cidrs])
   subnet_names = ["mgmt-subnet", "external-public-subnet", "internal-subnet"]
 
   tags = {
