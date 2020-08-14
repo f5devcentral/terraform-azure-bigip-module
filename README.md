@@ -1,6 +1,6 @@
-## Deploys BIGIP in Azure Cloud
+## Deploys BIG-IP in Azure Cloud
 
-This Terraform module deploys N-nic F5 BIGIP in Azure cloud
+This Terraform module deploys N-nic F5 BIG-IP in Azure cloud
 
 
 ## Example Usage
@@ -89,7 +89,7 @@ These variables have default values and don't have to be set to use this module.
 
 `f5_username` (string)
 
-`Description:` The admin username of the F5   Bigip that will be deployed
+`Description:` The admin username of the F5   BIG-IP that will be deployed
 
 `Default:` bigipuser
 
@@ -215,6 +215,13 @@ These variables have default values and don't have to be set to use this module.
 `Default:` ""
 
 #### Output Variables
+| Name | Description |
+|------|-------------|
+| mgmtPublicIP | The actual ip address allocated for the resource |
+| mgmtPublicDNS | fqdn to connect to the first vm provisioned |
+| mgmtPort | Mgmt Port |
+| f5\_username | BIG-IP username |
+| bigip\_password | BIG-IP Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name ) |
 
 `mgmtPublicIP:`
 
@@ -230,11 +237,15 @@ These variables have default values and don't have to be set to use this module.
 
 `f5_username:`
 
-`Description:` Bigip username
+`Description:` BIG-IP username
 
 `bigip_password:`
 
-`Description:` Bigip Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name )
+`Description:` BIG-IP Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name )
 
 
+```
 
+NOTE: A local json file will get generated which contains the DO declaration
+
+```
