@@ -32,6 +32,15 @@ Next, Run the following commands to create and destroy your configuration
 
 - terraform destroy
 
+#### Optional Input Variables
+
+| Name | Description | Type | Default |
+|------|-------------|------|---------|
+| prefix | Prefix for resources created by this module | `string` | tf-azure-bigip |
+| cidr | Azure VPC CIDR | `string` | 10.2.0.0/16 |
+| availabilityZones | If you want the VM placed in an Azure Availability Zone, and the Azure region you are deploying to supports it, specify the numbers of the existing Availability Zone you want to use | `List` | [1] |
+
+
 #### Output Variables
 
 | Name | Description |
