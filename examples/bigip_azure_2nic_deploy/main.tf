@@ -42,7 +42,7 @@ module "network" {
   vnet_name           = format("%s-vnet-%s", var.prefix, random_id.id.hex)
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = [var.cidr]
-  subnet_prefixes     = ["10.2.1.0/24", "10.2.2.0/24"]
+  subnet_prefixes     = [cidrsubnet(var.cidr, 8, 1), cidrsubnet(var.cidr, 8, 2)]
   subnet_names        = ["mgmt-subnet", "external-public-subnet"]
 
   tags = {
