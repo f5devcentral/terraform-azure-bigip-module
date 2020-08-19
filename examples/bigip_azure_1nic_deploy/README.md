@@ -10,7 +10,7 @@ A random generated password for login to BIG-IP ( Default value of az_key_vault_
 ## Steps to clone and use the provisioner locally
 
 ```
-$ git clone https://github.com/RavinderReddyF5/azure-deploy
+$ git clone https://github.com/f5devcentral/terraform-azure-bigip-module
 $ cd azure-deploy/examples/bigip_azure_1nic_deploy
 
 ```
