@@ -8,7 +8,8 @@ This Terraform module deploys N-nic F5 BIG-IP in Azure cloud
 We have provided some common deployment examples below.(1-nic,2-nic,3-nic )
 
 ```
-Example 1-NIC Deployment
+
+Example 1-NIC Deployment Module usage
 
 module bigip {
  source                      = "../"
@@ -22,7 +23,7 @@ module bigip {
 }
 
 
-Example 2-NIC Deployment
+Example 2-NIC Deployment Module usage
 
 module bigip {
   source                      = "../"
@@ -39,8 +40,7 @@ module bigip {
 
 
 
-Example 3-NIC Deployment
-
+Example 3-NIC Deployment  Module usage
 
 module bigip {
   source                      = "../"
@@ -54,7 +54,6 @@ module bigip {
   internal_securitygroup_id   = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
 }
-
 
 ```
 

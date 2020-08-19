@@ -9,9 +9,11 @@ A random generated password for login to BIG-IP ( Default value of az_key_vault_
 
 ## Steps to clone and use the provisioner locally
 
-- clone the repository using the command `git clone`
+```
+$ git clone https://github.com/RavinderReddyF5/azure-deploy
+$ cd azure-deploy/examples/bigip_azure_1nic_deploy
 
-- cd azure-deploy/examples/bigip_azure_1nic_deploy
+```
 
 - Then follow the stated process in Example Usage below
 
@@ -25,13 +27,13 @@ AllowedIPs = ["0.0.0.0/0"]
 ```
 Next, Run the following commands to create and destroy your configuration
 
-- terraform init
+```
+$ terraform init
+$ terraform plan
+$ terraform apply
+$ terraform destroy
 
-- terraform plan
-
-- terraform apply 
-
-- terraform destroy
+```
 
 #### Optional Input Variables
 
