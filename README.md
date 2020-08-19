@@ -5,7 +5,9 @@ This Terraform module deploys N-nic F5 BIG-IP in Azure cloud
 
 ## Example Usage
 
-We have provided some common deployment examples below.(1-nic,2-nic,3-nic )
+We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
+
+below example snippet show how this module called.
 
 ```
 
