@@ -32,7 +32,7 @@
       "interfaces": [
         {
           "name": "1.1",
-          "tagged": true
+          "tagged": false
         }
       ],
       "cmpHash": "dst-ip"
@@ -51,7 +51,7 @@
       "interfaces": [
         {
           "name": "1.2",
-          "tagged": true
+          "tagged": false
         }
       ],
       "cmpHash": "dst-ip"

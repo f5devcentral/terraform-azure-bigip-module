@@ -32,7 +32,7 @@
     "interfaces": [
         {
             "name": "1.1",
-            "tagged": true
+            "tagged": false
         }
     ],
     "cmpHash": "dst-ip"
