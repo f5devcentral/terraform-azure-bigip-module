@@ -18,8 +18,8 @@ output mgmtPort {
   value = module.bigip.mgmtPort
 }
 
+
 output mgmtPublicURL {
   description = "mgmtPublicURL"
   value       = format("https://%s:%s", module.bigip.mgmtPublicDNS, module.bigip.mgmtPort)
 }
-

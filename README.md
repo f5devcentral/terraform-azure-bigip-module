@@ -14,8 +14,8 @@ below example snippet show how this module called.
 Example 1-NIC Deployment Module usage
 
 module bigip {
- source                      = "../"
-  dnsLabel                    = "bigip-azure-1nic"
+  source                      = "../"
+  instance_prefix             = "bigip-azure-1nic"
   resource_group_name         = "testbigip"
   mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
   mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
@@ -29,7 +29,7 @@ Example 2-NIC Deployment Module usage
 
 module bigip {
   source                      = "../"
-  dnsLabel                    = "bigip-azure-2nic"
+  instance_prefix             = "bigip-azure-2nic"
   resource_group_name         = "testbigip"
   mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
   mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
@@ -43,7 +43,7 @@ Example 3-NIC Deployment  Module usage
 
 module bigip {
   source                      = "../"
-  dnsLabel                    = "bigip-azure-3nic"
+  instance_prefix             = "bigip-azure-3nic"
   resource_group_name         = "testbigip"
   mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
   mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
@@ -62,7 +62,7 @@ These variables must be set in the module block when using this module.
 
 | Name | Description | Type | 
 |------|-------------|------|
-| dnsLabel/prefix | This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character | `string` |
+| instance_prefix/prefix | This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character | `string` |
 | resource\_group\_name | The name of the resource group in which the resources will be created | `string` |
 | mgmt\_subnet\_ids | Map with Subnet-id and public_ip as keys for the management subnet | `List of Maps` |
 | mgmt\_securitygroup\_ids | securitygroup\_ids for the management interface | `List` |

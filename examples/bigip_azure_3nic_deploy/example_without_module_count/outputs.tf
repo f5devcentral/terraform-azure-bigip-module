@@ -13,7 +13,6 @@ output bigip_password {
   value = module.bigip.bigip_password
 }
 
-
 output mgmtPort {
   value = module.bigip.mgmtPort
 }

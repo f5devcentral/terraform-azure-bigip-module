@@ -1,12 +1,11 @@
-variable dnsLabel {
+variable instance_prefix {
   description = "Prefix for resources created by this module"
   type        = string
-  //default = "ecosysf5hyd"
 }
 
 variable f5_username {
   description = "The admin username of the F5 Bigip that will be deployed"
-  default     = "bigipuser"
+  default     = "azureuser"
 }
 
 

@@ -22,5 +22,11 @@ variable availabilityZones {
 
 variable AllowedIPs {}
 
+variable instance_count {
+  description = "Number of Bigip instances to create( From terraform 0.13, module supports count feature to spin mutliple instances )"
+  type        = number
+  default     = 2
+}
+
 
 

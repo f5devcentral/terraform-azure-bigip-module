@@ -1,16 +1,16 @@
 ## Deploys F5 BIG-IP Azure Cloud
 
-This Terraform module deploys 2-NIC BIG-IP in Azure with the following characteristics:
+This Terraform module deploys 3-NIC BIG-IP in Azure with the following characteristics:
 
-BIG-IP 2 Nic with management and external interface associated with user provided subnet and security-group
+BIG-IP 3 Nic with management, external, internal interfaces associated with user provided subnet and security-group
   
-A random generated password for login to BIG-IP ( Default value of az_key_vault_authentication is false )
-  
+A random generated password for login to BIG-IP ( Default value of az_key_vault_authentication is false )  
+
 ## Steps to clone and use the provisioner locally
 
 ```
 $ git clone https://github.com/f5devcentral/terraform-azure-bigip-module
-$ cd terraform-azure-bigip-module/examples/bigip_azure_1nic_deploy
+$ cd terraform-azure-bigip-module/examples/bigip_azure_3nic_deploy/
 
 ```
 
