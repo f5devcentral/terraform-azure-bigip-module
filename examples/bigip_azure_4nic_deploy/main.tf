@@ -36,21 +36,6 @@ module bigip {
   availabilityZones          = var.availabilityZones
 }
 
-/*
-resource "null_resource" "clusterDO" {
-
-  count = var.instance_count
-
-  provisioner "local-exec" {
-    command = "cat > DO_3nic-instance${count.index}.json <<EOL\n ${module.bigip[count.index].onboard_do}\nEOL"
-  }
-  provisioner "local-exec" {
-    when    = destroy
-    command = "rm -rf DO_3nic-instance${count.index}.json"
-  }
-  depends_on = [ module.bigip.onboard_do]
-}
-*/
 
 #
 # Create the Network Module to associate with BIGIP
