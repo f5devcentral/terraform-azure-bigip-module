@@ -1,6 +1,6 @@
 ## Deploys BIG-IP in Azure Cloud
 
-This Terraform module deploys multiple N-nic F5 BIG-IP in Azure cloud ( based on module count ).
+This Terraform module deploys multiple N-nic F5 BIG-IP in Azure cloud ( based on module count from terraform 0.13 onwards).
 
 There should be one to one mapping between subnetids and securitygroupids (for example if we have 2 or more external subnetids,we have to give same number of external securitygroupids to module whether it is similar one or different)
 
