@@ -1,6 +1,6 @@
 ## Deploys BIG-IP in Azure Cloud
 
-This Terraform module deploys N-nic F5 BIG-IP in Azure cloud ( based on module count from terraform 0.13, we can deploy multiple bigip instances).
+This Terraform module deploys N-nic F5 BIG-IP in Azure cloud ,and with module count feature we can deploy multiple bigip instances.
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ Terraform v0.13.0
 We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
 
 Note:
-There should be one to one mapping between subnetids and securitygroupids (for example if we have 2 or more external subnetids,we have to give same number of external securitygroupids to module whether it is similar one or different)
+There should be one to one mapping between subnetids and securitygroupids (for example if we have 2 or more external subnetids,we have to give same number of external securitygroupids to module)
 
 
 Below example snippets show how this module called.
@@ -88,12 +88,14 @@ module bigip {
   availabilityZones           =  var.availabilityZones
 }
 
+.............
 
 Similarly we can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
-With variable count user can deploy multiple bigip instances with the default value of count being one.
+With module count, user can deploy multiple bigip instances in the azure cloud (with the default value of count being one )
 
 
 ```
+
 
 #### Required Input Variables
 
