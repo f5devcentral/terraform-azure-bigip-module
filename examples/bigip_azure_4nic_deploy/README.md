@@ -34,6 +34,10 @@ $ terraform destroy
 
 ```
 
+## Note
+
+Similarly we can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
+
 #### Optional Input Variables
 
 | Name | Description | Type | Default |
