@@ -18,7 +18,7 @@ Terraform v0.13.0
 
 We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
 
-Note:
+#### Note
 There should be one to one mapping between subnetids and securitygroupids (for example if we have 2 or more external subnetids,we have to give same number of external securitygroupids to module)
 
 
