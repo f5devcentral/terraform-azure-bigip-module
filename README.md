@@ -4,6 +4,16 @@ This Terraform module deploys multiple N-nic F5 BIG-IP in Azure cloud ( based on
 
 There should be one to one mapping between subnetids and securitygroupids (for example if we have 2 or more external subnetids,we have to give same number of external securitygroupids to module whether it is similar one or different)
 
+## prerequisites
+
+Below templates are tested and worked in the following version (Minimum required version )
+Terraform v0.13.0
++ provider registry.terraform.io/hashicorp/azurerm v2.28.0
++ provider registry.terraform.io/hashicorp/null v2.1.2
++ provider registry.terraform.io/hashicorp/random v2.3.0
++ provider registry.terraform.io/hashicorp/template v2.1.2
+
+
 ## Example Usage
 
 We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
