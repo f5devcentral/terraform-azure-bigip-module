@@ -7,6 +7,7 @@ There should be one to one mapping between subnetids and securitygroupids (for e
 ## prerequisites
 
 Below templates are tested and worked in the following version (Minimum required version )
+
 Terraform v0.13.0
 + provider registry.terraform.io/hashicorp/azurerm v2.28.0
 + provider registry.terraform.io/hashicorp/null v2.1.2
