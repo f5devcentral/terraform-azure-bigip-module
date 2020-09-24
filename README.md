@@ -1,6 +1,6 @@
 ## Deploys BIG-IP in Azure Cloud
 
-This Terraform module deploys N-nic F5 BIG-IP in Azure cloud,and with module count feature we can deploy multiple instances of BIG-IP.
+This Terraform module deploys N-nic F5 BIG-IP in Azure cloud,and with module count feature we can also deploy multiple instances of BIG-IP.
 
 ## Prerequisites
 
