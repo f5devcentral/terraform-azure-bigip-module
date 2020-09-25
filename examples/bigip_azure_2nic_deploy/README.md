@@ -1,6 +1,6 @@
 ## Deploys F5 BIG-IP Azure Cloud
 
-This Terraform module deploys multiple 2-NIC BIG-IP ( based on module count with default value as 1 ) in Azure with the following characteristics:
+This Terraform module deploys 2-NIC BIG-IP in Azure and by using module count feature we can also deploy multiple BIGIP instances(default value of count as 1 ) with the following characteristics:
 
 BIG-IP 2 Nic with management and external interface associated with user provided subnet and security-group
   
@@ -41,7 +41,7 @@ $ terraform destroy
 | prefix | Prefix for resources created by this module | `string` | tf-azure-bigip |
 | cidr | Azure VPC CIDR | `string` | 10.2.0.0/16 |
 | availabilityZones | If you want the VM placed in an Azure Availability Zone, and the Azure region you are deploying to supports it, specify the numbers of the existing Availability Zone you want to use | `List` | [1] |
-| instance_count | Number of Bigip instances to create | `number` | 2 
+| instance_count | Number of Bigip instances to create | `number` | 1 | 
 
 #### Output Variables
 
