@@ -1,6 +1,6 @@
 ## Deploys F5 BIG-IP Azure Cloud
 
-This Terraform module deploys 1-NIC BIG-IP in Azure,and with module count feature we can also deploy multiple BIGIP instances( with default value of count as 1 ) with the following characteristics:
+This Terraform module deploys 1-NIC BIG-IP in Azure and by using module count feature we can also deploy multiple BIGIP instances(default value of count as 1 ) with the following characteristics:
 
 BIG-IP 1 Nic as management interface associated with user provided subnet and security-group
   
