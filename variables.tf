@@ -1,12 +1,11 @@
-variable dnsLabel {
+variable prefix {
   description = "Prefix for resources created by this module"
   type        = string
-  //default = "ecosysf5hyd"
 }
 
 variable f5_username {
   description = "The admin username of the F5 Bigip that will be deployed"
-  default     = "bigipuser"
+  default     = "azureuser"
 }
 
 
@@ -15,7 +14,7 @@ variable resource_group_name {
   type        = string
 }
 
-variable mgmt_subnet_id {
+variable mgmt_subnet_ids {
   description = "The subnet id of the virtual network where the virtual machines will reside."
   type = list(object({
     subnet_id = string
@@ -23,16 +22,7 @@ variable mgmt_subnet_id {
   }))
 }
 
-variable external_subnet_id {
-  description = "The subnet id of the virtual network where the virtual machines will reside."
-  type = list(object({
-    subnet_id = string
-    public_ip = bool
-  }))
-  default = [{ "subnet_id" = null, "public_ip" = null }]
-}
-
-variable internal_subnet_id {
+variable external_subnet_ids {
   description = "The subnet id of the virtual network where the virtual machines will reside."
   type = list(object({
     subnet_id = string
@@ -41,19 +31,28 @@ variable internal_subnet_id {
   default = [{ "subnet_id" = null, "public_ip" = null }]
 }
 
+variable internal_subnet_ids {
+  description = "The subnet id of the virtual network where the virtual machines will reside."
+  type = list(object({
+    subnet_id = string
+    public_ip = bool
+  }))
+  default = [{ "subnet_id" = null, "public_ip" = null }]
+}
 
-variable mgmt_securitygroup_id {
+
+variable mgmt_securitygroup_ids {
   description = "The Network Security Group ids for management network "
   type        = list(string)
 }
 
-variable external_securitygroup_id {
+variable external_securitygroup_ids {
   description = "The Network Security Group ids for external network "
   type        = list(string)
   default     = []
 }
 
-variable internal_securitygroup_id {
+variable internal_securitygroup_ids {
   description = "The Network Security Group ids for internal network "
   type        = list(string)
   default     = []

@@ -1,8 +1,8 @@
 ## Deploys F5 BIG-IP Azure Cloud
 
-This Terraform module deploys 3-NIC BIG-IP in Azure and by using module count feature we can also deploy multiple BIGIP instances( default value of count as 1 ) with the following characteristics:
+This Terraform module deploys  4-NIC BIG-IP in Azure and by using module count feature we can also deploy multiple BIGIP instances(ndefault value of count as 1 ) with the following characteristics:
 
-BIG-IP 3 Nic with management, external, internal interfaces associated with user provided subnet and security-group
+BIG-IP 4 Nic with management, 2 external, internal interfaces associated with user provided subnets and security-groups
   
 A random generated password for login to BIG-IP ( Default value of az_key_vault_authentication is false )  
 
@@ -10,7 +10,7 @@ A random generated password for login to BIG-IP ( Default value of az_key_vault_
 
 ```
 $ git clone https://github.com/f5devcentral/terraform-azure-bigip-module
-$ cd terraform-azure-bigip-module/examples/bigip_azure_3nic_deploy/
+$ cd terraform-azure-bigip-module/examples/bigip_azure_4nic_deploy/
 
 ```
 
@@ -33,6 +33,9 @@ $ terraform apply
 $ terraform destroy
 
 ```
+#### Note
+
+Similarly we can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
 
 #### Optional Input Variables
 
@@ -54,6 +57,3 @@ $ terraform destroy
 | bigip\_password | BIG-IP Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name ) |
 | mgmtPublicURL | Complete url including DNS and port|
 
-```
-NOTE: A local json file will get generated which contains the DO declaration
-```

@@ -25,29 +25,15 @@ resource azurerm_resource_group rg {
 module bigip {
   count  		     = var.instance_count
   source                     = "../../"
-  prefix                     = format("%s-3nic", var.prefix)
+  prefix                     = format("%s-4nic", var.prefix)
   resource_group_name        = azurerm_resource_group.rg.name
   mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true }]
   mgmt_securitygroup_ids     = [module.mgmt-network-security-group.network_security_group_id]
-  external_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true }]
-  external_securitygroup_ids = [module.external-network-security-group-public.network_security_group_id]
+  external_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true },{"subnet_id" = data.azurerm_subnet.external-public2.id,"public_ip" = true }]
+  external_securitygroup_ids = [module.external-network-security-group-public.network_security_group_id, module.external-network-security-group-public.network_security_group_id]
   internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false }]
   internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones          = var.availabilityZones
-}
-
-resource "null_resource" "clusterDO" {
-
-  count = var.instance_count
-
-  provisioner "local-exec" {
-    command = "cat > DO_3nic-instance${count.index}.json <<EOL\n ${module.bigip[count.index].onboard_do}\nEOL"
-  }
-  provisioner "local-exec" {
-    when    = destroy
-    command = "rm -rf DO_3nic-instance${count.index}.json"
-  }
-  depends_on = [ module.bigip.onboard_do]
 }
 
 
@@ -60,8 +46,8 @@ module "network" {
   vnet_name           = format("%s-vnet-%s", var.prefix, random_id.id.hex)
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = [var.cidr]
-  subnet_prefixes     = [cidrsubnet(var.cidr, 8, 1), cidrsubnet(var.cidr, 8, 2), cidrsubnet(var.cidr, 8, 3)]
-  subnet_names        = ["mgmt-subnet", "external-public-subnet", "internal-subnet"]
+  subnet_prefixes     = [cidrsubnet(var.cidr, 8, 1), cidrsubnet(var.cidr, 8, 2), cidrsubnet(var.cidr, 8, 3),cidrsubnet(var.cidr, 8, 4)]
+  subnet_names        = ["mgmt-subnet", "external-public-subnet", "external-public-subnet2", "internal-subnet"]
 
   tags = {
     environment = "dev"
@@ -78,6 +64,13 @@ data "azurerm_subnet" "mgmt" {
 
 data "azurerm_subnet" "external-public" {
   name                 = "external-public-subnet"
+  virtual_network_name = module.network.vnet_name
+  resource_group_name  = azurerm_resource_group.rg.name
+  depends_on           = [module.network]
+}
+
+data "azurerm_subnet" "external-public2" {
+  name                 = "external-public-subnet2"
   virtual_network_name = module.network.vnet_name
   resource_group_name  = azurerm_resource_group.rg.name
   depends_on           = [module.network]

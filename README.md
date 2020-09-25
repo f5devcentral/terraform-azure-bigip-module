@@ -1,24 +1,40 @@
 ## Deploys BIG-IP in Azure Cloud
 
-This Terraform module deploys N-nic F5 BIG-IP in Azure cloud
+This Terraform module deploys N-nic F5 BIG-IP in Azure cloud,and with module count feature we can also deploy multiple instances of BIG-IP.
 
+## Prerequisites
+
+This module is supported from Terraform 0.13 version onwards.
+
+Below templates are tested and worked in the following version 
+
+Terraform v0.13.0
++ provider registry.terraform.io/hashicorp/azurerm v2.28.0
++ provider registry.terraform.io/hashicorp/null v2.1.2
++ provider registry.terraform.io/hashicorp/random v2.3.0
++ provider registry.terraform.io/hashicorp/template v2.1.2
 
 ## Example Usage
 
 We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
 
-below example snippet show how this module called.
+#### Note
+There should be one to one mapping between subnetids and securitygroupids (for example if we have 2 or more external subnetids,we have to give same number of external securitygroupids to module)
+
+
+Below example snippets show how this module called.
 
 ```
 
 Example 1-NIC Deployment Module usage
 
 module bigip {
- source                      = "../"
-  dnsLabel                    = "bigip-azure-1nic"
+  count 		                  = var.instance_count
+  source                      = "../../"
+  prefix                      = "bigip-azure-1nic"
   resource_group_name         = "testbigip"
-  mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
-  mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
+  mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
   availabilityZones           =  var.availabilityZones
 
 
@@ -28,33 +44,58 @@ module bigip {
 Example 2-NIC Deployment Module usage
 
 module bigip {
-  source                      = "../"
-  dnsLabel                    = "bigip-azure-2nic"
+  count                       = var.instance_count
+  source                      = "../../"
+  prefix                      = "bigip-azure-2nic"
   resource_group_name         = "testbigip"
-  mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
-  mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
-  external_subnet_id          = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
-  external_securitygroup_id   = ["securitygroup_id_external"]
+  mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
+  external_subnet_ids         = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
+  external_securitygroup_ids  = ["securitygroup_id_external"]
   availabilityZones           =  var.availabilityZones
 }
 
 
-Example 3-NIC Deployment  Module usage
+Example 3-NIC Deployment  Module usage 
 
 module bigip {
-  source                      = "../"
-  dnsLabel                    = "bigip-azure-3nic"
+  count                       = var.instance_count 
+  source                      = "../../"
+  prefix                      = "bigip-azure-3nic"
   resource_group_name         = "testbigip"
-  mgmt_subnet_id              = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
-  mgmt_securitygroup_id       = ["securitygroup_id_mgmt"]
-  external_subnet_id          = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
-  external_securitygroup_id   = ["securitygroup_id_external"]
-  internal_subnet_id          = [{"subnet_id" =  "subnet_id_internal", "public_ip"=false }]
-  internal_securitygroup_id   = ["securitygropu_id_internal"]
+  mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
+  external_subnet_ids         = [{"subnet_id" =  "subnet_id_external", "public_ip" = true }]
+  external_securitygroup_ids  = ["securitygroup_id_external"]
+  internal_subnet_ids         = [{"subnet_id" =  "subnet_id_internal", "public_ip"=false }]
+  internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
 }
 
+Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnetids and securitygroupids)
+
+module bigip {
+  count                       = var.instance_count
+  source                      = "../../"
+  prefix                      = "bigip-azure-4nic"
+  resource_group_name         = "testbigip"
+  mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true}]
+  mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
+  external_subnet_ids         = [{"subnet_id" =  "subnet_id_external", "public_ip" = true },{"subnet_id" =  "subnet_id_external2", "public_ip" = true }]
+  external_securitygroup_ids  = ["securitygroup_id_external","securitygroup_id_external"]
+  internal_subnet_ids         = [{"subnet_id" =  "subnet_id_internal", "public_ip"=false }]
+  internal_securitygroup_ids  = ["securitygropu_id_internal"]
+  availabilityZones           =  var.availabilityZones
+}
+
+.............
+
+Similarly we can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
+With module count, user can deploy multiple bigip instances in the azure cloud (with the default value of count being one )
+
+
 ```
+
 
 #### Required Input Variables
 
@@ -62,11 +103,12 @@ These variables must be set in the module block when using this module.
 
 | Name | Description | Type | 
 |------|-------------|------|
-| dnsLabel/prefix | This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character | `string` |
+| prefix | This value is inserted in the beginning of each Azure object. Note: requires alpha-numeric without special character | `string` |
 | resource\_group\_name | The name of the resource group in which the resources will be created | `string` |
 | mgmt\_subnet\_ids | Map with Subnet-id and public_ip as keys for the management subnet | `List of Maps` |
 | mgmt\_securitygroup\_ids | securitygroup\_ids for the management interface | `List` |
 | availabilityZones | availabilityZones | `List` |
+| instance\_count | Number of Bigip instances to spin up | `number` |
 
 #### Optional Input Variables
 
@@ -111,7 +153,7 @@ These variables have default values and don't have to be set to use this module.
 
 
 ```
-NOTE: A local json file will get generated which contains the DO declaration
+NOTE: A local json file will get generated which contains the DO declaration (for 1,2,3 nics as provided in the examples )
 ```
 
 
