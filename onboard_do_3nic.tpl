@@ -44,6 +44,12 @@
       "allowService": "none",
       "trafficGroup": "traffic-group-local-only"
     },
+      "default": {
+      "class": "Route",
+      "gw": "${gateway}",
+      "network": "default",
+      "mtu": 1500
+     },
     "${vlan-name2}": {
       "class": "VLAN",
       "tag": 4094,
