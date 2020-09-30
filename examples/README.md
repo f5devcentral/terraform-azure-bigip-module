@@ -1,4 +1,4 @@
-We can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
+Above are the common deployment examples( 1, 2, 3, 4.....) and we can extend to N-nic deployments based on user provided subnet_ids and securitygroup_ids.
 
 With module count, user can deploy multiple bigip instances in the azure cloud (with the default value of count being one )
 
