@@ -19,10 +19,10 @@ Terraform v0.13.0
 We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
 
 #### Note
-There should be one to one mapping between subnetids and securitygroupids (for example if we have 2 or more external subnetids,we have to give same number of external securitygroupids to module)
+There should be one to one mapping between subnet_ids and securitygroupids (for example if we have 2 or more external subnet_ids,we have to give same number of external securitygroupids to module)
 
 
-Below example snippets show how this module called.
+Below example snippets show how this module is called.
 
 ```
 
@@ -72,7 +72,7 @@ module bigip {
   availabilityZones           =  var.availabilityZones
 }
 
-Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnetids and securitygroupids)
+Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnet_ids and securitygroupids)
 
 module bigip {
   count                       = var.instance_count
