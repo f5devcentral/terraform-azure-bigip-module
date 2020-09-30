@@ -112,7 +112,7 @@ locals {
   vlan_list   = concat(local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id)
   selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
-
+  gw_bytes_nic = local.total_nics > 1 ? "${element(split("/",local.selfip_list[0]), 0 )}" : ""
 }
 
 #
@@ -416,6 +416,7 @@ data "template_file" "clustermemberDO2" {
     ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
     vlan-name     = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
     self-ip       = local.selfip_list[0]
+    gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
   }
   depends_on = [azurerm_network_interface.external_nic, azurerm_network_interface.external_public_nic, azurerm_network_interface.internal_nic]
 }
@@ -432,6 +433,7 @@ data "template_file" "clustermemberDO3" {
     self-ip1      = local.selfip_list[0]
     vlan-name2    = "${element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)}"
     self-ip2      = local.selfip_list[1]
+    gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
   }
   depends_on = [azurerm_network_interface.external_nic, azurerm_network_interface.external_public_nic, azurerm_network_interface.internal_nic]
 }

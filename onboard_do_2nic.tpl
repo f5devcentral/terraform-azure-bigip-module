@@ -41,8 +41,14 @@
     "class": "SelfIp",
     "address": "${self-ip}/24",
     "vlan": "${vlan-name}",
-    "allowService": [tcp:1028],
+    "allowService": ["tcp:1028"],
     "trafficGroup": "traffic-group-local-only"
- }
- }
+ },
+   "default": {
+      "class": "Route",
+      "gw": "${gateway}",
+      "network": "default",
+      "mtu": 1500
+     }
+  }
 }
