@@ -1,10 +1,8 @@
 name: bigip-ready
 title: InSpec Profile
-maintainer: The Authors
-copyright: The Authors
-copyright_email: you@example.com
+maintainer: Dinesh
 license: Apache-2.0
-summary: An InSpec Compliance Profile
+summary: BIG-IP Automation Toolchain testing profile
 version: 0.1.0
 supports:
   platform: os
