@@ -20,7 +20,7 @@ This InSpec profile evaluates the following:
 
 #### run inspec tests
 
-we can either run inspec exec command or execute runtests.sh in any one of example nic folder which will run below inspec command
+we can either run inspec exec command or execute runtests.sh in any one of example nic folder which will run below inspec command ( with the inspec profile located in inspec/bigip-ready/controls/files/ )
 
 inspec exec inspec/bigip-ready  --input bigip_address=$BIGIP_MGMT_IP bigip_port=$BIGIP_MGMT_PORT user=$BIGIP_USER password=$BIGIP_PASSWORD do_version=$DO_VERSION as3_version=$AS3_VERSION ts_version=$TS_VERSION fast_version=$FAST_VERSION cfe_version=$CFE_VERSION
 
