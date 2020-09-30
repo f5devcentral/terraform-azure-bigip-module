@@ -1,0 +1,74 @@
+{
+  "bigip_password": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string"
+      ]
+    ],
+    "value": [
+      "eeqU6mYUH5D259cy"
+    ]
+  },
+  "bigip_username": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string"
+      ]
+    ],
+    "value": [
+      "azureuser"
+    ]
+  },
+  "mgmtPort": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string"
+      ]
+    ],
+    "value": [
+      "8443"
+    ]
+  },
+  "mgmtPublicDNS": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string"
+      ]
+    ],
+    "value": [
+      "tf-azure-bigip-1nic-48de-mgmt-0.eastus.cloudapp.azure.com"
+    ]
+  },
+  "mgmtPublicIP": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string"
+      ]
+    ],
+    "value": [
+      "20.55.18.77"
+    ]
+  },
+  "mgmtPublicURL": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string"
+      ]
+    ],
+    "value": [
+      "https://tf-azure-bigip-1nic-48de-mgmt-0.eastus.cloudapp.azure.com:8443"
+    ]
+  }
+}

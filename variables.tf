@@ -5,7 +5,7 @@ variable prefix {
 
 variable f5_username {
   description = "The admin username of the F5 Bigip that will be deployed"
-  default     = "azureuser"
+  default     = "bigipuser"
 }
 
 
