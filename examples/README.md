@@ -1,3 +1,7 @@
+We can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
+
+With module count, user can deploy multiple bigip instances in the azure cloud (with the default value of count being one )
+
 #### BIG-IP Automation Toolchain InSpec Profile for testing readiness of Automation Tool Chain components 
 
 After the module deployment, we can use inspec tool for verifying the Bigip connectivity along with ATC components
