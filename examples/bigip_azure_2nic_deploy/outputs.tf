@@ -22,3 +22,8 @@ output mgmtPublicURL {
   value       = [for i in range(var.instance_count) : format("https://%s:%s", module.bigip[i].mgmtPublicDNS, module.bigip[i].mgmtPort)]
 }
 
+output resourcegroup_name {
+  description = "Resource Group in which objects are created"
+  value = azurerm_resource_group.rg.name
+} 
+
