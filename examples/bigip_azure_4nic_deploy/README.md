@@ -56,4 +56,6 @@ Similarly we can have N-nic deployments based on user provided subnet_ids and se
 | f5\_username | BIG-IP username |
 | bigip\_password | BIG-IP Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name ) |
 | mgmtPublicURL | Complete url including DNS and port|
-
+| resourcegroup_name | Resource Group in which objects are created |
+| public_addresses | List of BIG-IP public addresses |
+| private_addresses | List of BIG-IP private addresses |

@@ -25,4 +25,13 @@ output mgmtPublicURL {
 output resourcegroup_name {
   description = "Resource Group in which objects are created"
   value = azurerm_resource_group.rg.name
-} 
+}
+
+output public_addresses {
+  value = module.bigip.*.public_addresses
+}
+
+output private_addresses {
+  value = module.bigip.*.private_addresses
+}
+ 
