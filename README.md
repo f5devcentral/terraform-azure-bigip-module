@@ -158,10 +158,10 @@ These variables have default values and don't have to be set to use this module.
 | az\_key\_vault\_authentication | Whether to use key vault to pass authentication | `string` | false |
 | azure\_keyvault\_name | The name of the Azure Key Vault to use | `string` | "" |
 | azure\_keyvault\_secret\_name | The name of the Azure Key Vault secret containing the password | `string` | "" |
-| external\_subnet\_id | he subnet id of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null }] |
-| internal\_subnet\_id | The subnet id of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null }] |
-| external\_securitygroup\_id | The Network Security Group ids for external network | `List` | [] |
-| internal\_securitygroup\_id | The Network Security Group ids for internal network | `List` | [] |
+| external\_subnet\_ids | he subnet id of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null }] |
+| internal\_subnet\_ids | The subnet id of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null }] |
+| external\_securitygroup\_ids | The Network Security Group ids for external network | `List` | [] |
+| internal\_securitygroup\_ids | The Network Security Group ids for internal network | `List` | [] |
 
 #### Output Variables
 | Name | Description |
@@ -171,7 +171,8 @@ These variables have default values and don't have to be set to use this module.
 | mgmtPort | Mgmt Port |
 | f5\_username | BIG-IP username |
 | bigip\_password | BIG-IP Password (if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name ) |
-
+| public_addresses | List of BIG-IP public addresses |
+| private_addresses | List of BIG-IP private addresses |
 
 ```
 NOTE: A local json file will get generated which contains the DO declaration (for 1,2,3 nics as provided in the examples )

@@ -202,6 +202,23 @@ resource "azurerm_public_ip" "external_public_ip" {
   }
 }
 
+resource "azurerm_public_ip" "secondary_external_public_ip" {
+  count               = length(local.external_public_subnet_id)
+  name                = "${local.instance_prefix}-secondary-pip-ext-${count.index}"
+  location            = data.azurerm_resource_group.bigiprg.location
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  //allocation_method   = var.allocation_method
+  //domain_name_label   = element(var.public_ip_dns, count.index)
+  domain_name_label = format("%s-sec-ext-%s", local.instance_prefix, count.index)
+  allocation_method = "Static"   # Static is required due to the use of the Standard sku
+  sku               = "Standard" # the Standard sku is required due to the use of availability zones
+  zones             = var.availabilityZones
+  tags = {
+    Name   = "${local.instance_prefix}-secondary-pip-ext-${count.index}"
+    source = "terraform"
+  }
+}
+
 # Deploy BIG-IP with N-Nic interface 
 resource "azurerm_network_interface" "mgmt_nic" {
   count               = length(local.bigip_map["mgmt_subnet_ids"])
@@ -232,8 +249,14 @@ resource "azurerm_network_interface" "external_nic" {
   ip_configuration {
     name                          = "${local.instance_prefix}-ext-ip-${count.index}"
     subnet_id                     = local.external_private_subnet_id[count.index]
+    primary                       = "true"
     private_ip_address_allocation = var.allocation_method
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
+  }
+  ip_configuration {
+    name                          = "${local.instance_prefix}-secondary-ext-ip-${count.index}"
+    subnet_id                     = local.external_private_subnet_id[count.index]
+    private_ip_address_allocation = var.allocation_method
   }
   tags = {
     Name   = "${local.instance_prefix}-ext-nic-${count.index}"
@@ -252,8 +275,15 @@ resource "azurerm_network_interface" "external_public_nic" {
   ip_configuration {
     name                          = "${local.instance_prefix}-ext-public-ip-${count.index}"
     subnet_id                     = local.external_public_subnet_id[count.index]
+    primary                       = "true"
     private_ip_address_allocation = var.allocation_method
     public_ip_address_id          = azurerm_public_ip.external_public_ip[count.index].id
+  }
+  ip_configuration {
+      name                          = "${local.instance_prefix}-secondary-ext-public-ip-${count.index}"
+      subnet_id                     = local.external_public_subnet_id[count.index]
+      private_ip_address_allocation = var.allocation_method
+      public_ip_address_id          = azurerm_public_ip.secondary_external_public_ip[count.index].id
   }
   tags = {
     Name   = "${local.instance_prefix}-ext-public-nic-${count.index}"

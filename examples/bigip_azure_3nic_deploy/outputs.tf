@@ -27,3 +27,10 @@ output resourcegroup_name {
   value = azurerm_resource_group.rg.name
 } 
 
+output public_addresses {
+  value = module.bigip.*.public_addresses
+}
+
+output private_addresses {
+  value = module.bigip.*.private_addresses
+}
