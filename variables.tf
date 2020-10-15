@@ -15,7 +15,7 @@ variable resource_group_name {
 }
 
 variable mgmt_subnet_ids {
-  description = "The subnet id of the virtual network where the virtual machines will reside."
+  description = "List of subnetids of the virtual network where the virtual machines will reside."
   type = list(object({
     subnet_id = string
     public_ip = bool
@@ -23,7 +23,7 @@ variable mgmt_subnet_ids {
 }
 
 variable external_subnet_ids {
-  description = "The subnet id of the virtual network where the virtual machines will reside."
+  description = "List of subnetids of the virtual network where the virtual machines will reside."
   type = list(object({
     subnet_id = string
     public_ip = bool
@@ -32,7 +32,7 @@ variable external_subnet_ids {
 }
 
 variable internal_subnet_ids {
-  description = "The subnet id of the virtual network where the virtual machines will reside."
+  description = "List of subnetids of the virtual network where the virtual machines will reside."
   type = list(object({
     subnet_id = string
     public_ip = bool
@@ -42,25 +42,20 @@ variable internal_subnet_ids {
 
 
 variable mgmt_securitygroup_ids {
-  description = "The Network Security Group ids for management network "
+  description = "List of network Security Groupids for management network "
   type        = list(string)
 }
 
 variable external_securitygroup_ids {
-  description = "The Network Security Group ids for external network "
+  description = "List of network Security Groupids for external network "
   type        = list(string)
   default     = []
 }
 
 variable internal_securitygroup_ids {
-  description = "The Network Security Group ids for internal network "
+  description = "List of network Security Groupids for internal network "
   type        = list(string)
   default     = []
-}
-
-variable AllowedIPs {
-  type    = list(string)
-  default = ["10.0.1.20", "10.0.1.30"]
 }
 
 variable f5_instance_type {
