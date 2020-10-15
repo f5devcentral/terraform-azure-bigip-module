@@ -15,7 +15,7 @@ variable resource_group_name {
 }
 
 variable mgmt_subnet_ids {
-  description = "List of subnetids of the virtual network where the virtual machines will reside."
+  description = "List of maps of subnetids of the virtual network where the virtual machines will reside."
   type = list(object({
     subnet_id = string
     public_ip = bool
@@ -23,7 +23,7 @@ variable mgmt_subnet_ids {
 }
 
 variable external_subnet_ids {
-  description = "List of subnetids of the virtual network where the virtual machines will reside."
+  description = "List of maps of subnetids of the virtual network where the virtual machines will reside."
   type = list(object({
     subnet_id = string
     public_ip = bool
@@ -32,7 +32,7 @@ variable external_subnet_ids {
 }
 
 variable internal_subnet_ids {
-  description = "List of subnetids of the virtual network where the virtual machines will reside."
+  description = "List of maps of subnetids of the virtual network where the virtual machines will reside."
   type = list(object({
     subnet_id = string
     public_ip = bool
