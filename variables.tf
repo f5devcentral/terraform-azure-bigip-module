@@ -19,7 +19,9 @@ variable mgmt_subnet_ids {
   type = list(object({
     subnet_id = string
     public_ip = bool
+    private_ip_primary = string
   }))
+  default = [{ "subnet_id" = null, "public_ip" = null, "private_ip_primary" = null }]
 }
 
 variable external_subnet_ids {
@@ -27,8 +29,10 @@ variable external_subnet_ids {
   type = list(object({
     subnet_id = string
     public_ip = bool
+    private_ip_primary = string
+    private_ip_secondary = string
   }))
-  default = [{ "subnet_id" = null, "public_ip" = null }]
+  default = [{ "subnet_id" = null, "public_ip" = null, "private_ip_primary" = null, "private_ip_secondary" = null }]
 }
 
 variable internal_subnet_ids {
@@ -36,8 +40,9 @@ variable internal_subnet_ids {
   type = list(object({
     subnet_id = string
     public_ip = bool
+    private_ip_primary = string
   }))
-  default = [{ "subnet_id" = null, "public_ip" = null }]
+  default = [{ "subnet_id" = null, "public_ip" = null, "private_ip_primary" = null }]
 }
 
 
@@ -85,7 +90,7 @@ variable storage_account_type {
 
 variable allocation_method {
   description = "Defines how an IP address is assigned. Options are Static or Dynamic."
-  default     = "Dynamic"
+  default     = "Static"
 }
 
 variable enable_accelerated_networking {
