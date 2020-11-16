@@ -88,10 +88,12 @@ variable storage_account_type {
   default     = "Standard_LRS"
 }
 
+/*
 variable allocation_method {
   description = "Defines how an IP address is assigned. Options are Static or Dynamic."
   default     = "Static"
 }
+*/
 
 variable enable_accelerated_networking {
   type        = bool

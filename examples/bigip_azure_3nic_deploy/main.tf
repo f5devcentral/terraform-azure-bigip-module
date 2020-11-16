@@ -18,7 +18,6 @@ resource azurerm_resource_group rg {
   location = var.location
 }
 
-
 #
 #Create N-nic bigip
 #
@@ -35,6 +34,7 @@ module bigip {
   internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones          = var.availabilityZones
 }
+
 
 resource "null_resource" "clusterDO" {
 
