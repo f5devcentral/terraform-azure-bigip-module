@@ -2,7 +2,7 @@
 
 This Terraform module deploys N-nic F5 BIG-IP in Azure cloud,and with module count feature we can also deploy multiple instances of BIG-IP.
 
-Users can have dynamic or static private ip allocation.If primary/secondary private ip value is null, it will be dynamic or else static allocation.
+Users can have dynamic or static private ip allocation.If primary/secondary private ip value is null, it will be dynamic or else static private ip allocation.
 
 With Static private ip allocation we can assign primary and secondary private ips for external interfaces, whereas primary private ip for management
 and internal interfaces.If it is static private ip allocation we can't use module count as same private ips will be tried to allocate for multiple 
