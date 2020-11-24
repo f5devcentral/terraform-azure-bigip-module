@@ -2,14 +2,6 @@
 
 This Terraform module deploys N-nic F5 BIG-IP in Azure cloud,and with module count feature we can also deploy multiple instances of BIG-IP.
 
-Users can have dynamic or static private ip allocation.If primary/secondary private ip value is null, it will be dynamic or else static private ip allocation.
-
-With Static private ip allocation we can assign primary and secondary private ips for external interfaces, whereas primary private ip for management
-and internal interfaces.If it is static private ip allocation we can't use module count as same private ips will be tried to allocate for multiple 
-bigip instances based on module count.
-
-With Dynamic private ip allocation,we have to pass null value to primary/secondary private ip declaration and module count will be supported.
-
 ## Prerequisites
 
 This module is supported from Terraform 0.13 version onwards.
@@ -38,6 +30,17 @@ We have provided some common deployment [examples](https://github.com/f5devcentr
 #### Note
 There should be one to one mapping between subnet_ids and securitygroupids (for example if we have 2 or more external subnet_ids,we have to give same number of external securitygroupids to module)
 
+Users can have dynamic or static private ip allocation.If primary/secondary private ip value is null, it will be dynamic or else static private ip allocation.
+
+```
+With Static private ip allocation we can assign primary and secondary private ips for external interfaces, whereas primary private ip for management
+and internal interfaces.
+```
+
+If it is static private ip allocation we can't use module count as same private ips will be tried to allocate for multiple 
+bigip instances based on module count.
+
+With Dynamic private ip allocation,we have to pass null value to primary/secondary private ip declaration and module count will be supported.
 
 Below example snippets show how this module is called. ( Dynamic private ip allocation )
 
@@ -174,8 +177,8 @@ These variables have default values and don't have to be set to use this module.
 | az\_key\_vault\_authentication | Whether to use key vault to pass authentication | `string` | false |
 | azure\_keyvault\_name | The name of the Azure Key Vault to use | `string` | "" |
 | azure\_keyvault\_secret\_name | The name of the Azure Key Vault secret containing the password | `string` | "" |
-| external\_subnet\_ids | List of maps of subnetids of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null }] |
-| internal\_subnet\_ids | List of maps of subnetids of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null }] |
+| external\_subnet\_ids | List of maps of subnetids of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null,"private_ip_primary" = "", "private_ip_secondary" = "" }] |
+| internal\_subnet\_ids | List of maps of subnetids of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null,"private_ip_primary" = "" }] |
 | external\_securitygroup\_ids | List of network Security Groupids for external network | `List` | [] |
 | internal\_securitygroup\_ids | List of network Security Groupids for internal network | `List` | [] |
 
