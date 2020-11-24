@@ -35,6 +35,14 @@ locals {
     subnet["subnet_id"]
     if subnet["public_ip"] == true
   ]
+
+  mgmt_public_private_ip_primary = [
+    for private in local.bigip_map["mgmt_subnet_ids"] :
+    private["private_ip_primary"]
+    if private["public_ip"] == true
+  ]
+
+
   mgmt_public_index = [
     for index, subnet in local.bigip_map["mgmt_subnet_ids"] :
     index
@@ -48,6 +56,13 @@ locals {
     subnet["subnet_id"]
     if subnet["public_ip"] == false
   ]
+
+  mgmt_private_ip_primary = [
+    for private in local.bigip_map["mgmt_subnet_ids"] :
+    private["private_ip_primary"]
+    if private["public_ip"] == false
+  ]
+  
   mgmt_private_index = [
     for index, subnet in local.bigip_map["mgmt_subnet_ids"] :
     index
@@ -61,6 +76,21 @@ locals {
     subnet["subnet_id"]
     if subnet["public_ip"] == true
   ]
+
+  external_public_private_ip_primary = [
+    for private in local.bigip_map["external_subnet_ids"] :
+    private["private_ip_primary"]
+    if private["public_ip"] == true 
+  ]
+
+ external_public_private_ip_secondary = [
+    for private in local.bigip_map["external_subnet_ids"] :
+    private["private_ip_secondary"]
+    if private["public_ip"] == true 
+  ]
+
+
+
   external_public_index = [
     for index, subnet in local.bigip_map["external_subnet_ids"] :
     index
@@ -74,6 +104,20 @@ locals {
     subnet["subnet_id"]
     if subnet["public_ip"] == false
   ]
+
+  external_private_ip_primary = [
+    for private in local.bigip_map["external_subnet_ids"] :
+    private["private_ip_primary"]
+    if private["public_ip"] == false 
+  ]
+
+  external_private_ip_secondary = [
+    for private in local.bigip_map["external_subnet_ids"] :
+    private["private_ip_secondary"]
+    if private["public_ip"] == false 
+  ]
+
+
   external_private_index = [
     for index, subnet in local.bigip_map["external_subnet_ids"] :
     index
@@ -87,6 +131,7 @@ locals {
     subnet["subnet_id"]
     if subnet["public_ip"] == true
   ]
+
   internal_public_index = [
     for index, subnet in local.bigip_map["internal_subnet_ids"] :
     index
@@ -100,11 +145,20 @@ locals {
     subnet["subnet_id"]
     if subnet["public_ip"] == false
   ]
+
   internal_private_index = [
     for index, subnet in local.bigip_map["internal_subnet_ids"] :
     index
     if subnet["public_ip"] == false
   ]
+
+  internal_private_ip_primary = [
+    for private in local.bigip_map["internal_subnet_ids"] :
+    private["private_ip_primary"]
+    if private["public_ip"] == false
+  ]
+
+
   internal_private_security_id = [
     for i in local.internal_private_index : local.bigip_map["internal_securitygroup_ids"][i]
   ]
@@ -113,6 +167,8 @@ locals {
   selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
   gw_bytes_nic = local.total_nics > 1 ? "${element(split("/",local.selfip_list[0]), 0 )}" : ""
+
+
 }
 
 #
@@ -230,7 +286,8 @@ resource "azurerm_network_interface" "mgmt_nic" {
   ip_configuration {
     name                          = "${local.instance_prefix}-mgmt-ip-${count.index}"
     subnet_id                     = local.bigip_map["mgmt_subnet_ids"][count.index]["subnet_id"]
-    private_ip_address_allocation = var.allocation_method
+    private_ip_address_allocation = ( length(local.mgmt_public_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic" )
+    private_ip_address		  = ( length(local.mgmt_public_private_ip_primary[count.index]) > 0 ? local.mgmt_public_private_ip_primary[count.index] : null )
     public_ip_address_id          = local.bigip_map["mgmt_subnet_ids"][count.index]["public_ip"] ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   tags = {
@@ -250,13 +307,15 @@ resource "azurerm_network_interface" "external_nic" {
     name                          = "${local.instance_prefix}-ext-ip-${count.index}"
     subnet_id                     = local.external_private_subnet_id[count.index]
     primary                       = "true"
-    private_ip_address_allocation = var.allocation_method
+    private_ip_address_allocation = ( length(local.external_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic" )
+    private_ip_address		  = ( length(local.external_private_ip_primary[count.index]) > 0 ? local.external_private_ip_primary[count.index] : null )
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   ip_configuration {
     name                          = "${local.instance_prefix}-secondary-ext-ip-${count.index}"
     subnet_id                     = local.external_private_subnet_id[count.index]
-    private_ip_address_allocation = var.allocation_method
+    private_ip_address_allocation = ( length(local.external_private_ip_secondary[count.index]) > 0 ? "Static" : "Dynamic" )
+    private_ip_address            = ( length(local.external_private_ip_secondary[count.index]) > 0 ? local.external_private_ip_secondary[count.index] : null )
   }
   tags = {
     Name   = "${local.instance_prefix}-ext-nic-${count.index}"
@@ -276,13 +335,15 @@ resource "azurerm_network_interface" "external_public_nic" {
     name                          = "${local.instance_prefix}-ext-public-ip-${count.index}"
     subnet_id                     = local.external_public_subnet_id[count.index]
     primary                       = "true"
-    private_ip_address_allocation = var.allocation_method
+    private_ip_address_allocation = ( length(local.external_public_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic" )
+    private_ip_address            = ( length(local.external_public_private_ip_primary[count.index]) > 0 ? local.external_public_private_ip_primary[count.index] : null )
     public_ip_address_id          = azurerm_public_ip.external_public_ip[count.index].id
   }
   ip_configuration {
       name                          = "${local.instance_prefix}-secondary-ext-public-ip-${count.index}"
       subnet_id                     = local.external_public_subnet_id[count.index]
-      private_ip_address_allocation = var.allocation_method
+      private_ip_address_allocation = ( length(local.external_public_private_ip_secondary[count.index]) > 0 ? "Static" : "Dynamic" )
+      private_ip_address            = ( length(local.external_public_private_ip_secondary[count.index]) > 0 ? local.external_public_private_ip_secondary[count.index] : null )
       public_ip_address_id          = azurerm_public_ip.secondary_external_public_ip[count.index].id
   }
   tags = {
@@ -301,7 +362,8 @@ resource "azurerm_network_interface" "internal_nic" {
   ip_configuration {
     name                          = "${local.instance_prefix}-int-ip-${count.index}"
     subnet_id                     = local.internal_private_subnet_id[count.index]
-    private_ip_address_allocation = var.allocation_method
+    private_ip_address_allocation = ( length(local.internal_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic" )
+    private_ip_address            = ( length(local.internal_private_ip_primary[count.index]) > 0 ? local.internal_private_ip_primary[count.index] : null )
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   tags = {

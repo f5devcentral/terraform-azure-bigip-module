@@ -19,7 +19,9 @@ variable mgmt_subnet_ids {
   type = list(object({
     subnet_id = string
     public_ip = bool
+    private_ip_primary = string
   }))
+  default = [{ "subnet_id" = null, "public_ip" = null, "private_ip_primary" = null }]
 }
 
 variable external_subnet_ids {
@@ -27,8 +29,10 @@ variable external_subnet_ids {
   type = list(object({
     subnet_id = string
     public_ip = bool
+    private_ip_primary = string
+    private_ip_secondary = string
   }))
-  default = [{ "subnet_id" = null, "public_ip" = null }]
+  default = [{ "subnet_id" = null, "public_ip" = null, "private_ip_primary" = null, "private_ip_secondary" = null }]
 }
 
 variable internal_subnet_ids {
@@ -36,8 +40,9 @@ variable internal_subnet_ids {
   type = list(object({
     subnet_id = string
     public_ip = bool
+    private_ip_primary = string
   }))
-  default = [{ "subnet_id" = null, "public_ip" = null }]
+  default = [{ "subnet_id" = null, "public_ip" = null, "private_ip_primary" = null }]
 }
 
 
@@ -83,11 +88,6 @@ variable storage_account_type {
   default     = "Standard_LRS"
 }
 
-variable allocation_method {
-  description = "Defines how an IP address is assigned. Options are Static or Dynamic."
-  default     = "Dynamic"
-}
-
 variable enable_accelerated_networking {
   type        = bool
   description = "(Optional) Enable accelerated networking on Network interface"
@@ -116,7 +116,7 @@ variable doPackageUrl {
   description = "URL to download the BIG-IP Declarative Onboarding module"
   type        = string
   //default     = ""
-  default = "https://github.com/F5Networks/f5-declarative-onboarding/releases/download/v1.13.0/f5-declarative-onboarding-1.13.0-5.noarch.rpm"
+  default = "https://github.com/F5Networks/f5-declarative-onboarding/releases/download/v1.16.0/f5-declarative-onboarding-1.16.0-8.noarch.rpm"
 }
 ## Please check and update the latest AS3 URL from https://github.com/F5Networks/f5-appsvcs-extension/releases/latest 
 # always point to a specific version in order to avoid inadvertent configuration inconsistency
@@ -124,7 +124,7 @@ variable as3PackageUrl {
   description = "URL to download the BIG-IP Application Service Extension 3 (AS3) module"
   type        = string
   //default     = ""
-  default = "https://github.com/F5Networks/f5-appsvcs-extension/releases/download/v3.20.0/f5-appsvcs-3.20.0-3.noarch.rpm"
+  default = "https://github.com/F5Networks/f5-appsvcs-extension/releases/download/v3.23.0/f5-appsvcs-3.23.0-5.noarch.rpm"
 }
 
 ## Please check and update the latest TS URL from https://github.com/F5Networks/f5-telemetry-streaming/releases/latest 
@@ -133,7 +133,7 @@ variable tsPackageUrl {
   description = "URL to download the BIG-IP Telemetry Streaming module"
   type        = string
   //default     = ""
-  default = "https://github.com/F5Networks/f5-telemetry-streaming/releases/download/v1.12.0/f5-telemetry-1.12.0-3.noarch.rpm"
+  default = "https://github.com/F5Networks/f5-telemetry-streaming/releases/download/v1.15.0/f5-telemetry-1.15.0-4.noarch.rpm"
 }
 
 ## Please check and update the latest FAST URL from https://github.com/F5Networks/f5-appsvcs-templates/releases/latest 
@@ -141,8 +141,8 @@ variable tsPackageUrl {
 variable fastPackageUrl {
   description = "URL to download the BIG-IP FAST module"
   type        = string
-  default     = ""
-  //default     = "https://github.com/F5Networks/f5-appsvcs-templates/releases/download/v1.1.0/f5-appsvcs-templates-1.1.0-1.noarch.rpm"
+  //default     = ""
+  default     = "https://github.com/F5Networks/f5-appsvcs-templates/releases/download/v1.4.0/f5-appsvcs-templates-1.4.0-1.noarch.rpm"
 }
 
 ## Please check and update the latest Failover Extension URL from https://github.com/F5Networks/f5-cloud-failover-extension/releases/latest 
@@ -150,8 +150,8 @@ variable fastPackageUrl {
 variable cfePackageUrl {
   description = "URL to download the BIG-IP Cloud Failover Extension module"
   type        = string
-  default     = ""
-  //default     = "https://github.com/F5Networks/f5-cloud-failover-extension/releases/download/v1.3.0/f5-cloud-failover-1.3.0-0.noarch.rpm"
+  //default     = ""
+  default     = "https://github.com/F5Networks/f5-cloud-failover-extension/releases/download/v1.6.1/f5-cloud-failover-1.6.1-1.noarch.rpm"
 }
 
 variable libs_dir {

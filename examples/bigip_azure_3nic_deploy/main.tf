@@ -18,7 +18,6 @@ resource azurerm_resource_group rg {
   location = var.location
 }
 
-
 #
 #Create N-nic bigip
 #
@@ -27,11 +26,11 @@ module bigip {
   source                     = "../../"
   prefix                     = format("%s-3nic", var.prefix)
   resource_group_name        = azurerm_resource_group.rg.name
-  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true }]
+  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" =  ""}]
   mgmt_securitygroup_ids     = [module.mgmt-network-security-group.network_security_group_id]
-  external_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true }]
+  external_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }]
   external_securitygroup_ids = [module.external-network-security-group-public.network_security_group_id]
-  internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false }]
+  internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false, "private_ip_primary" = ""}]
   internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones          = var.availabilityZones
 }
