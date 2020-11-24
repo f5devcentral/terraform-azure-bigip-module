@@ -80,13 +80,13 @@ locals {
   external_public_private_ip_primary = [
     for private in local.bigip_map["external_subnet_ids"] :
     private["private_ip_primary"]
-    if private["public_ip"] == true
+    if private["public_ip"] == true 
   ]
 
  external_public_private_ip_secondary = [
     for private in local.bigip_map["external_subnet_ids"] :
     private["private_ip_secondary"]
-    if private["public_ip"] == true
+    if private["public_ip"] == true 
   ]
 
 
@@ -108,13 +108,13 @@ locals {
   external_private_ip_primary = [
     for private in local.bigip_map["external_subnet_ids"] :
     private["private_ip_primary"]
-    if private["public_ip"] == false
+    if private["public_ip"] == false 
   ]
 
   external_private_ip_secondary = [
     for private in local.bigip_map["external_subnet_ids"] :
     private["private_ip_secondary"]
-    if private["public_ip"] == false
+    if private["public_ip"] == false 
   ]
 
 

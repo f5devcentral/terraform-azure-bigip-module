@@ -23,19 +23,18 @@ resource azurerm_resource_group rg {
 #Create N-nic bigip
 #
 module bigip {
-  count  		     = var.instance_count
+  count                      = var.instance_count
   source                     = "../../"
   prefix                     = format("%s-4nic", var.prefix)
   resource_group_name        = azurerm_resource_group.rg.name
-  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" =  "10.2.1.5" }]
+  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" =  "" }]
   mgmt_securitygroup_ids     = [module.mgmt-network-security-group.network_security_group_id]
-  external_subnet_ids        = [{"subnet_id" = data.azurerm_subnet.external-public.id,"public_ip" = true,"private_ip_primary" = "10.2.2.40","private_ip_secondary" = "10.2.2.50" },{"subnet_id" = data.azurerm_subnet.external-public2.id,"public_ip" = true, "private_ip_primary" = "10.2.3.40", "private_ip_secondary" = "10.2.3.50" }]
+  external_subnet_ids        = [{"subnet_id" = data.azurerm_subnet.external-public.id,"public_ip" = true,"private_ip_primary" = "","private_ip_secondary" = "" },{"subnet_id" = data.azurerm_subnet.external-public2.id,"public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }]
   external_securitygroup_ids = [module.external-network-security-group-public.network_security_group_id, module.external-network-security-group-public.network_security_group_id]
-  internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false, "private_ip_primary" = "10.2.4.40" }]
+  internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false, "private_ip_primary" = "" }]
   internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones          = var.availabilityZones
 }
-
 
 #
 # Create the Network Module to associate with BIGIP
