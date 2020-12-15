@@ -210,7 +210,7 @@ resource random_string password {
   special     = false
 }
 
-data "template_file" "init_file" {
+/*data "template_file" "init_file" {
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
     onboard_log    = var.onboard_log
@@ -224,7 +224,7 @@ data "template_file" "init_file" {
     bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
   }
 }
-
+*/
 # Create a Public IP for bigip
 resource "azurerm_public_ip" "mgmt_public_ip" {
   count               = length(local.bigip_map["mgmt_subnet_ids"])
@@ -434,8 +434,10 @@ resource "azurerm_virtual_machine" "f5vm01" {
   os_profile {
     computer_name  = "${local.instance_prefix}-f5vm01"
     admin_username = var.f5_username
-    admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
+    admin_password =  random_string.password.result
+  #  admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
     #custom_data    = data.template_file.f5_bigip_onboard.rendered
+    custom_data = file("${path.module}/startup-script.tpl")
   }
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key
@@ -461,7 +463,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
   depends_on = [azurerm_network_interface_security_group_association.mgmt_security, azurerm_network_interface_security_group_association.internal_security, azurerm_network_interface_security_group_association.external_security, azurerm_network_interface_security_group_association.external_public_security]
 }
 
-## ..:: Run Startup Script ::..
+/*## ..:: Run Startup Script ::..
 resource "azurerm_virtual_machine_extension" "vmext" {
 
   name               = "${local.instance_prefix}-vmext1"
@@ -477,17 +479,29 @@ resource "azurerm_virtual_machine_extension" "vmext" {
     "script": "${base64encode(data.template_file.init_file.rendered)}"
   }
   PROT
-}
+}*/
 
+resource "azurerm_virtual_machine_extension" "run_startup_cmd" {
+  name                 = "${local.instance_prefix}-run-startup-cmd"
+  virtual_machine_id   = azurerm_virtual_machine.f5vm01.id
+  publisher            = "Microsoft.OSTCExtensions"
+  type                 = "CustomScriptForLinux"
+  type_handler_version = "1.2"
+  settings             = <<SETTINGS
+    {
+      "commandToExecute": "bash /var/lib/waagent/CustomData"
+    }
+  SETTINGS
+}
 # Getting Public IP Assigned to BIGIP
 data "azurerm_public_ip" "f5vm01mgmtpip" {
   //   //count               = var.nb_public_ip
   name                = azurerm_public_ip.mgmt_public_ip[0].name
   resource_group_name = data.azurerm_resource_group.bigiprg.name
-  depends_on          = [azurerm_virtual_machine.f5vm01, azurerm_virtual_machine_extension.vmext,azurerm_public_ip.mgmt_public_ip[0]]
+  depends_on          = [azurerm_virtual_machine.f5vm01, azurerm_virtual_machine_extension.run_startup_cmd,azurerm_public_ip.mgmt_public_ip[0]]
 }
 
-data "template_file" "clustermemberDO1" {
+/*data "template_file" "clustermemberDO1" {
   count    = local.total_nics == 1 ? 1 : 0
   template = "${file("${path.module}/onboard_do_1nic.tpl")}"
   vars = {
@@ -528,4 +542,4 @@ data "template_file" "clustermemberDO3" {
     gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
   }
   depends_on = [azurerm_network_interface.external_nic, azurerm_network_interface.external_public_nic, azurerm_network_interface.internal_nic]
-}
+}*/

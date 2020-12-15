@@ -32,7 +32,7 @@ module bigip {
 }
 
 
-resource "null_resource" "clusterDO" {
+/*resource "null_resource" "clusterDO" {
   
   count = var.instance_count
    
@@ -45,7 +45,7 @@ resource "null_resource" "clusterDO" {
   }
   depends_on = [ module.bigip.onboard_do]
 }
-
+*/
 
 #
 # Create the Network Module to associate with BIGIP

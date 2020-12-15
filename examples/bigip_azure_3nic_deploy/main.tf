@@ -35,7 +35,7 @@ module bigip {
   availabilityZones          = var.availabilityZones
 }
 
-resource "null_resource" "clusterDO" {
+/*resource "null_resource" "clusterDO" {
 
   count = var.instance_count
 
@@ -47,7 +47,7 @@ resource "null_resource" "clusterDO" {
     command = "rm -rf DO_3nic-instance${count.index}.json"
   }
   depends_on = [ module.bigip.onboard_do]
-}
+}*/
 
 
 #
