@@ -23,6 +23,58 @@ This module is supported in the following bigip and terraform version
 | BIG-IP 15.x  | X |
 | BIG-IP 14.x  | X |
 | BIG-IP 13.x  | X |
+
+## Password Management
+
+By default bigip module will have random password setting to give dynamic password generation
+
+```
+variable az_key_vault_authentication {
+  description = "Whether to use key vault to pass authentication"
+  type        = bool
+  default     = false
+}
+
+Outputs:
+bigip_password = [
+  "xxxxxxxxxxxxxxxxxx",
+]
+```
+
+```
+To use Azure secret key vault, we have to enable the variable "az_key_vault_authentication" to true and supply the below respective variables with key_valut name,secret along with resource group name where azure key vault is defined"
+
+variable az_key_vault_authentication {
+  description = "Whether to use key vault to pass authentication"
+  type        = bool
+  default     = false
+}
+
+variable azure_secret_rg {
+  description = "The name of the resource group in which the Azure Key Vault exists"
+  type        = string
+  default     = ""
+}
+
+variable azure_keyvault_name {
+  description = "The name of the Azure Key Vault to use"
+  type        = string
+  default     = ""
+}
+
+variable azure_keyvault_secret_name {
+  description = "The name of the Azure Key Vault secret containing the password"
+  type        = string
+  default     = ""
+}
+
+Outputs:
+bigip_password = [
+  "xxxxxxxxxxxxxxxxxx",
+]
+
+```
+
 ## Example Usage
 
 We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
