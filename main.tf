@@ -213,13 +213,6 @@ resource random_string password {
 data "template_file" "init_file" {
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
-    onboard_log    = var.onboard_log
-    libs_dir       = var.libs_dir
-    DO_URL         = var.doPackageUrl
-    AS3_URL        = var.as3PackageUrl
-    TS_URL         = var.tsPackageUrl
-    FAST_URL       = var.fastPackageUrl
-    CFE_URL        = var.cfePackageUrl
     bigip_username = var.f5_username
     bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
   }
@@ -435,7 +428,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
     computer_name  = "${local.instance_prefix}-f5vm01"
     admin_username = var.f5_username
     admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
-    #custom_data    = data.template_file.f5_bigip_onboard.rendered
+    custom_data    = data.template_file.init_file.rendered
   }
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key
@@ -467,16 +460,14 @@ resource "azurerm_virtual_machine_extension" "vmext" {
   name               = "${local.instance_prefix}-vmext1"
   depends_on         = [azurerm_virtual_machine.f5vm01]
   virtual_machine_id = azurerm_virtual_machine.f5vm01.id
-
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.0"
-
-  protected_settings = <<PROT
-  {
-    "script": "${base64encode(data.template_file.init_file.rendered)}"
-  }
-  PROT
+publisher            = "Microsoft.OSTCExtensions"
+  type                 = "CustomScriptForLinux"
+  type_handler_version = "1.2"
+  settings             = <<SETTINGS
+    {
+      "commandToExecute": "bash /var/lib/waagent/CustomData"
+    }
+SETTINGS
 }
 
 # Getting Public IP Assigned to BIGIP
