@@ -166,6 +166,7 @@ locals {
   vlan_list   = concat(local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id)
   selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
+  instance_prefixx = format(var.prefixx)
   gw_bytes_nic = local.total_nics > 1 ? "${element(split("/",local.selfip_list[0]), 0 )}" : ""
 
 
@@ -181,6 +182,27 @@ resource "random_id" "module_id" {
 data "azurerm_resource_group" "bigiprg" {
   name = var.resource_group_name
 }
+
+
+
+data "azurerm_subscription" "current" {
+}
+data "azurerm_client_config" "current" {
+}
+
+
+
+
+
+
+
+
+resource "azurerm_user_assigned_identity" "user_identity" {
+  name                = "${local.instance_prefixx}-ident"
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  location            = data.azurerm_resource_group.bigiprg.location
+}
+
 
 data "azurerm_resource_group" "rg_keyvault" {
   name  = var.azure_secret_rg
@@ -199,6 +221,74 @@ data "azurerm_key_vault_secret" "bigip_admin_password" {
   key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
 }
 
+
+
+
+
+resource "azurerm_key_vault" "keyvault" {
+  name                        = "testvault-${local.instance_prefixx}"
+  location                    = data.azurerm_resource_group.bigiprg.location
+  resource_group_name         = data.azurerm_resource_group.bigiprg.name
+  enabled_for_disk_encryption = true
+  tenant_id                   = data.azurerm_client_config.current.tenant_id
+  soft_delete_enabled         = true
+  purge_protection_enabled    = false
+
+  sku_name = "standard"
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = azurerm_user_assigned_identity.user_identity.principal_id
+
+    key_permissions = [
+      "get", "list", "update", "create", "import", "delete", "recover", "backup", "restore",
+    ]
+
+    secret_permissions = ["get","list","set","delete","recover","backup","restore","purge"]
+
+    storage_permissions = [
+      "get"
+    ]
+  }
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = data.azurerm_client_config.current.object_id
+
+    key_permissions = [
+      "get", "list", "update", "create", "import", "delete", "recover", "backup", "restore",
+    ]
+
+    secret_permissions = ["get","list","set","delete","recover","backup","restore","purge"]
+
+    storage_permissions = [
+      "get"
+    ]
+  }
+
+  network_acls {
+    default_action = "Allow"
+    bypass         = "AzureServices"
+  }
+
+  tags = {
+    environment = "f5-bigip-runtime-init-func-test"
+  }
+}
+
+resource "azurerm_key_vault_secret" "adminsecret" {
+  name = "test-azure-admin-secret"
+  value = "StrongAdminPass212+"
+  key_vault_id = azurerm_key_vault.keyvault.id
+}
+resource "azurerm_key_vault_secret" "rootsecret" {
+  name = "test-azure-root-secret"
+  value = "StrongRootPass212+"
+  key_vault_id = azurerm_key_vault.keyvault.id
+}
+
+
+
 #
 # Create random password for BIG-IP
 #
@@ -213,10 +303,14 @@ resource random_string password {
 data "template_file" "init_file" {
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
+    deployment_id = "${local.instance_prefixx}"
+    domain = "${var.DOMAIN}"
+    az_key_vault_authentication = var.az_key_vault_authentication
     bigip_username = var.f5_username
     bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
   }
 }
+
 
 # Create a Public IP for bigip
 resource "azurerm_public_ip" "mgmt_public_ip" {
@@ -451,6 +545,12 @@ resource "azurerm_virtual_machine" "f5vm01" {
     Name   = "${local.instance_prefix}-f5vm01"
     source = "terraform"
   }
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.user_identity.id]
+  }
+
+
   depends_on = [azurerm_network_interface_security_group_association.mgmt_security, azurerm_network_interface_security_group_association.internal_security, azurerm_network_interface_security_group_association.external_security, azurerm_network_interface_security_group_association.external_public_security]
 }
 

@@ -1,3 +1,9 @@
+variable prefixx {
+  description = "Prefix for resources created by this module"
+  type        = string
+  default     = "tf-azure-bigip"
+}
+
 variable prefix {
   description = "Prefix for resources created by this module"
   type        = string
@@ -193,5 +199,8 @@ variable azure_keyvault_secret_name {
   description = "The name of the Azure Key Vault secret containing the password"
   type        = string
   default     = ""
+}
+variable "DOMAIN" {
+  default = "azure"
 }
 
