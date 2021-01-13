@@ -19,6 +19,10 @@ exec 1>$npipe
 exec 2>&1
 
 mkdir -p /config/cloud
+  
+curl -o /config/cloud/do_w_admin.json -s --fail --retry 60 -m 10 -L https://raw.githubusercontent.com/F5Networks/f5-bigip-runtime-init/main/examples/declarations/do_w_admin.json
+
+
 ### write_files:
 # Download or Render BIG-IP Runtime Init Config 
 if ${az_key_vault_authentication}
@@ -60,7 +64,7 @@ extension_services:
   service_operations:
     - extensionType: do
       type: url
-      value: https://raw.githubusercontent.com/F5Networks/f5-bigip-runtime-init/main/examples/declarations/do_w_admin.json
+      value: file:///config/cloud/do_w_admin.json
 post_onboard_enabled: []
 
 EOF
@@ -99,7 +103,7 @@ extension_services:
   service_operations:
     - extensionType: do
       type: url
-      value: https://raw.githubusercontent.com/F5Networks/f5-bigip-runtime-init/main/examples/declarations/do_w_admin.json
+      value: file:///config/cloud/do_w_admin.json
 post_onboard_enabled: []
 
 EOF
