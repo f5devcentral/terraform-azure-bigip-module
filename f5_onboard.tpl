@@ -20,7 +20,7 @@ exec 2>&1
 
 mkdir -p /config/cloud
   
-curl -o /config/cloud/do_w_admin.json -s --fail --retry 60 -m 10 -L https://raw.githubusercontent.com/F5Networks/f5-bigip-runtime-init/main/examples/declarations/do_w_admin.json
+curl -o /config/cloud/do_w_admin.json -s --fail --retry 60 -m 10 -L https://raw.githubusercontent.com/f5devcentral/terraform-azure-bigip-module/dev_saketha_runtimeinit/config/onboard_do.json
 
 
 ### write_files:
@@ -38,15 +38,8 @@ runtime_parameters:
     secretProvider:
       environment: azure
       type: KeyVault
-      vaultUrl: https://testvault-${deployment_id}.vault.${domain}.net
-      secretId: test-azure-admin-secret
-  - name: ROOT_PASS
-    type: secret
-    secretProvider:
-      type: KeyVault
-      environment: azure
-      vaultUrl: https://testvault-${deployment_id}.vault.${domain}.net
-      secretId: test-azure-root-secret
+      vaultUrl: ${vault_url}
+      secretId: ${secret_id}
 pre_onboard_enabled:
   - name: provision_rest
     type: inline
@@ -79,13 +72,6 @@ runtime_parameters:
   - name: ADMIN_PASS
     type: static
     value: ${bigip_password}
-  - name: ROOT_PASS
-    type: secret
-    secretProvider:
-      type: KeyVault
-      environment: azure
-      vaultUrl: https://testvault-${deployment_id}.vault.${domain}.net
-      secretId: test-azure-root-secret
 pre_onboard_enabled:
   - name: provision_rest
     type: inline

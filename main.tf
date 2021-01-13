@@ -211,7 +211,7 @@ data "azurerm_resource_group" "rg_keyvault" {
 
 data "azurerm_key_vault" "keyvault" {
   count               = var.az_key_vault_authentication ? 1 : 0
-  name                = var.azure_keyvault_name
+  name                = var.azure_keyvault_name 
   resource_group_name = data.azurerm_resource_group.rg_keyvault[count.index].name
 }
 
@@ -226,6 +226,7 @@ data "azurerm_key_vault_secret" "bigip_admin_password" {
 
 
 resource "azurerm_key_vault" "keyvault" {
+  count                       = var.az_key_vault_authentication ? 1 : 0
   name                        = "testvault-${local.instance_prefixx}"
   location                    = data.azurerm_resource_group.bigiprg.location
   resource_group_name         = data.azurerm_resource_group.bigiprg.name
@@ -277,14 +278,10 @@ resource "azurerm_key_vault" "keyvault" {
 }
 
 resource "azurerm_key_vault_secret" "adminsecret" {
+  count = var.az_key_vault_authentication ? 1 : 0
   name = "test-azure-admin-secret"
   value = "StrongAdminPass212+"
-  key_vault_id = azurerm_key_vault.keyvault.id
-}
-resource "azurerm_key_vault_secret" "rootsecret" {
-  name = "test-azure-root-secret"
-  value = "StrongRootPass212+"
-  key_vault_id = azurerm_key_vault.keyvault.id
+  key_vault_id = azurerm_key_vault.keyvault[count.index].id
 }
 
 
@@ -300,16 +297,29 @@ resource random_string password {
   special     = false
 }
 
-data "template_file" "init_file" {
+data "template_file" "init_file1" {
+  count = var.az_key_vault_authentication ? 1 : 0
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
-    deployment_id = "${local.instance_prefixx}"
-    domain = "${var.DOMAIN}"
+    vault_url = data.azurerm_key_vault.keyvault[count.index].vault_uri
+    secret_id = var.azure_keyvault_secret_name
     az_key_vault_authentication = var.az_key_vault_authentication
     bigip_username = var.f5_username
-    bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
+    bigip_password = random_string.password.result
   }
 }
+data "template_file" "init_file" {
+  count = var.az_key_vault_authentication ? 0 : 1
+  template = "${file("${path.module}/${var.script_name}.tpl")}"
+  vars = {
+    vault_url = ""
+    secret_id = ""
+    az_key_vault_authentication = var.az_key_vault_authentication
+    bigip_username = var.f5_username
+    bigip_password = random_string.password.result
+  }
+}
+
 
 
 # Create a Public IP for bigip
@@ -522,7 +532,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
     computer_name  = "${local.instance_prefix}-f5vm01"
     admin_username = var.f5_username
     admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
-    custom_data    = data.template_file.init_file.rendered
+    custom_data    = var.az_key_vault_authentication ? data.template_file.init_file1[0].rendered : data.template_file.init_file[0].rendered
   }
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key
