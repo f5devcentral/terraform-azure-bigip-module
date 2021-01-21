@@ -36,10 +36,10 @@ runtime_parameters:
   - name: ADMIN_PASS
     type: secret
     secretProvider:
-      environment: azure
-      type: KeyVault
-      vaultUrl: ${vault_url}
-      secretId: ${secret_id}
+      environment: azure
+      type: KeyVault
+      vaultUrl: ${vault_url}
+      secretId: ${secret_id}
 pre_onboard_enabled:
   - name: provision_rest
     type: inline

@@ -191,12 +191,6 @@ data "azurerm_client_config" "current" {
 }
 
 
-
-
-
-
-
-
 resource "azurerm_user_assigned_identity" "user_identity" {
   name                = "${local.instance_prefixx}-ident"
   resource_group_name = data.azurerm_resource_group.bigiprg.name
@@ -222,69 +216,20 @@ data "azurerm_key_vault_secret" "bigip_admin_password" {
 }
 
 
-
-
-
-resource "azurerm_key_vault" "keyvault" {
-  count                       = var.az_key_vault_authentication ? 1 : 0
-  name                        = "testvault-${local.instance_prefixx}"
-  location                    = data.azurerm_resource_group.bigiprg.location
-  resource_group_name         = data.azurerm_resource_group.bigiprg.name
-  enabled_for_disk_encryption = true
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
-  soft_delete_enabled         = true
-  purge_protection_enabled    = false
-
-  sku_name = "standard"
-
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = azurerm_user_assigned_identity.user_identity.principal_id
-
-    key_permissions = [
-      "get", "list", "update", "create", "import", "delete", "recover", "backup", "restore",
-    ]
-
-    secret_permissions = ["get","list","set","delete","recover","backup","restore","purge"]
-
-    storage_permissions = [
-      "get"
-    ]
-  }
-
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
-
-    key_permissions = [
-      "get", "list", "update", "create", "import", "delete", "recover", "backup", "restore",
-    ]
-
-    secret_permissions = ["get","list","set","delete","recover","backup","restore","purge"]
-
-    storage_permissions = [
-      "get"
-    ]
-  }
-
-  network_acls {
-    default_action = "Allow"
-    bypass         = "AzureServices"
-  }
-
-  tags = {
-    environment = "f5-bigip-runtime-init-func-test"
-  }
-}
-
-resource "azurerm_key_vault_secret" "adminsecret" {
+resource "azurerm_key_vault_access_policy" "example" {
   count = var.az_key_vault_authentication ? 1 : 0
-  name = "test-azure-admin-secret"
-  value = "StrongAdminPass212+"
-  key_vault_id = azurerm_key_vault.keyvault[count.index].id
+  key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_user_assigned_identity.user_identity.principal_id
+
+  key_permissions = [
+    "get", "list", "update", "create", "import", "delete", "recover", "backup", "restore",
+  ]
+
+  secret_permissions = [
+    "get","list","set","delete","recover","backup","restore","purge"
+  ]
 }
-
-
 
 #
 # Create random password for BIG-IP
