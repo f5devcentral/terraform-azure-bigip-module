@@ -50,9 +50,17 @@ pre_onboard_enabled:
 extension_packages:
   install_operations:
     - extensionType: do
-      extensionVersion: 1.16.0
+      extensionVersion: ${DO_VER}
+      extensionUrl: ${DO_URL}
     - extensionType: as3
-      extensionVersion: 3.23.0
+      extensionVersion: ${AS3_VER}
+      extensionUrl: ${AS3_URL}
+    - extensionType: ts
+      extensionVersion: ${TS_VER}
+      extensionUrl: ${TS_URL}
+    - extensionType: cf
+      extensionVersion: ${CFE_VER}
+      extensionUrl: ${CFE_URL}
 extension_services:
   service_operations:
     - extensionType: do
@@ -82,9 +90,17 @@ pre_onboard_enabled:
 extension_packages:
   install_operations:
     - extensionType: do
-      extensionVersion: 1.16.0
+      extensionVersion: ${DO_VER}
+      extensionUrl: ${DO_URL}
     - extensionType: as3
-      extensionVersion: 3.23.0
+      extensionVersion: ${AS3_VER}
+      extensionUrl: ${AS3_URL}
+    - extensionType: ts
+      extensionVersion: ${TS_VER}
+      extensionUrl: ${TS_URL}
+    - extensionType: cf
+      extensionVersion: ${CFE_VER}
+      extensionUrl: ${CFE_URL}
 extension_services:
   service_operations:
     - extensionType: do
