@@ -28,8 +28,7 @@ curl -o /config/cloud/do_w_admin.json -s --fail --retry 60 -m 10 -L https://raw.
 if ${az_key_vault_authentication}
 then
    cat << 'EOF' > /config/cloud/runtime-init-conf.yaml
----
-runtime_parameters: 
+runtime_parameters:
   - name: USER_NAME
     type: static
     value: ${bigip_username}
@@ -40,46 +39,22 @@ runtime_parameters:
       type: KeyVault
       vaultUrl: ${vault_url}
       secretId: ${secret_id}
-pre_onboard_enabled:
-  - name: provision_rest
-    type: inline
-    commands:
-      - /usr/bin/setdb provision.extramb 500
-      - /usr/bin/setdb restjavad.useextramb true
-      - /usr/bin/setdb setup.run false
-extension_packages:
-  install_operations:
-    - extensionType: do
-      extensionVersion: ${DO_VER}
-      extensionUrl: ${DO_URL}
-    - extensionType: as3
-      extensionVersion: ${AS3_VER}
-      extensionUrl: ${AS3_URL}
-    - extensionType: ts
-      extensionVersion: ${TS_VER}
-      extensionUrl: ${TS_URL}
-    - extensionType: cf
-      extensionVersion: ${CFE_VER}
-      extensionUrl: ${CFE_URL}
-extension_services:
-  service_operations:
-    - extensionType: do
-      type: url
-      value: file:///config/cloud/do_w_admin.json
-post_onboard_enabled: []
-
 EOF
 
 else
+
    cat << 'EOF' > /config/cloud/runtime-init-conf.yaml
----
-runtime_parameters: 
+runtime_parameters:
   - name: USER_NAME
     type: static
     value: ${bigip_username}
   - name: ADMIN_PASS
     type: static
     value: ${bigip_password}
+EOF
+fi
+
+cat << 'EOF' >> /config/cloud/runtime-init-conf.yaml
 pre_onboard_enabled:
   - name: provision_rest
     type: inline
@@ -95,23 +70,13 @@ extension_packages:
     - extensionType: as3
       extensionVersion: ${AS3_VER}
       extensionUrl: ${AS3_URL}
-    - extensionType: ts
-      extensionVersion: ${TS_VER}
-      extensionUrl: ${TS_URL}
-    - extensionType: cf
-      extensionVersion: ${CFE_VER}
-      extensionUrl: ${CFE_URL}
 extension_services:
   service_operations:
     - extensionType: do
       type: url
       value: file:///config/cloud/do_w_admin.json
 post_onboard_enabled: []
-
 EOF
-
-fi
-
 # # Download
 PACKAGE_URL='https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.1.0/dist/f5-bigip-runtime-init-1.1.0-1.gz.run'
 for i in {1..30}; do
