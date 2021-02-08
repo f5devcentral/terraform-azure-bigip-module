@@ -260,7 +260,7 @@ data "template_file" "init_file1" {
     secret_id = var.azure_keyvault_secret_name
     az_key_vault_authentication = var.az_key_vault_authentication
     bigip_username = var.f5_username
-    bigip_password = random_string.password.result
+    bigip_password = ( length(var.f5_password) > 0 ? var.f5_password : random_string.password.result )
   }
 }
 data "template_file" "init_file" {
@@ -281,7 +281,7 @@ data "template_file" "init_file" {
     secret_id = ""
     az_key_vault_authentication = var.az_key_vault_authentication
     bigip_username = var.f5_username
-    bigip_password = random_string.password.result
+    bigip_password = ( length(var.f5_password) > 0 ? var.f5_password : random_string.password.result )
   }
 }
 

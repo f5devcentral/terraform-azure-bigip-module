@@ -13,7 +13,10 @@ variable f5_username {
   description = "The admin username of the F5 Bigip that will be deployed"
   default     = "bigipuser"
 }
-
+variable f5_password {
+  description = "The admin password of the F5 Bigip that will be deployed"
+  default     = ""
+}
 
 variable resource_group_name {
   description = "The name of the resource group in which the resources will be created"
@@ -199,8 +202,5 @@ variable azure_keyvault_secret_name {
   description = "The name of the Azure Key Vault secret containing the password"
   type        = string
   default     = ""
-}
-variable "DOMAIN" {
-  default = "azure"
 }
 
