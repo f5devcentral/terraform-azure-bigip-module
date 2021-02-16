@@ -3,19 +3,19 @@ terraform {
   required_providers {
       azurerm = {
          source = "hashicorp/azurerm"
-	 version = "~>2.28.0"
+	 version = ">2.28.0"
        }
        random = {
          source = "hashicorp/random"
-         version = "~>2.3.0"
+         version = ">2.3.0"
        }
        template = {
          source = "hashicorp/template"
-         version = "~>2.1.2"
+         version = ">2.1.2"
        }
        null = {
          source = "hashicorp/null"
-         version = "~>2.1.2"
+         version = ">2.1.2"
       }
  } 
 }
@@ -249,13 +249,11 @@ data "template_file" "init_file1" {
     DO_URL         = var.doPackageUrl
     AS3_URL        = var.as3PackageUrl
     TS_URL         = var.tsPackageUrl
-//    FAST_URL       = var.fastPackageUrl
     CFE_URL        = var.cfePackageUrl
     DO_VER         = split("/", var.doPackageUrl)[7]
     AS3_VER        = split("/", var.as3PackageUrl)[7]
     TS_VER         = split("/", var.tsPackageUrl)[7]
     CFE_VER        = split("/", var.cfePackageUrl)[7]
-//    FAST_VER       = split("/", var.fastPackageUrl)[7]
     vault_url = data.azurerm_key_vault.keyvault[count.index].vault_uri
     secret_id = var.azure_keyvault_secret_name
     az_key_vault_authentication = var.az_key_vault_authentication
@@ -270,9 +268,7 @@ data "template_file" "init_file" {
     DO_URL         = var.doPackageUrl
     AS3_URL        = var.as3PackageUrl
     TS_URL         = var.tsPackageUrl
-  //  FAST_URL       = var.fastPackageUrl
     CFE_URL        = var.cfePackageUrl
-  //  FAST_VER       = split("/", var.fastPackageUrl)[7]
     DO_VER         = split("/", var.doPackageUrl)[7]
     AS3_VER        = split("/", var.as3PackageUrl)[7]
     TS_VER         = split("/", var.tsPackageUrl)[7]
