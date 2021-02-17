@@ -25,13 +25,18 @@ curl -o /config/cloud/do_w_admin.json -s --fail --retry 60 -m 10 -L https://raw.
 
 ### write_files:
 # Download or Render BIG-IP Runtime Init Config 
-if ${az_key_vault_authentication}
-then
-   cat << 'EOF' > /config/cloud/runtime-init-conf.yaml
+
+cat << 'EOF' > /config/cloud/runtime-init-conf.yaml
+---
 runtime_parameters:
   - name: USER_NAME
     type: static
     value: ${bigip_username}
+EOF
+
+if ${az_key_vault_authentication}
+then
+   cat << 'EOF' >> /config/cloud/runtime-init-conf.yaml
   - name: ADMIN_PASS
     type: secret
     secretProvider:
@@ -43,11 +48,7 @@ EOF
 
 else
 
-   cat << 'EOF' > /config/cloud/runtime-init-conf.yaml
-runtime_parameters:
-  - name: USER_NAME
-    type: static
-    value: ${bigip_username}
+   cat << 'EOF' >> /config/cloud/runtime-init-conf.yaml
   - name: ADMIN_PASS
     type: static
     value: ${bigip_password}
@@ -70,6 +71,12 @@ extension_packages:
     - extensionType: as3
       extensionVersion: ${AS3_VER}
       extensionUrl: ${AS3_URL}
+    - extensionType: ts
+      extensionVersion: ${TS_VER}
+      extensionUrl: ${TS_URL}
+    - extensionType: cf
+      extensionVersion: ${CFE_VER}
+      extensionUrl: ${CFE_URL}
 extension_services:
   service_operations:
     - extensionType: do
@@ -78,7 +85,8 @@ extension_services:
 post_onboard_enabled: []
 EOF
 # # Download
-PACKAGE_URL='https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.1.0/dist/f5-bigip-runtime-init-1.1.0-1.gz.run'
+#PACKAGE_URL='https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.1.0/dist/f5-bigip-runtime-init-1.1.0-1.gz.run'
+PACKAGE_URL='https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.2.0/dist/f5-bigip-runtime-init-1.2.0-1.gz.run'
 for i in {1..30}; do
     curl -fv --retry 1 --connect-timeout 5 -L $PACKAGE_URL -o "/var/config/rest/downloads/f5-bigip-runtime-init-1.1.0-1.gz.run" && break || sleep 10
 done
