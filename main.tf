@@ -246,6 +246,7 @@ data "template_file" "init_file1" {
   count = var.az_key_vault_authentication ? 1 : 0
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
+    INIT_URL      = var.runtimeinitPackageUrl
     DO_URL         = var.doPackageUrl
     AS3_URL        = var.as3PackageUrl
     TS_URL         = var.tsPackageUrl
@@ -265,6 +266,7 @@ data "template_file" "init_file" {
   count = var.az_key_vault_authentication ? 0 : 1
   template = "${file("${path.module}/${var.script_name}.tpl")}"
   vars = {
+    INIT_URL      = var.runtimeinitPackageUrl
     DO_URL         = var.doPackageUrl
     AS3_URL        = var.as3PackageUrl
     TS_URL         = var.tsPackageUrl
