@@ -166,7 +166,6 @@ locals {
   vlan_list   = concat(local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id)
   selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
-  instance_prefixx = format(var.prefixx)
   gw_bytes_nic = local.total_nics > 1 ? "${element(split("/",local.selfip_list[0]), 0 )}" : ""
 
 
@@ -251,10 +250,10 @@ data "template_file" "init_file1" {
     AS3_URL        = var.AS3_URL
     TS_URL         = var.TS_URL 
     CFE_URL        = var.CFE_URL
-    DO_VER         = split("/", var.doPackageUrl)[7]
-    AS3_VER        = split("/", var.as3PackageUrl)[7]
-    TS_VER         = split("/", var.tsPackageUrl)[7]
-    CFE_VER        = split("/", var.cfePackageUrl)[7]
+    DO_VER         = split("/", var.DO_URL)[7]
+    AS3_VER        = split("/", var.AS3_URL)[7]
+    TS_VER         = split("/", var.TS_URL)[7]
+    CFE_VER        = split("/", var.CFE_URL)[7]
     vault_url = data.azurerm_key_vault.keyvault[count.index].vault_uri
     secret_id = var.azure_keyvault_secret_name
     az_key_vault_authentication = var.az_key_vault_authentication
@@ -271,10 +270,10 @@ data "template_file" "init_file" {
     AS3_URL        = var.AS3_URL
     TS_URL         = var.TS_URL 
     CFE_URL        = var.CFE_URL
-    DO_VER         = split("/", var.doPackageUrl)[7]
-    AS3_VER        = split("/", var.as3PackageUrl)[7]
-    TS_VER         = split("/", var.tsPackageUrl)[7]
-    CFE_VER        = split("/", var.cfePackageUrl)[7]
+    DO_VER         = split("/", var.DO_URL)[7]
+    AS3_VER        = split("/", var.AS3_URL)[7]
+    TS_VER         = split("/", var.TS_URL)[7]
+    CFE_VER        = split("/", var.CFE_URL)[7]
     vault_url = ""
     secret_id = ""
     az_key_vault_authentication = var.az_key_vault_authentication

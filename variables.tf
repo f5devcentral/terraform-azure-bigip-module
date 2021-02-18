@@ -1,9 +1,3 @@
-variable prefixx {
-  description = "Prefix for resources created by this module"
-  type        = string
-  default     = "tf-azure-bigip"
-}
-
 variable prefix {
   description = "Prefix for resources created by this module"
   type        = string
