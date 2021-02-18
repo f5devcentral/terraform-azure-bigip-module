@@ -191,7 +191,7 @@ data "azurerm_client_config" "current" {
 
 
 resource "azurerm_user_assigned_identity" "user_identity" {
-  name                = "${local.instance_prefixx}-ident"
+  name                = "${local.instance_prefix}-ident"
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   location            = data.azurerm_resource_group.bigiprg.location
 }
@@ -555,9 +555,9 @@ data "template_file" "clustermemberDO1" {
   template = "${file("${path.module}/onboard_do_1nic.tpl")}"
   vars = {
     hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
     search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
   }
 }
 
@@ -566,9 +566,9 @@ data "template_file" "clustermemberDO2" {
   template = file("${path.module}/onboard_do_2nic.tpl")
   vars = {
     hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
     search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
     vlan-name     = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
     self-ip       = local.selfip_list[0]
     gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
@@ -581,9 +581,9 @@ data "template_file" "clustermemberDO3" {
   template = file("${path.module}/onboard_do_3nic.tpl")
   vars = {
     hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
     search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
     vlan-name1    = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
     self-ip1      = local.selfip_list[0]
     vlan-name2    = "${element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)}"
