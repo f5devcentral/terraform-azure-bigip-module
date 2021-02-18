@@ -26,15 +26,6 @@ This module is supported in the following bigip and terraform version
 
 ## Password Management
  
-|:point_up: |By default bigip module will have random password setting to give dynamic password generation|
-|----|---|
-
-|:point_up: |Users Can explicitly provide password as input to Module using optional Variable "f5_password"|
-|----|---|
-
-|:point_up:  | To use Azure key vault  password,we have to enable the variable "az_key_vault_authentication" to true|
-|-----|----|
-
 
 By default bigip module will have random password setting to give dynamic password generation
 
