@@ -231,6 +231,7 @@ These variables have default values and don't have to be set to use this module.
 | Name | Description | Type | Default |
 |------|-------------|------|---------|
 | f5\_username | The admin username of the F5   BIG-IP that will be deployed | `string` | bigipuser |
+| f5\_password | Password of the F5  BIG-IP that will be deployed.If this is not specified random password will get generated | `string` | "" |
 | f5\_instance\_type | Specifies the size of the virtual machine | `string` | Standard\_DS3\_v2|
 | f5\_image\_name | 5 SKU (image) to you want to deploy. Note: The disk size of the VM will be determined based on the option you select. Important: If intending to provision multiple modules, ensure the appropriate value is selected, such as AllTwoBootLocations or AllOneBootLocation | `string` | f5-bigip-virtual-edition-200m-best-hourly |
 | f5\_version | It is set to default to use the latest software | `string` | latest |
@@ -239,11 +240,12 @@ These variables have default values and don't have to be set to use this module.
 | enable\_accelerated\_networking | Enable accelerated networking on Network interface | `bool` | FALSE | 
 | enable\_ssh\_key | Enable ssh key authentication in Linux virtual Machine | `bool` | TRUE | 
 | f5\_ssh\_publickey | Path to the public key to be used for ssh access to the VM. Only used with non-Windows vms and can be left as-is even if using Windows vms. If specifying a path to a certification on a Windows machine to provision a linux vm use the / in the path versus backslash. e.g. c:/home/id\_rsa.pub | `string` | ~/.ssh/id\_rsa.pub | 
-| doPackageUrl | URL to download the BIG-IP Declarative Onboarding module | `string` | latest | 
-| as3PackageUrl | URL to download the BIG-IP Application Service Extension 3 (AS3) module | `string` | latest | 
-| tsPackageUrl | URL to download the BIG-IP Telemetry Streaming module | `string` | latest | 
-| fastPackageUrl | URL to download the BIG-IP FAST module | `string` | latest | 
-| cfePackageUrl | URL to download the BIG-IP Cloud Failover Extension module | `string` | latest |
+| DO_URL | URL to download the BIG-IP Declarative Onboarding module | `string` | latest | 
+| AS3_URL | URL to download the BIG-IP Application Service Extension 3 (AS3) module | `string` | latest | 
+| TS_URL | URL to download the BIG-IP Telemetry Streaming module | `string` | latest | 
+| FAST_URL | URL to download the BIG-IP FAST module | `string` | latest | 
+| CFE_URL | URL to download the BIG-IP Cloud Failover Extension module | `string` | latest |
+| INIT_URL | URL to download the BIG-IP runtime init module | `string` | latest |
 | libs\_dir | Directory on the BIG-IP to download the A&O Toolchain into | `string` | /config/cloud/azure/node_modules |
 | onboard\_log | Directory on the BIG-IP to store the cloud-init logs | `string` | /var/log/startup-script.log |
 | azure\_secret\_rg | The name of the resource group in which the Azure Key Vault exists | `string` | "" |

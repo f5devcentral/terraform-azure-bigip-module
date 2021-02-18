@@ -1,169 +1,96 @@
-#!/bin/bash
 
-## ..:: Variables Definition ::..
-## ----------------------------------------------------------------------------
-LOG_FILE='${onboard_log}'
-LIBS_DIR='${libs_dir}'
-BIGIP_USERNAME='${bigip_username}'
-BIGIP_PASSWORD='${bigip_password}'
+#!/bin/bash -x
 
-if [ ! -e $LOG_FILE ]
+# NOTE: Startup Script is run once / initialization only (Cloud-Init behavior vs. typical re-entrant for Azure Custom Script Extension )
+# For 15.1+ and above, Cloud-Init will run the script directly and can remove Azure Custom Script Extension 
+
+
+mkdir -p  /var/log/cloud /config/cloud /var/config/rest/downloads
+
+
+LOG_FILE=/var/log/cloud/startup-script.log
+[[ ! -f $LOG_FILE ]] && touch $LOG_FILE || { echo "Run Only Once. Exiting"; exit; }
+npipe=/tmp/$$.tmp
+trap "rm -f $npipe" EXIT
+mknod $npipe p
+tee <$npipe -a $LOG_FILE /dev/ttyS0 &
+exec 1>&-
+exec 1>$npipe
+exec 2>&1
+
+mkdir -p /config/cloud
+  
+curl -o /config/cloud/do_w_admin.json -s --fail --retry 60 -m 10 -L https://raw.githubusercontent.com/f5devcentral/terraform-azure-bigip-module/dev_saketha_runtimeinit/config/onboard_do.json
+
+
+### write_files:
+# Download or Render BIG-IP Runtime Init Config 
+
+cat << 'EOF' > /config/cloud/runtime-init-conf.yaml
+---
+runtime_parameters:
+  - name: USER_NAME
+    type: static
+    value: ${bigip_username}
+EOF
+
+if ${az_key_vault_authentication}
 then
-     touch $LOG_FILE
-     exec &>>$LOG_FILE
+   cat << 'EOF' >> /config/cloud/runtime-init-conf.yaml
+  - name: ADMIN_PASS
+    type: secret
+    secretProvider:
+      environment: azure
+      type: KeyVault
+      vaultUrl: ${vault_url}
+      secretId: ${secret_id}
+EOF
+
 else
-    #if file exists, exit as only want to run once
-    exit
-fi
-exec 1>$LOG_FILE 2>&1
-# WAIT FOR BIG-IP SYSTEMS & API TO BE UP
-curl -o /config/cloud/utils.sh -s --fail --retry 60 -m 10 -L https://raw.githubusercontent.com/F5Networks/f5-cloud-libs/develop/scripts/util.sh
-. /config/cloud/utils.sh
-wait_for_bigip
-### CHECK IF DNS IS CONFIGURED YET, IF NOT, SLEEP
-echo "CHECK THAT DNS IS READY"
-nslookup github.com
-if [ $? -ne 0 ]; then
-  echo "DNS NOT READY, SLEEP 30 SECS"
-  sleep 30
+
+   cat << 'EOF' >> /config/cloud/runtime-init-conf.yaml
+  - name: ADMIN_PASS
+    type: static
+    value: ${bigip_password}
+EOF
 fi
 
-# Adding bigip user and password 
-
-user_status=`tmsh list auth user $BIGIP_USERNAME`
-if [[ $user_status != "" ]]; then
-   response_status=`tmsh modify auth user $BIGIP_USERNAME password $BIGIP_PASSWORD`
-   echo "Response Code for setting user and password:$response_status"
-fi
-if [[ $user_status == "" ]]; then
-   response_status=`tmsh create auth user $BIGIP_USERNAME password $BIGIP_PASSWORD partition-access add { all-partitions { role admin } }`
-   echo "Response Code for setting user and password:$response_status"
-fi
-
-# Getting Management Port
-dfl_mgmt_port=`tmsh list sys httpd ssl-port | grep ssl-port | sed 's/ssl-port //;s/ //g'`
-echo "Management Port:$dfl_mgmt_port"
-
-
-### DOWNLOAD ONBOARDING PKGS
-# Could be pre-packaged or hosted internally
-mkdir -p ${libs_dir}
-DO_URL='${DO_URL}'
-AS3_URL='${AS3_URL}'
-TS_URL='${TS_URL}'
-FAST_URL='${FAST_URL}'
-CFE_URL='${CFE_URL}'
-
-as3_api="https://api.github.com/repos/F5Networks/f5-appsvcs-extension/releases/latest"
-do_api="https://api.github.com/repos/F5Networks/f5-declarative-onboarding/releases/latest"
-ts_api="https://api.github.com/repos/F5Networks/f5-telemetry-streaming/releases/latest"
-fast_api="https://api.github.com/repos/F5Networks/f5-appsvcs-templates/releases/latest"
-cfe_api="https://api.github.com/repos/F5Networks/f5-cloud-failover-extension/releases/latest"
-
-sleep 2
-
-if [[ $AS3_URL == "" ]]; then
-    echo "Getting Default AS3_URL"    
-    #AS3_URL=$(curl -sLk $as3_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
-    AS3_URL=`curl -sLk $as3_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
-    sleep 2
-fi
-echo "AS3_URL=$AS3_URL"
-
-if [[ $DO_URL == "" ]]; then
-    echo "Getting Default DO_URL"    
-    #DO_URL=$(curl -sLk $do_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
-    DO_URL=`curl -sLk $do_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
-    sleep 2
-fi
-echo "DO_URL=$DO_URL"
-
-if [[ $TS_URL == "" ]]; then
-    echo "Getting Default TS_URL"    
-    #TS_URL=$(curl -sLk $ts_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
-    TS_URL=`curl -sLk $ts_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
-    sleep 2
-fi
-echo "TS_URL=$TS_URL"
-
-if [[ $FAST_URL == "" ]]; then
-    echo "Getting Default FAST_URL"    
-    #FAST_URL=$(curl -sLk $fast_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
-    FAST_URL=`curl -sLk $fast_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
-    sleep 2
-fi
-echo "FAST_URL=$FAST_URL"
-
-if [[ $CFE_URL == "" ]]; then
-    echo "Getting Default CFE_URL"    
-    #CFE_URL=$(curl -sLk $cfe_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//')
-    CFE_URL=`curl -sLk $cfe_api |grep "noarch.rpm" | sed '2q;d' |sed 's/"browser_download_url"://;s/ //g' | sed -e 's/^"//' -e 's/"$//'`
-    sleep 3
-fi
-echo "CFE_URL=$CFE_URL"
-
-DO_FN=$(basename "$DO_URL")
-AS3_FN=$(basename "$AS3_URL")
-TS_FN=$(basename "$TS_URL")
-FAST_FN=$(basename "$FAST_URL")
-CFE_FN=$(basename "$CFE_URL")
-
-echo -e "\n"$(date) "Download Declarative Onboarding Pkg"
-response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$DO_FN $DO_URL)
-sleep 5
-echo "Response Code:'$response_code'"
-if [[ $response_code != 200 ]]; then
-    echo "Failed to download application '"$DO_FN"' with response code '"$response_code"'"
-fi
-echo -e "\n"$(date) "Download AS3 Pkg"
-response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$AS3_FN $AS3_URL)
-sleep 5
-echo "Response Code:'$response_code'"
-if [[ $response_code != 200 ]]; then
-    echo "Failed to download application '"$AS3_FN"' with response code '"$response_code"'"
-fi
-echo -e "\n"$(date) "Download TS Pkg"
-response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$TS_FN $TS_URL)
-sleep 5
-echo "Response Code:'$response_code'"
-if [[ $response_code != 200 ]]; then
-    echo "Failed to download application '"$TS_FN"' with response code '"$response_code"'"
-fi
-echo -e "\n"$(date) "Download FAST Pkg"
-response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$FAST_FN $FAST_URL)
-sleep 5
-echo "Response Code:'$response_code'"
-if [[ $response_code != 200 ]]; then
-    echo "Failed to download application '"$FAST_FN"' with response code '"$response_code"'"
-fi
-echo -e "\n"$(date) "Download CFE Pkg"
-response_code=$(curl -skL -w "%%{http_code}" -o ${libs_dir}/$CFE_FN $CFE_URL)
-sleep 5
-echo "Response Code:'$response_code'"
-if [[ $response_code != 200 ]]; then
-    echo "Failed to download application '"$CFE_FN"' with response code '"$response_code"'"
-fi
-# Copy the RPM Pkg to the file location
-cp ${libs_dir}/*.rpm /var/config/rest/downloads/
-# Install Declarative Onboarding Pkg
-DATA="{\"operation\":\"INSTALL\",\"packageFilePath\":\"/var/config/rest/downloads/$DO_FN\"}"
-echo -e "\n"$(date) "Install DO Pkg"
-restcurl -X POST "shared/iapp/package-management-tasks" -d $DATA
-# Install AS3 Pkg
-DATA="{\"operation\":\"INSTALL\",\"packageFilePath\":\"/var/config/rest/downloads/$AS3_FN\"}"
-echo -e "\n"$(date) "Install AS3 Pkg"
-restcurl -X POST "shared/iapp/package-management-tasks" -d $DATA
-# Install TS Pkg
-DATA="{\"operation\":\"INSTALL\",\"packageFilePath\":\"/var/config/rest/downloads/$TS_FN\"}"
-echo -e "\n"$(date) "Install TS Pkg"
-restcurl -X POST "shared/iapp/package-management-tasks" -d $DATA
-# Install FAST Pkg
-DATA="{\"operation\":\"INSTALL\",\"packageFilePath\":\"/var/config/rest/downloads/$FAST_FN\"}"
-echo -e "\n"$(date) "Install FAST Pkg"
-restcurl -X POST "shared/iapp/package-management-tasks" -d $DATA
-# Install CFE Pkg
-DATA="{\"operation\":\"INSTALL\",\"packageFilePath\":\"/var/config/rest/downloads/$CFE_FN\"}"
-echo -e "\n"$(date) "Install CFE Pkg"
-restcurl -X POST "shared/iapp/package-management-tasks" -d $DATA
-date
-echo "FINISHED STARTUP SCRIPT"
+cat << 'EOF' >> /config/cloud/runtime-init-conf.yaml
+pre_onboard_enabled:
+  - name: provision_rest
+    type: inline
+    commands:
+      - /usr/bin/setdb provision.extramb 500
+      - /usr/bin/setdb restjavad.useextramb true
+      - /usr/bin/setdb setup.run false
+extension_packages:
+  install_operations:
+    - extensionType: do
+      extensionVersion: ${DO_VER}
+      extensionUrl: ${DO_URL}
+    - extensionType: as3
+      extensionVersion: ${AS3_VER}
+      extensionUrl: ${AS3_URL}
+    - extensionType: ts
+      extensionVersion: ${TS_VER}
+      extensionUrl: ${TS_URL}
+    - extensionType: cf
+      extensionVersion: ${CFE_VER}
+      extensionUrl: ${CFE_URL}
+extension_services:
+  service_operations:
+    - extensionType: do
+      type: url
+      value: file:///config/cloud/do_w_admin.json
+post_onboard_enabled: []
+EOF
+# # Download
+#PACKAGE_URL='https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.1.0/dist/f5-bigip-runtime-init-1.1.0-1.gz.run'
+#PACKAGE_URL='https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.2.0/dist/f5-bigip-runtime-init-1.2.0-1.gz.run'
+for i in {1..30}; do
+    curl -fv --retry 1 --connect-timeout 5 -L ${INIT_URL} -o "/var/config/rest/downloads/f5-bigip-runtime-init-1.1.0-1.gz.run" && break || sleep 10
+done
+# Install
+bash /var/config/rest/downloads/f5-bigip-runtime-init-1.1.0-1.gz.run -- '--cloud azure'
+# Run
+f5-bigip-runtime-init --config-file /config/cloud/runtime-init-conf.yaml
