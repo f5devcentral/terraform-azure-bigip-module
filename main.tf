@@ -166,7 +166,7 @@ locals {
   vlan_list   = concat(local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id)
   selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
-  gw_bytes_nic = local.total_nics > 1 ? "${element(split("/",local.selfip_list[0]), 0 )}" : ""
+  gw_bytes_nic = local.total_nics > 1 ? element(split("/",local.selfip_list[0]), 0 ) : ""
 
 
 }
@@ -243,7 +243,7 @@ resource random_string password {
 
 data "template_file" "init_file1" {
   count = var.az_key_vault_authentication ? 1 : 0
-  template = "${file("${path.module}/${var.script_name}.tpl")}"
+  template = file("${path.module}/${var.script_name}.tpl")
   vars = {
     INIT_URL       = var.INIT_URL
     DO_URL         = var.DO_URL
@@ -263,7 +263,7 @@ data "template_file" "init_file1" {
 }
 data "template_file" "init_file" {
   count = var.az_key_vault_authentication ? 0 : 1
-  template = "${file("${path.module}/${var.script_name}.tpl")}"
+  template = file("${path.module}/${var.script_name}.tpl")
   vars = {
     INIT_URL       = var.INIT_URL
     DO_URL         = var.DO_URL
@@ -552,7 +552,7 @@ data "azurerm_public_ip" "f5vm01mgmtpip" {
 
 data "template_file" "clustermemberDO1" {
   count    = local.total_nics == 1 ? 1 : 0
-  template = "${file("${path.module}/onboard_do_1nic.tpl")}"
+  template = file("${path.module}/onboard_do_1nic.tpl")
   vars = {
     hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
     name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
@@ -569,7 +569,7 @@ data "template_file" "clustermemberDO2" {
     name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
     search_domain = "f5.com"
     ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
-    vlan-name     = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
+    vlan-name     = element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)
     self-ip       = local.selfip_list[0]
     gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
   }
@@ -584,9 +584,9 @@ data "template_file" "clustermemberDO3" {
     name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
     search_domain = "f5.com"
     ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
-    vlan-name1    = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
+    vlan-name1    = element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)
     self-ip1      = local.selfip_list[0]
-    vlan-name2    = "${element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)}"
+    vlan-name2    = element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)
     self-ip2      = local.selfip_list[1]
     gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
   }
