@@ -499,12 +499,8 @@ resource "azurerm_virtual_machine" "f5vm01" {
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key
 
-    dynamic ssh_keys {
-      for_each = var.enable_ssh_key ? [var.f5_ssh_publickey] : []
-      content {
-        path     = "/home/${var.f5_username}/.ssh/authorized_keys"
-        key_data = file(var.f5_ssh_publickey)
-      }
+    ssh_keys {
+      key_data = file(var.f5_ssh_publickey)
     }
   }
   plan {
