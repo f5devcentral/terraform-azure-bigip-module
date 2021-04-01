@@ -3,19 +3,19 @@ terraform {
   required_providers {
       azurerm = {
          source = "hashicorp/azurerm"
-	 version = "~>2.28.0"
+	 version = ">2.28.0"
        }
        random = {
          source = "hashicorp/random"
-         version = "~>2.3.0"
+         version = ">2.3.0"
        }
        template = {
          source = "hashicorp/template"
-         version = "~>2.1.2"
+         version = ">2.1.2"
        }
        null = {
          source = "hashicorp/null"
-         version = "~>2.1.2"
+         version = ">2.1.2"
       }
  } 
 }
@@ -166,7 +166,7 @@ locals {
   vlan_list   = concat(local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id)
   selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
-  gw_bytes_nic = local.total_nics > 1 ? "${element(split("/",local.selfip_list[0]), 0 )}" : ""
+  gw_bytes_nic = local.total_nics > 1 ? element(split("/",local.selfip_list[0]), 0 ) : ""
 
 
 }
@@ -182,6 +182,21 @@ data "azurerm_resource_group" "bigiprg" {
   name = var.resource_group_name
 }
 
+
+
+data "azurerm_subscription" "current" {
+}
+data "azurerm_client_config" "current" {
+}
+
+
+resource "azurerm_user_assigned_identity" "user_identity" {
+  name                = "${local.instance_prefix}-ident"
+  resource_group_name = data.azurerm_resource_group.bigiprg.name
+  location            = data.azurerm_resource_group.bigiprg.location
+}
+
+
 data "azurerm_resource_group" "rg_keyvault" {
   name  = var.azure_secret_rg
   count = var.az_key_vault_authentication ? 1 : 0
@@ -189,7 +204,7 @@ data "azurerm_resource_group" "rg_keyvault" {
 
 data "azurerm_key_vault" "keyvault" {
   count               = var.az_key_vault_authentication ? 1 : 0
-  name                = var.azure_keyvault_name
+  name                = var.azure_keyvault_name 
   resource_group_name = data.azurerm_resource_group.rg_keyvault[count.index].name
 }
 
@@ -197,6 +212,22 @@ data "azurerm_key_vault_secret" "bigip_admin_password" {
   count        = var.az_key_vault_authentication ? 1 : 0
   name         = var.azure_keyvault_secret_name
   key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
+}
+
+
+resource "azurerm_key_vault_access_policy" "example" {
+  count = var.az_key_vault_authentication ? 1 : 0
+  key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = azurerm_user_assigned_identity.user_identity.principal_id
+
+  key_permissions = [
+    "get", "list", "update", "create", "import", "delete", "recover", "backup", "restore",
+  ]
+
+  secret_permissions = [
+    "get","list","set","delete","recover","backup","restore","purge"
+  ]
 }
 
 #
@@ -210,13 +241,48 @@ resource random_string password {
   special     = false
 }
 
-data "template_file" "init_file" {
-  template = "${file("${path.module}/${var.script_name}.tpl")}"
+data "template_file" "init_file1" {
+  count = var.az_key_vault_authentication ? 1 : 0
+  template = file("${path.module}/${var.script_name}.tpl")
   vars = {
+    INIT_URL       = var.INIT_URL
+    DO_URL         = var.DO_URL
+    AS3_URL        = var.AS3_URL
+    TS_URL         = var.TS_URL 
+    CFE_URL        = var.CFE_URL
+    DO_VER         = split("/", var.DO_URL)[7]
+    AS3_VER        = split("/", var.AS3_URL)[7]
+    TS_VER         = split("/", var.TS_URL)[7]
+    CFE_VER        = split("/", var.CFE_URL)[7]
+    vault_url = data.azurerm_key_vault.keyvault[count.index].vault_uri
+    secret_id = var.azure_keyvault_secret_name
+    az_key_vault_authentication = var.az_key_vault_authentication
     bigip_username = var.f5_username
-    bigip_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
+    bigip_password = ( length(var.f5_password) > 0 ? var.f5_password : random_string.password.result )
   }
 }
+data "template_file" "init_file" {
+  count = var.az_key_vault_authentication ? 0 : 1
+  template = file("${path.module}/${var.script_name}.tpl")
+  vars = {
+    INIT_URL       = var.INIT_URL
+    DO_URL         = var.DO_URL
+    AS3_URL        = var.AS3_URL
+    TS_URL         = var.TS_URL 
+    CFE_URL        = var.CFE_URL
+    DO_VER         = split("/", var.DO_URL)[7]
+    AS3_VER        = split("/", var.AS3_URL)[7]
+    TS_VER         = split("/", var.TS_URL)[7]
+    CFE_VER        = split("/", var.CFE_URL)[7]
+    vault_url = ""
+    secret_id = ""
+    az_key_vault_authentication = var.az_key_vault_authentication
+    bigip_username = var.f5_username
+    bigip_password = ( length(var.f5_password) > 0 ? var.f5_password : random_string.password.result )
+  }
+}
+
+
 
 # Create a Public IP for bigip
 resource "azurerm_public_ip" "mgmt_public_ip" {
@@ -428,7 +494,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
     computer_name  = "${local.instance_prefix}-f5vm01"
     admin_username = var.f5_username
     admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
-    custom_data    = data.template_file.init_file.rendered
+    custom_data    = var.az_key_vault_authentication ? data.template_file.init_file1[0].rendered : data.template_file.init_file[0].rendered
   }
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key
@@ -451,6 +517,12 @@ resource "azurerm_virtual_machine" "f5vm01" {
     Name   = "${local.instance_prefix}-f5vm01"
     source = "terraform"
   }
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.user_identity.id]
+  }
+
+
   depends_on = [azurerm_network_interface_security_group_association.mgmt_security, azurerm_network_interface_security_group_association.internal_security, azurerm_network_interface_security_group_association.external_security, azurerm_network_interface_security_group_association.external_public_security]
 }
 
@@ -480,12 +552,12 @@ data "azurerm_public_ip" "f5vm01mgmtpip" {
 
 data "template_file" "clustermemberDO1" {
   count    = local.total_nics == 1 ? 1 : 0
-  template = "${file("${path.module}/onboard_do_1nic.tpl")}"
+  template = file("${path.module}/onboard_do_1nic.tpl")
   vars = {
     hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
     search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
+    ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
   }
 }
 
@@ -494,10 +566,10 @@ data "template_file" "clustermemberDO2" {
   template = file("${path.module}/onboard_do_2nic.tpl")
   vars = {
     hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
     search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
-    vlan-name     = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
+    vlan-name     = element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)
     self-ip       = local.selfip_list[0]
     gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
   }
@@ -509,12 +581,12 @@ data "template_file" "clustermemberDO3" {
   template = file("${path.module}/onboard_do_3nic.tpl")
   vars = {
     hostname      = data.azurerm_public_ip.f5vm01mgmtpip.fqdn
-    name_servers  = join(",", formatlist("\"%s\"", ["168.63.129.16"]))
+    name_servers  = join(",", formatlist("\"%s\"", ["169.254.169.253"]))
     search_domain = "f5.com"
-    ntp_servers   = join(",", formatlist("\"%s\"", ["0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org"]))
-    vlan-name1    = "${element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)}"
+    ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
+    vlan-name1    = element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)
     self-ip1      = local.selfip_list[0]
-    vlan-name2    = "${element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)}"
+    vlan-name2    = element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)
     self-ip2      = local.selfip_list[1]
     gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
   }
