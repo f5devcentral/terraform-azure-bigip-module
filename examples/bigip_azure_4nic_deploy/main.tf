@@ -27,13 +27,13 @@ module bigip {
   source                     = "../../"
   prefix                     = format("%s-4nic", var.prefix)
   resource_group_name        = azurerm_resource_group.rg.name
-  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" =  "" }]
+  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" = "" }]
   mgmt_securitygroup_ids     = [module.mgmt-network-security-group.network_security_group_id]
-  external_subnet_ids        = [{"subnet_id" = data.azurerm_subnet.external-public.id,"public_ip" = true,"private_ip_primary" = "","private_ip_secondary" = "" },{"subnet_id" = data.azurerm_subnet.external-public2.id,"public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }]
+  external_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }, { "subnet_id" = data.azurerm_subnet.external-public2.id, "public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }]
   external_securitygroup_ids = [module.external-network-security-group-public.network_security_group_id, module.external-network-security-group-public.network_security_group_id]
-  internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false, "private_ip_primary" = "" }]
-  internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
-  availabilityZones          = var.availabilityZones
+  //internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false, "private_ip_primary" = "" }]
+  //internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
+  availabilityZones = var.availabilityZones
 }
 
 #
@@ -45,7 +45,7 @@ module "network" {
   vnet_name           = format("%s-vnet-%s", var.prefix, random_id.id.hex)
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = [var.cidr]
-  subnet_prefixes     = [cidrsubnet(var.cidr, 8, 1), cidrsubnet(var.cidr, 8, 2), cidrsubnet(var.cidr, 8, 3),cidrsubnet(var.cidr, 8, 4)]
+  subnet_prefixes     = [cidrsubnet(var.cidr, 8, 1), cidrsubnet(var.cidr, 8, 2), cidrsubnet(var.cidr, 8, 3), cidrsubnet(var.cidr, 8, 4)]
   subnet_names        = ["mgmt-subnet", "external-public-subnet", "external-public-subnet2", "internal-subnet"]
 
   tags = {

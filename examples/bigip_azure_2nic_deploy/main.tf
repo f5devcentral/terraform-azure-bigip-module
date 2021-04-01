@@ -22,13 +22,13 @@ resource azurerm_resource_group rg {
 #Create N-nic bigip
 #
 module bigip {
-  count 		     = var.instance_count
+  count                      = var.instance_count
   source                     = "../../"
   prefix                     = format("%s-2nic", var.prefix)
   resource_group_name        = azurerm_resource_group.rg.name
-  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" =  ""}]
+  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" = "" }]
   mgmt_securitygroup_ids     = [module.mgmt-network-security-group.network_security_group_id]
-  external_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true,"private_ip_primary" = "", "private_ip_secondary" = ""}]
+  external_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }]
   external_securitygroup_ids = [module.external-network-security-group-public.network_security_group_id]
   availabilityZones          = var.availabilityZones
 }
@@ -45,7 +45,7 @@ resource "null_resource" "clusterDO" {
     when    = destroy
     command = "rm -rf DO_2nic-instance${count.index}.json"
   }
-  depends_on = [ module.bigip.onboard_do]
+  depends_on = [module.bigip.onboard_do]
 }
 
 
