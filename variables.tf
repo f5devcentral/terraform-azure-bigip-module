@@ -78,7 +78,7 @@ variable f5_image_name {
 }
 variable f5_version {
   type    = string
-  default = "14.1.206000"
+  default = "latest"
 }
 
 variable f5_product_name {
