@@ -8,7 +8,7 @@ This module is supported from Terraform 0.13 version onwards.
 
 Below templates are tested and worked in the following version 
 
-Terraform v0.13.0
+Terraform v0.14.0
 + provider registry.terraform.io/hashicorp/azurerm v2.28.0
 + provider registry.terraform.io/hashicorp/null v2.1.2
 + provider registry.terraform.io/hashicorp/random v2.3.0
@@ -18,11 +18,11 @@ Terraform v0.13.0
 
 This module is supported in the following bigip and terraform version
 
-| BIGIP version | Terraform 0.13 | 
+| BIGIP version | Terraform 0.14 | 
 |---------------|----------------|
+| BIG-IP 16.x  | X |
 | BIG-IP 15.x  | X |
 | BIG-IP 14.x  | X |
-| BIG-IP 13.x  | X |
 
 ## Password Management
 
