@@ -1,23 +1,23 @@
 terraform {
   required_version = "~> 0.13"
   required_providers {
-      azurerm = {
-         source = "hashicorp/azurerm"
-	 version = ">2.28.0"
-       }
-       random = {
-         source = "hashicorp/random"
-         version = ">2.3.0"
-       }
-       template = {
-         source = "hashicorp/template"
-         version = ">2.1.2"
-       }
-       null = {
-         source = "hashicorp/null"
-         version = ">2.1.2"
-      }
- } 
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">2.28.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = ">2.3.0"
+    }
+    template = {
+      source  = "hashicorp/template"
+      version = ">2.1.2"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = ">2.1.2"
+    }
+  }
 }
 
 locals {
@@ -62,7 +62,7 @@ locals {
     private["private_ip_primary"]
     if private["public_ip"] == false
   ]
-  
+
   mgmt_private_index = [
     for index, subnet in local.bigip_map["mgmt_subnet_ids"] :
     index
@@ -80,13 +80,13 @@ locals {
   external_public_private_ip_primary = [
     for private in local.bigip_map["external_subnet_ids"] :
     private["private_ip_primary"]
-    if private["public_ip"] == true 
+    if private["public_ip"] == true
   ]
 
- external_public_private_ip_secondary = [
+  external_public_private_ip_secondary = [
     for private in local.bigip_map["external_subnet_ids"] :
     private["private_ip_secondary"]
-    if private["public_ip"] == true 
+    if private["public_ip"] == true
   ]
 
 
@@ -108,13 +108,13 @@ locals {
   external_private_ip_primary = [
     for private in local.bigip_map["external_subnet_ids"] :
     private["private_ip_primary"]
-    if private["public_ip"] == false 
+    if private["public_ip"] == false
   ]
 
   external_private_ip_secondary = [
     for private in local.bigip_map["external_subnet_ids"] :
     private["private_ip_secondary"]
-    if private["public_ip"] == false 
+    if private["public_ip"] == false
   ]
 
 
@@ -162,11 +162,11 @@ locals {
   internal_private_security_id = [
     for i in local.internal_private_index : local.bigip_map["internal_securitygroup_ids"][i]
   ]
-  total_nics  = length(concat(local.mgmt_public_subnet_id, local.mgmt_private_subnet_id, local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id))
-  vlan_list   = concat(local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id)
-  selfip_list = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
+  total_nics      = length(concat(local.mgmt_public_subnet_id, local.mgmt_private_subnet_id, local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id))
+  vlan_list       = concat(local.external_public_subnet_id, local.external_private_subnet_id, local.internal_public_subnet_id, local.internal_private_subnet_id)
+  selfip_list     = concat(azurerm_network_interface.external_nic.*.private_ip_address, azurerm_network_interface.external_public_nic.*.private_ip_address, azurerm_network_interface.internal_nic.*.private_ip_address)
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
-  gw_bytes_nic = local.total_nics > 1 ? element(split("/",local.selfip_list[0]), 0 ) : ""
+  gw_bytes_nic    = local.total_nics > 1 ? element(split("/", local.selfip_list[0]), 0) : ""
 
 
 }
@@ -204,7 +204,7 @@ data "azurerm_resource_group" "rg_keyvault" {
 
 data "azurerm_key_vault" "keyvault" {
   count               = var.az_key_vault_authentication ? 1 : 0
-  name                = var.azure_keyvault_name 
+  name                = var.azure_keyvault_name
   resource_group_name = data.azurerm_resource_group.rg_keyvault[count.index].name
 }
 
@@ -216,17 +216,17 @@ data "azurerm_key_vault_secret" "bigip_admin_password" {
 
 
 resource "azurerm_key_vault_access_policy" "example" {
-  count = var.az_key_vault_authentication ? 1 : 0
+  count        = var.az_key_vault_authentication ? 1 : 0
   key_vault_id = data.azurerm_key_vault.keyvault[count.index].id
-  tenant_id = data.azurerm_client_config.current.tenant_id
-  object_id = azurerm_user_assigned_identity.user_identity.principal_id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_user_assigned_identity.user_identity.principal_id
 
   key_permissions = [
     "get", "list", "update", "create", "import", "delete", "recover", "backup", "restore",
   ]
 
   secret_permissions = [
-    "get","list","set","delete","recover","backup","restore","purge"
+    "get", "list", "set", "delete", "recover", "backup", "restore", "purge"
   ]
 }
 
@@ -242,43 +242,43 @@ resource random_string password {
 }
 
 data "template_file" "init_file1" {
-  count = var.az_key_vault_authentication ? 1 : 0
+  count    = var.az_key_vault_authentication ? 1 : 0
   template = file("${path.module}/${var.script_name}.tpl")
   vars = {
-    INIT_URL       = var.INIT_URL
-    DO_URL         = var.DO_URL
-    AS3_URL        = var.AS3_URL
-    TS_URL         = var.TS_URL 
-    CFE_URL        = var.CFE_URL
-    DO_VER         = split("/", var.DO_URL)[7]
-    AS3_VER        = split("/", var.AS3_URL)[7]
-    TS_VER         = split("/", var.TS_URL)[7]
-    CFE_VER        = split("/", var.CFE_URL)[7]
-    vault_url = data.azurerm_key_vault.keyvault[count.index].vault_uri
-    secret_id = var.azure_keyvault_secret_name
+    INIT_URL                    = var.INIT_URL
+    DO_URL                      = var.DO_URL
+    AS3_URL                     = var.AS3_URL
+    TS_URL                      = var.TS_URL
+    CFE_URL                     = var.CFE_URL
+    DO_VER                      = split("/", var.DO_URL)[7]
+    AS3_VER                     = split("/", var.AS3_URL)[7]
+    TS_VER                      = split("/", var.TS_URL)[7]
+    CFE_VER                     = split("/", var.CFE_URL)[7]
+    vault_url                   = data.azurerm_key_vault.keyvault[count.index].vault_uri
+    secret_id                   = var.azure_keyvault_secret_name
     az_key_vault_authentication = var.az_key_vault_authentication
-    bigip_username = var.f5_username
-    bigip_password = ( length(var.f5_password) > 0 ? var.f5_password : random_string.password.result )
+    bigip_username              = var.f5_username
+    bigip_password              = (length(var.f5_password) > 0 ? var.f5_password : random_string.password.result)
   }
 }
 data "template_file" "init_file" {
-  count = var.az_key_vault_authentication ? 0 : 1
+  count    = var.az_key_vault_authentication ? 0 : 1
   template = file("${path.module}/${var.script_name}.tpl")
   vars = {
-    INIT_URL       = var.INIT_URL
-    DO_URL         = var.DO_URL
-    AS3_URL        = var.AS3_URL
-    TS_URL         = var.TS_URL 
-    CFE_URL        = var.CFE_URL
-    DO_VER         = split("/", var.DO_URL)[7]
-    AS3_VER        = split("/", var.AS3_URL)[7]
-    TS_VER         = split("/", var.TS_URL)[7]
-    CFE_VER        = split("/", var.CFE_URL)[7]
-    vault_url = ""
-    secret_id = ""
+    INIT_URL                    = var.INIT_URL
+    DO_URL                      = var.DO_URL
+    AS3_URL                     = var.AS3_URL
+    TS_URL                      = var.TS_URL
+    CFE_URL                     = var.CFE_URL
+    DO_VER                      = split("/", var.DO_URL)[7]
+    AS3_VER                     = split("/", var.AS3_URL)[7]
+    TS_VER                      = split("/", var.TS_URL)[7]
+    CFE_VER                     = split("/", var.CFE_URL)[7]
+    vault_url                   = ""
+    secret_id                   = ""
     az_key_vault_authentication = var.az_key_vault_authentication
-    bigip_username = var.f5_username
-    bigip_password = ( length(var.f5_password) > 0 ? var.f5_password : random_string.password.result )
+    bigip_username              = var.f5_username
+    bigip_password              = (length(var.f5_password) > 0 ? var.f5_password : random_string.password.result)
   }
 }
 
@@ -345,8 +345,8 @@ resource "azurerm_network_interface" "mgmt_nic" {
   ip_configuration {
     name                          = "${local.instance_prefix}-mgmt-ip-${count.index}"
     subnet_id                     = local.bigip_map["mgmt_subnet_ids"][count.index]["subnet_id"]
-    private_ip_address_allocation = ( length(local.mgmt_public_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic" )
-    private_ip_address		  = ( length(local.mgmt_public_private_ip_primary[count.index]) > 0 ? local.mgmt_public_private_ip_primary[count.index] : null )
+    private_ip_address_allocation = (length(local.mgmt_public_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic")
+    private_ip_address            = (length(local.mgmt_public_private_ip_primary[count.index]) > 0 ? local.mgmt_public_private_ip_primary[count.index] : null)
     public_ip_address_id          = local.bigip_map["mgmt_subnet_ids"][count.index]["public_ip"] ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   tags = {
@@ -366,15 +366,15 @@ resource "azurerm_network_interface" "external_nic" {
     name                          = "${local.instance_prefix}-ext-ip-${count.index}"
     subnet_id                     = local.external_private_subnet_id[count.index]
     primary                       = "true"
-    private_ip_address_allocation = ( length(local.external_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic" )
-    private_ip_address		  = ( length(local.external_private_ip_primary[count.index]) > 0 ? local.external_private_ip_primary[count.index] : null )
+    private_ip_address_allocation = (length(local.external_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic")
+    private_ip_address            = (length(local.external_private_ip_primary[count.index]) > 0 ? local.external_private_ip_primary[count.index] : null)
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   ip_configuration {
     name                          = "${local.instance_prefix}-secondary-ext-ip-${count.index}"
     subnet_id                     = local.external_private_subnet_id[count.index]
-    private_ip_address_allocation = ( length(local.external_private_ip_secondary[count.index]) > 0 ? "Static" : "Dynamic" )
-    private_ip_address            = ( length(local.external_private_ip_secondary[count.index]) > 0 ? local.external_private_ip_secondary[count.index] : null )
+    private_ip_address_allocation = (length(local.external_private_ip_secondary[count.index]) > 0 ? "Static" : "Dynamic")
+    private_ip_address            = (length(local.external_private_ip_secondary[count.index]) > 0 ? local.external_private_ip_secondary[count.index] : null)
   }
   tags = {
     Name   = "${local.instance_prefix}-ext-nic-${count.index}"
@@ -394,16 +394,16 @@ resource "azurerm_network_interface" "external_public_nic" {
     name                          = "${local.instance_prefix}-ext-public-ip-${count.index}"
     subnet_id                     = local.external_public_subnet_id[count.index]
     primary                       = "true"
-    private_ip_address_allocation = ( length(local.external_public_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic" )
-    private_ip_address            = ( length(local.external_public_private_ip_primary[count.index]) > 0 ? local.external_public_private_ip_primary[count.index] : null )
+    private_ip_address_allocation = (length(local.external_public_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic")
+    private_ip_address            = (length(local.external_public_private_ip_primary[count.index]) > 0 ? local.external_public_private_ip_primary[count.index] : null)
     public_ip_address_id          = azurerm_public_ip.external_public_ip[count.index].id
   }
   ip_configuration {
-      name                          = "${local.instance_prefix}-secondary-ext-public-ip-${count.index}"
-      subnet_id                     = local.external_public_subnet_id[count.index]
-      private_ip_address_allocation = ( length(local.external_public_private_ip_secondary[count.index]) > 0 ? "Static" : "Dynamic" )
-      private_ip_address            = ( length(local.external_public_private_ip_secondary[count.index]) > 0 ? local.external_public_private_ip_secondary[count.index] : null )
-      public_ip_address_id          = azurerm_public_ip.secondary_external_public_ip[count.index].id
+    name                          = "${local.instance_prefix}-secondary-ext-public-ip-${count.index}"
+    subnet_id                     = local.external_public_subnet_id[count.index]
+    private_ip_address_allocation = (length(local.external_public_private_ip_secondary[count.index]) > 0 ? "Static" : "Dynamic")
+    private_ip_address            = (length(local.external_public_private_ip_secondary[count.index]) > 0 ? local.external_public_private_ip_secondary[count.index] : null)
+    public_ip_address_id          = azurerm_public_ip.secondary_external_public_ip[count.index].id
   }
   tags = {
     Name   = "${local.instance_prefix}-ext-public-nic-${count.index}"
@@ -421,8 +421,8 @@ resource "azurerm_network_interface" "internal_nic" {
   ip_configuration {
     name                          = "${local.instance_prefix}-int-ip-${count.index}"
     subnet_id                     = local.internal_private_subnet_id[count.index]
-    private_ip_address_allocation = ( length(local.internal_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic" )
-    private_ip_address            = ( length(local.internal_private_ip_primary[count.index]) > 0 ? local.internal_private_ip_primary[count.index] : null )
+    private_ip_address_allocation = (length(local.internal_private_ip_primary[count.index]) > 0 ? "Static" : "Dynamic")
+    private_ip_address            = (length(local.internal_private_ip_primary[count.index]) > 0 ? local.internal_private_ip_primary[count.index] : null)
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   tags = {
@@ -529,10 +529,10 @@ resource "azurerm_virtual_machine" "f5vm01" {
 ## ..:: Run Startup Script ::..
 resource "azurerm_virtual_machine_extension" "vmext" {
 
-  name               = "${local.instance_prefix}-vmext1"
-  depends_on         = [azurerm_virtual_machine.f5vm01]
-  virtual_machine_id = azurerm_virtual_machine.f5vm01.id
-publisher            = "Microsoft.OSTCExtensions"
+  name                 = "${local.instance_prefix}-vmext1"
+  depends_on           = [azurerm_virtual_machine.f5vm01]
+  virtual_machine_id   = azurerm_virtual_machine.f5vm01.id
+  publisher            = "Microsoft.OSTCExtensions"
   type                 = "CustomScriptForLinux"
   type_handler_version = "1.2"
   settings             = <<SETTINGS
@@ -547,7 +547,7 @@ data "azurerm_public_ip" "f5vm01mgmtpip" {
   //   //count               = var.nb_public_ip
   name                = azurerm_public_ip.mgmt_public_ip[0].name
   resource_group_name = data.azurerm_resource_group.bigiprg.name
-  depends_on          = [azurerm_virtual_machine.f5vm01, azurerm_virtual_machine_extension.vmext,azurerm_public_ip.mgmt_public_ip[0]]
+  depends_on          = [azurerm_virtual_machine.f5vm01, azurerm_virtual_machine_extension.vmext, azurerm_public_ip.mgmt_public_ip[0]]
 }
 
 data "template_file" "clustermemberDO1" {
@@ -571,7 +571,7 @@ data "template_file" "clustermemberDO2" {
     ntp_servers   = join(",", formatlist("\"%s\"", ["169.254.169.123"]))
     vlan-name     = element(split("/", local.vlan_list[0]), length(split("/", local.vlan_list[0])) - 1)
     self-ip       = local.selfip_list[0]
-    gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
+    gateway       = join(".", concat(slice(split(".", local.gw_bytes_nic), 0, 3), [1]))
   }
   depends_on = [azurerm_network_interface.external_nic, azurerm_network_interface.external_public_nic, azurerm_network_interface.internal_nic]
 }
@@ -588,7 +588,7 @@ data "template_file" "clustermemberDO3" {
     self-ip1      = local.selfip_list[0]
     vlan-name2    = element(split("/", local.vlan_list[1]), length(split("/", local.vlan_list[1])) - 1)
     self-ip2      = local.selfip_list[1]
-    gateway       = join(".", concat(slice(split(".",local.gw_bytes_nic),0,3),[1]) )
+    gateway       = join(".", concat(slice(split(".", local.gw_bytes_nic), 0, 3), [1]))
   }
   depends_on = [azurerm_network_interface.external_nic, azurerm_network_interface.external_public_nic, azurerm_network_interface.internal_nic]
 }
