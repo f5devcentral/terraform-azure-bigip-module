@@ -263,7 +263,7 @@ data "template_file" "init_file1" {
 }
 data "template_file" "init_file" {
   count    = var.az_key_vault_authentication ? 0 : 1
-  template = file("${path.module}/${var.script_name}.tpl")
+  template = file("${path.module}/${var.script_name}.tmpl")
   vars = {
     INIT_URL                    = var.INIT_URL
     DO_URL                      = var.DO_URL
