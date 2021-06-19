@@ -89,8 +89,6 @@ locals {
     if private["public_ip"] == true
   ]
 
-
-
   external_public_index = [
     for index, subnet in local.bigip_map["external_subnet_ids"] :
     index
@@ -116,7 +114,6 @@ locals {
     private["private_ip_secondary"]
     if private["public_ip"] == false
   ]
-
 
   external_private_index = [
     for index, subnet in local.bigip_map["external_subnet_ids"] :
@@ -158,7 +155,6 @@ locals {
     if private["public_ip"] == false
   ]
 
-
   internal_private_security_id = [
     for i in local.internal_private_index : local.bigip_map["internal_securitygroup_ids"][i]
   ]
@@ -182,13 +178,10 @@ data "azurerm_resource_group" "bigiprg" {
   name = var.resource_group_name
 }
 
-
-
 data "azurerm_subscription" "current" {
 }
 data "azurerm_client_config" "current" {
 }
-
 
 resource "azurerm_user_assigned_identity" "user_identity" {
   name                = "${local.instance_prefix}-ident"
@@ -250,10 +243,12 @@ data "template_file" "init_file1" {
     AS3_URL                     = var.AS3_URL
     TS_URL                      = var.TS_URL
     CFE_URL                     = var.CFE_URL
+    FAST_URL                    = var.FAST_URL,
     DO_VER                      = split("/", var.DO_URL)[7]
     AS3_VER                     = split("/", var.AS3_URL)[7]
     TS_VER                      = split("/", var.TS_URL)[7]
     CFE_VER                     = split("/", var.CFE_URL)[7]
+    FAST_VER                    = split("/", var.FAST_URL)[7]
     vault_url                   = data.azurerm_key_vault.keyvault[count.index].vault_uri
     secret_id                   = var.azure_keyvault_secret_name
     az_key_vault_authentication = var.az_key_vault_authentication
@@ -271,10 +266,12 @@ data "template_file" "init_file" {
     AS3_URL                     = var.AS3_URL
     TS_URL                      = var.TS_URL
     CFE_URL                     = var.CFE_URL
+    FAST_URL                    = var.FAST_URL,
     DO_VER                      = split("/", var.DO_URL)[7]
     AS3_VER                     = split("/", var.AS3_URL)[7]
     TS_VER                      = split("/", var.TS_URL)[7]
     CFE_VER                     = split("/", var.CFE_URL)[7]
+    FAST_VER                    = split("/", var.FAST_URL)[7]
     vault_url                   = ""
     secret_id                   = ""
     az_key_vault_authentication = var.az_key_vault_authentication
@@ -283,8 +280,6 @@ data "template_file" "init_file" {
     bigip_password              = (length(var.f5_password) > 0 ? var.f5_password : random_string.password.result)
   }
 }
-
-
 
 # Create a Public IP for bigip
 resource "azurerm_public_ip" "mgmt_public_ip" {
@@ -297,7 +292,7 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   sku                 = "Standard" # the Standard sku is required due to the use of availability zones
   zones               = var.availabilityZones
   tags = {
-    Name   = "${local.instance_prefix}-pip-mgmt-${count.index}"
+    Name   = format("%s-pip-mgmt-%s", local.instance_prefix, count.index)
     source = "terraform"
   }
 }
@@ -314,7 +309,7 @@ resource "azurerm_public_ip" "external_public_ip" {
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
   zones             = var.availabilityZones
   tags = {
-    Name   = "${local.instance_prefix}-pip-ext-${count.index}"
+    Name   = format("%s-pip-ext-%s", local.instance_prefix, count.index)
     source = "terraform"
   }
 }
@@ -331,7 +326,7 @@ resource "azurerm_public_ip" "secondary_external_public_ip" {
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
   zones             = var.availabilityZones
   tags = {
-    Name   = "${local.instance_prefix}-secondary-pip-ext-${count.index}"
+    Name   = format("%s-secondary-pip-ext-%s", local.instance_prefix, count.index)
     source = "terraform"
   }
 }
@@ -352,7 +347,7 @@ resource "azurerm_network_interface" "mgmt_nic" {
     public_ip_address_id          = local.bigip_map["mgmt_subnet_ids"][count.index]["public_ip"] ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   tags = {
-    Name   = "${local.instance_prefix}-mgmt-nic-${count.index}"
+    Name   = format("%s-mgmt-nic-%s", local.instance_prefix, count.index)
     source = "terraform"
   }
 }
@@ -379,11 +374,10 @@ resource "azurerm_network_interface" "external_nic" {
     private_ip_address            = (length(local.external_private_ip_secondary[count.index]) > 0 ? local.external_private_ip_secondary[count.index] : null)
   }
   tags = {
-    Name   = "${local.instance_prefix}-ext-nic-${count.index}"
+    Name   = format("%s-ext-nic-%s", local.instance_prefix, count.index)
     source = "terraform"
   }
 }
-
 
 resource "azurerm_network_interface" "external_public_nic" {
   count               = length(local.external_public_subnet_id)
@@ -408,7 +402,7 @@ resource "azurerm_network_interface" "external_public_nic" {
     public_ip_address_id          = azurerm_public_ip.secondary_external_public_ip[count.index].id
   }
   tags = {
-    Name   = "${local.instance_prefix}-ext-public-nic-${count.index}"
+    Name   = format("%s-ext-public-nic-%s", local.instance_prefix, count.index)
     source = "terraform"
   }
 }
@@ -428,7 +422,7 @@ resource "azurerm_network_interface" "internal_nic" {
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
   tags = {
-    Name   = "${local.instance_prefix}-internal-nic-${count.index}"
+    Name   = format("%s-internal-nic-%s", local.instance_prefix, count.index)
     source = "terraform"
   }
 }
@@ -516,28 +510,28 @@ resource "azurerm_virtual_machine" "f5vm01" {
   }
   zones = var.availabilityZones
   tags = {
-    Name   = "${local.instance_prefix}-f5vm01"
+    Name   = format("%s-f5vm01", local.instance_prefix)
     source = "terraform"
   }
   identity {
     type         = "UserAssigned"
     identity_ids = [azurerm_user_assigned_identity.user_identity.id]
   }
-
-
   depends_on = [azurerm_network_interface_security_group_association.mgmt_security, azurerm_network_interface_security_group_association.internal_security, azurerm_network_interface_security_group_association.external_security, azurerm_network_interface_security_group_association.external_public_security]
 }
 
 ## ..:: Run Startup Script ::..
 resource "azurerm_virtual_machine_extension" "vmext" {
-
   name                 = "${local.instance_prefix}-vmext1"
   depends_on           = [azurerm_virtual_machine.f5vm01]
   virtual_machine_id   = azurerm_virtual_machine.f5vm01.id
   publisher            = "Microsoft.OSTCExtensions"
   type                 = "CustomScriptForLinux"
   type_handler_version = "1.2"
-  settings             = <<SETTINGS
+  provisioner "local-exec" {
+    command = "sleep 240"
+  }
+  settings = <<SETTINGS
     {
       "commandToExecute": "bash /var/lib/waagent/CustomData"
     }

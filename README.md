@@ -9,6 +9,7 @@ This module is supported from Terraform 0.13 version onwards.
 Below templates are tested and worked in the following version 
 
 Terraform v0.14.0
+
 + provider registry.terraform.io/hashicorp/azurerm v2.28.0
 + provider registry.terraform.io/hashicorp/null v2.1.2
 + provider registry.terraform.io/hashicorp/random v2.3.0
@@ -18,7 +19,7 @@ Terraform v0.14.0
 
 This module is supported in the following bigip and terraform version
 
-| BIGIP version | Terraform 0.14 | 
+| BIGIP version | Terraform 0.14 |
 |---------------|----------------|
 | BIG-IP 16.x  | X |
 | BIG-IP 15.x  | X |
@@ -39,42 +40,40 @@ This module is supported in the following bigip and terraform version
 
 We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
 
-#### Note
-There should be one to one mapping between subnet_ids and securitygroupids (for example if we have 2 or more external subnet_ids,we have to give same number of external securitygroupids to module)
+!> **Note:** There should be one to one mapping between subnet_ids and securitygroup_ids (for example if we have 2 or more external subnet_ids,we have to give same number of external securitygroup_ids to module)
 
-Users can have dynamic or static private ip allocation.If primary/secondary private ip value is null, it will be dynamic or else static private ip allocation.
+!> **Note:** Users can have dynamic or static private ip allocation.If primary/secondary private ip value is null it will be dynamic,else it will be static private ip allocation.
 
-```
-With Static private ip allocation we can assign primary and secondary private ips for external interfaces, whereas primary private ip for management
-and internal interfaces.
-```
+!> **Note:** With Static private ip allocation we can assign primary and secondary private ips for external interfaces, whereas primary private ip for management and internal interfaces.
 
-If it is static private ip allocation we can't use module count as same private ips will be tried to allocate for multiple 
-bigip instances based on module count.
+!> **WARNING**
 
-With Dynamic private ip allocation,we have to pass null value to primary/secondary private ip declaration and module count will be supported.
++ If it is static private ip allocation we can't use module count,as same private ips will be tried to allocate for multiple bigip instances based on module count.
 
-Below example snippets show how this module is called. ( Dynamic private ip allocation )
++ With Dynamic private ip allocation,we have to pass null value to primary/secondary private ip declaration and module count will be supported.
 
-```
 
-Example 1-NIC Deployment Module usage
+!> **Note:** Sometimes it is observed that the given static primary and secondary private ips may get exchanged. This is the limitation present in aws.
 
+#### Below example snippets show how this module is called. ( Dynamic private ip allocation )
+
+```hcl
+#
+#Example 1-NIC Deployment Module usage
+#
 module bigip {
-  count 		      = var.instance_count
+  count                       = var.instance_count
   source                      = "../../"
   prefix                      = "bigip-azure-1nic"
   resource_group_name         = "testbigip"
   mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true,"private_ip_primary" =  ""}]
   mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
   availabilityZones           =  var.availabilityZones
-
-
 }
 
-
-Example 2-NIC Deployment Module usage
-
+#
+#Example 2-NIC Deployment Module usage
+#
 module bigip {
   count                       = var.instance_count
   source                      = "../../"
@@ -87,9 +86,9 @@ module bigip {
   availabilityZones           =  var.availabilityZones
 }
 
-
-Example 3-NIC Deployment  Module usage 
-
+#
+#Example 3-NIC Deployment  Module usage 
+#
 module bigip {
   count                       = var.instance_count 
   source                      = "../../"
@@ -103,9 +102,9 @@ module bigip {
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
 }
-
-Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnet_ids and securitygroupids)
-
+#
+#Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnet_ids and securitygroupids)
+#
 module bigip {
   count                       = var.instance_count
   source                      = "../../"
@@ -119,18 +118,18 @@ module bigip {
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
 }
-
-.............
-
-Similarly we can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
-With module count, user can deploy multiple bigip instances in the azure cloud (with the default value of count being one )
-
 ```
+
+>Similarly we can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
+
+>With module count, user can deploy multiple bigip instances in the azure cloud (with the default value of count being one)
+
 #### Below is the example snippet for private ip allocation
 
-```
-Example 3-NIC Deployment with static private ip allocation
-
+```hcl
+#
+#Example 3-NIC Deployment with static private ip allocation
+#
 module bigip {
   count                      = var.instance_count
   source                     = "../../"
@@ -145,31 +144,7 @@ module bigip {
   internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones          = var.availabilityZones
 }
-
 ```
-
-
-### BIG-IP Automation Toolchain InSpec Profile for testing readiness of Automation Tool Chain components 
-
-After the module deployment, we can use inspec tool for verifying the Bigip connectivity along with ATC components
-
-This InSpec profile evaluates the following:
-
-* Basic connectivity to a BIG-IP management endpoint ('bigip-connectivity')
-* Availability of the Declarative Onboarding (DO) service ('bigip-declarative-onboarding')
-* Version reported by the Declarative Onboarding (DO) service ('bigip-declarative-onboarding-version')
-* Availability of the Application Services (AS3) service ('bigip-application-services')
-* Version reported by the Application Services (AS3) service ('bigip-application-services-version')
-* Availability of the Telemetry Streaming (TS) service ('bigip-telemetry-streaming')
-* Version reported by the Telemetry Streaming (TS) service ('bigip-telemetry-streaming-version')
-* Availability of the Cloud Failover Extension( CFE ) service ('bigip-cloud-failover-extension')
-* Version reported by the Cloud Failover Extension( CFE ) service('bigip-cloud-failover-extension-version')
-
-#### run inspec tests
-
-we can either run inspec exec command or execute runtests.sh in any one of example nic folder which will run below inspec command
-
-inspec exec inspec/bigip-ready  --input bigip_address=$BIGIP_MGMT_IP bigip_port=$BIGIP_MGMT_PORT user=$BIGIP_USER password=$BIGIP_PASSWORD do_version=$DO_VERSION as3_version=$AS3_VERSION ts_version=$TS_VERSION fast_version=$FAST_VERSION cfe_version=$CFE_VERSION
 
 #### Required Input Variables
 
@@ -218,6 +193,7 @@ These variables have default values and don't have to be set to use this module.
 | internal\_securitygroup\_ids | List of network Security Groupids for internal network | `List` | [] |
 
 #### Output Variables
+
 | Name | Description |
 |------|-------------|
 | mgmtPublicIP | The actual ip address allocated for the resource |
@@ -228,8 +204,30 @@ These variables have default values and don't have to be set to use this module.
 | public_addresses | List of BIG-IP public addresses |
 | private_addresses | List of BIG-IP private addresses |
 
-```
-NOTE: A local json file will get generated which contains the DO declaration (for 1,2,3 nics as provided in the examples )
+>**NOTE:** A local json file will get generated which contains the DO declaration (for 1,2,3 nics as provided in the examples )
+
+#### BIG-IP Automation Toolchain InSpec Profile for testing readiness of Automation Tool Chain components
+
+After the module deployment, we can use inspec tool for verifying the Bigip connectivity along with ATC components
+
+This InSpec profile evaluates the following:
+
++ Basic connectivity to a BIG-IP management endpoint ('bigip-connectivity')
++ Availability of the Declarative Onboarding (DO) service ('bigip-declarative-onboarding')
++ Version reported by the Declarative Onboarding (DO) service ('bigip-declarative-onboarding-version')
++ Availability of the Application Services (AS3) service ('bigip-application-services')
++ Version reported by the Application Services (AS3) service ('bigip-application-services-version')
++ Availability of the Telemetry Streaming (TS) service ('bigip-telemetry-streaming')
++ Version reported by the Telemetry Streaming (TS) service ('bigip-telemetry-streaming-version')
++ Availability of the Cloud Failover Extension( CFE ) service ('bigip-cloud-failover-extension')
++ Version reported by the Cloud Failover Extension( CFE ) service('bigip-cloud-failover-extension-version')
+
+#### run inspec tests
+
+we can either run inspec exec command or execute runtests.sh in any one of example nic folder which will run below inspec command
+
+```bash
+inspec exec inspec/bigip-ready  --input bigip_address=$BIGIP_MGMT_IP bigip_port=$BIGIP_MGMT_PORT user=$BIGIP_USER password=$BIGIP_PASSWORD do_version=$DO_VERSION as3_version=$AS3_VERSION ts_version=$TS_VERSION fast_version=$FAST_VERSION cfe_version=$CFE_VERSION
 ```
 
 ## Support Information
