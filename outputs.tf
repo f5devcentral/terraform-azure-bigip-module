@@ -32,12 +32,12 @@ output onboard_do {
 
 }
 
-output "public_addresses" {
+output public_addresses {
   description = "List of BIG-IP public addresses"
   value       = concat(azurerm_public_ip.external_public_ip.*.ip_address, azurerm_public_ip.secondary_external_public_ip.*.ip_address)
 }
 
-output "private_addresses" {
+output private_addresses {
   description = "List of BIG-IP private addresses"
   value       = concat(azurerm_network_interface.external_nic.*.private_ip_addresses, azurerm_network_interface.external_public_nic.*.private_ip_addresses, azurerm_network_interface.internal_nic.*.private_ip_address)
 }
