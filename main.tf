@@ -253,7 +253,7 @@ data "template_file" "init_file1" {
     secret_id                   = var.azure_keyvault_secret_name
     az_key_vault_authentication = var.az_key_vault_authentication
     bigip_username              = var.f5_username
-    ssh_keypair                 = file(var.f5_ssh_publickey)
+    ssh_keypair                 = var.f5_ssh_publickey
     bigip_password              = (length(var.f5_password) > 0 ? var.f5_password : random_string.password.result)
   }
 }
@@ -276,7 +276,7 @@ data "template_file" "init_file" {
     secret_id                   = ""
     az_key_vault_authentication = var.az_key_vault_authentication
     bigip_username              = var.f5_username
-    ssh_keypair                 = file(var.f5_ssh_publickey)
+    ssh_keypair                 = var.f5_ssh_publickey
     bigip_password              = (length(var.f5_password) > 0 ? var.f5_password : random_string.password.result)
   }
 }
@@ -499,7 +499,7 @@ resource "azurerm_virtual_machine" "f5vm01" {
       for_each = var.enable_ssh_key ? [var.f5_ssh_publickey] : []
       content {
         path     = "/home/${var.f5_username}/.ssh/authorized_keys"
-        key_data = file(var.f5_ssh_publickey)
+        key_data = var.f5_ssh_publickey
       }
     }
   }

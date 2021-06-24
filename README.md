@@ -156,6 +156,7 @@ These variables must be set in the module block when using this module.
 | resource\_group\_name | The name of the resource group in which the resources will be created | `string` |
 | mgmt\_subnet\_ids | Map with Subnet-id and public_ip as keys for the management subnet | `List of Maps` |
 | mgmt\_securitygroup\_ids | securitygroup\_ids for the management interface | `List` |
+| f5\_ssh\_publickey | public key to be used for ssh access to the VM,managing key is out of band module, user can reference this key from [azurerm_ssh_public_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/ssh_public_key) | `string` |  | 
 | availabilityZones | availabilityZones | `List` |
 | instance\_count | Number of Bigip instances to spin up | `number` |
 
@@ -174,7 +175,6 @@ These variables have default values and don't have to be set to use this module.
 | storage\_account\_type | Defines the type of storage account to be created. Valid options are Standard\_LRS, Standard\_ZRS, Standard\_GRS, Standard\_RAGRS, Premium\_LRS | `string` | Standard\_LRS |
 | enable\_accelerated\_networking | Enable accelerated networking on Network interface | `bool` | FALSE | 
 | enable\_ssh\_key | Enable ssh key authentication in Linux virtual Machine | `bool` | TRUE | 
-| f5\_ssh\_publickey | Path to the public key to be used for ssh access to the VM. Only used with non-Windows vms and can be left as-is even if using Windows vms. If specifying a path to a certification on a Windows machine to provision a linux vm use the / in the path versus backslash. e.g. c:/home/id\_rsa.pub | `string` | ~/.ssh/id\_rsa.pub | 
 | DO_URL | URL to download the BIG-IP Declarative Onboarding module | `string` | latest | 
 | AS3_URL | URL to download the BIG-IP Application Service Extension 3 (AS3) module | `string` | latest | 
 | TS_URL | URL to download the BIG-IP Telemetry Streaming module | `string` | latest | 
