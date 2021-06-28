@@ -52,7 +52,6 @@ We have provided some common deployment [examples](https://github.com/f5devcentr
 
 + With Dynamic private ip allocation,we have to pass null value to primary/secondary private ip declaration and module count will be supported.
 
-
 !> **Note:** Sometimes it is observed that the given static primary and secondary private ips may get exchanged. This is the limitation present in aws.
 
 #### Below example snippets show how this module is called. ( Dynamic private ip allocation )
@@ -62,7 +61,6 @@ We have provided some common deployment [examples](https://github.com/f5devcentr
 #Example 1-NIC Deployment Module usage
 #
 module bigip {
-  count                       = var.instance_count
   source                      = "../../"
   prefix                      = "bigip-azure-1nic"
   resource_group_name         = "testbigip"
@@ -75,7 +73,6 @@ module bigip {
 #Example 2-NIC Deployment Module usage
 #
 module bigip {
-  count                       = var.instance_count
   source                      = "../../"
   prefix                      = "bigip-azure-2nic"
   resource_group_name         = "testbigip"
@@ -90,7 +87,6 @@ module bigip {
 #Example 3-NIC Deployment  Module usage 
 #
 module bigip {
-  count                       = var.instance_count 
   source                      = "../../"
   prefix                      = "bigip-azure-3nic"
   resource_group_name         = "testbigip"
@@ -106,7 +102,6 @@ module bigip {
 #Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnet_ids and securitygroupids)
 #
 module bigip {
-  count                       = var.instance_count
   source                      = "../../"
   prefix                      = "bigip-azure-4nic"
   resource_group_name         = "testbigip"
@@ -118,11 +113,23 @@ module bigip {
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
 }
+
+#
+#Example to deploy 2 BIGIP-1 Nics using Module with module count feature
+#
+module bigip {
+  source                      = "../../"
+  prefix                      = "bigip-azure-1nic"
+  resource_group_name         = "testbigip"
+  mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true,"private_ip_primary" =  ""}]
+  mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
+  availabilityZones           = var.availabilityZones
+}
 ```
 
->Similarly we can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
++ Similarly we can have N-nic deployments based on user provided subnet_ids and securitygroup_ids.
 
->With module count, user can deploy multiple bigip instances in the azure cloud (with the default value of count being one)
++ With module count, user can deploy multiple bigip instances in the azure cloud (with the default value of count being one)
 
 #### Below is the example snippet for private ip allocation
 
@@ -131,7 +138,6 @@ module bigip {
 #Example 3-NIC Deployment with static private ip allocation
 #
 module bigip {
-  count                      = var.instance_count
   source                     = "../../"
   prefix                     = format("%s-3nic", var.prefix)
   resource_group_name        = azurerm_resource_group.rg.name
@@ -158,7 +164,7 @@ These variables must be set in the module block when using this module.
 | mgmt\_securitygroup\_ids | securitygroup\_ids for the management interface | `List` |
 | f5\_ssh\_publickey | public key to be used for ssh access to the VM,managing key is out of band module, user can reference this key from [azurerm_ssh_public_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/ssh_public_key) | `string` |  | 
 | availabilityZones | availabilityZones | `List` |
-| instance\_count | Number of Bigip instances to spin up | `number` |
+
 
 #### Optional Input Variables
 
