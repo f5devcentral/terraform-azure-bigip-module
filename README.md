@@ -54,6 +54,8 @@ We have provided some common deployment [examples](https://github.com/f5devcentr
 
 !> **Note:** Sometimes it is observed that the given static primary and secondary private ips may get exchanged. This is the limitation present in aws.
 
+~>**NOTE:** This Module uses basic [DO](https://raw.githubusercontent.com/f5devcentral/terraform-azure-bigip-module/master/config/onboard_do.json) config to set the Users and Passwords as part of runtime-init, it does not config VLANS/SelfIPs and other configuration.
+
 #### Below example snippets show how this module is called. ( Dynamic private ip allocation )
 
 ```hcl
@@ -118,6 +120,7 @@ module bigip {
 #Example to deploy 2 BIGIP-1 Nics using Module with module count feature
 #
 module bigip {
+  count                       = 2
   source                      = "../../"
   prefix                      = "bigip-azure-1nic"
   resource_group_name         = "testbigip"
@@ -210,7 +213,7 @@ These variables have default values and don't have to be set to use this module.
 | public_addresses | List of BIG-IP public addresses |
 | private_addresses | List of BIG-IP private addresses |
 
->**NOTE:** A local json file will get generated which contains the DO declaration (for 1,2,3 nics as provided in the examples )
+~>**NOTE:** A local json file will get generated which contains the DO declaration (for 1,2,3 nics as provided in the examples )
 
 #### BIG-IP Automation Toolchain InSpec Profile for testing readiness of Automation Tool Chain components
 
