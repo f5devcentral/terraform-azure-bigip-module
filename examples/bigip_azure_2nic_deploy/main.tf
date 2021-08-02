@@ -68,7 +68,6 @@ module "network" {
   address_space       = [var.cidr]
   subnet_prefixes     = [cidrsubnet(var.cidr, 8, 1), cidrsubnet(var.cidr, 8, 2)]
   subnet_names        = ["mgmt-subnet", "external-public-subnet"]
-
   tags = {
     environment = "dev"
     costcenter  = "it"
