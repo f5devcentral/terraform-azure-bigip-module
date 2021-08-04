@@ -19,7 +19,7 @@ Terraform v0.14.0
 
 This module is supported in the following bigip and terraform version
 
-| BIGIP version | Terraform 0.14 | Terraform 0.14 |
+| BIGIP version | Terraform 1.X  | Terraform 0.14 |
 |---------------|----------------|----------------|
 | BIG-IP 16.x   |       X        |      X         |
 | BIG-IP 15.x   |       X        |      X         |
