@@ -28,18 +28,19 @@ resource azurerm_ssh_public_key f5_key {
 #Create N-nic bigip
 #
 module bigip {
-  count                      = var.instance_count
-  source                     = "../../"
-  prefix                     = format("%s-3nic", var.prefix)
-  resource_group_name        = azurerm_resource_group.rg.name
-  f5_ssh_publickey           = azurerm_ssh_public_key.f5_key.public_key
-  mgmt_subnet_ids            = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" = "" }]
-  mgmt_securitygroup_ids     = [module.mgmt-network-security-group.network_security_group_id]
-  external_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }]
-  external_securitygroup_ids = [module.external-network-security-group-public.network_security_group_id]
-  internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false, "private_ip_primary" = "" }]
-  internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
-  availabilityZones          = var.availabilityZones
+  count                       = var.instance_count
+  source                      = "../../"
+  prefix                      = format("%s-3nic", var.prefix)
+  resource_group_name         = azurerm_resource_group.rg.name
+  f5_ssh_publickey            = azurerm_ssh_public_key.f5_key.public_key
+  mgmt_subnet_ids             = [{ "subnet_id" = data.azurerm_subnet.mgmt.id, "public_ip" = true, "private_ip_primary" = "" }]
+  mgmt_securitygroup_ids      = [module.mgmt-network-security-group.network_security_group_id]
+  external_subnet_ids         = [{ "subnet_id" = data.azurerm_subnet.external-public.id, "public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }]
+  external_securitygroup_ids  = [module.external-network-security-group-public.network_security_group_id]
+  internal_subnet_ids         = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false, "private_ip_primary" = "" }]
+  internal_securitygroup_ids  = [module.internal-network-security-group.network_security_group_id]
+  availabilityZones           = var.availabilityZones
+  availabilityZones_public_ip = var.availabilityZones_public_ip
 }
 
 resource "null_resource" "clusterDO" {

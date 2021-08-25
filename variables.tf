@@ -174,6 +174,12 @@ variable availabilityZones {
   default     = [1]
 }
 
+variable availabilityZones_public_ip {
+  description = "The availability zone to allocate the Public IP in. Possible values are Zone-Redundant, 1, 2, 3, and No-Zone."
+  type        = string
+  default     = "Zone-Redundant"
+}
+
 variable azure_secret_rg {
   description = "The name of the resource group in which the Azure Key Vault exists"
   type        = string
