@@ -290,7 +290,7 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   domain_name_label   = format("%s-mgmt-%s", local.instance_prefix, count.index)
   allocation_method   = "Static"   # Static is required due to the use of the Standard sku
   sku                 = "Standard" # the Standard sku is required due to the use of availability zones
-  zones               = var.availabilityZones
+  availability_zone   = var.availabilityZones_public_ip
   tags = {
     Name   = format("%s-pip-mgmt-%s", local.instance_prefix, count.index)
     source = "terraform"
@@ -307,7 +307,7 @@ resource "azurerm_public_ip" "external_public_ip" {
   domain_name_label = format("%s-ext-%s", local.instance_prefix, count.index)
   allocation_method = "Static"   # Static is required due to the use of the Standard sku
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
-  zones             = var.availabilityZones
+  availability_zone = var.availabilityZones_public_ip
   tags = {
     Name   = format("%s-pip-ext-%s", local.instance_prefix, count.index)
     source = "terraform"
@@ -324,7 +324,7 @@ resource "azurerm_public_ip" "secondary_external_public_ip" {
   domain_name_label = format("%s-sec-ext-%s", local.instance_prefix, count.index)
   allocation_method = "Static"   # Static is required due to the use of the Standard sku
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
-  zones             = var.availabilityZones
+  availability_zone = var.availabilityZones_public_ip
   tags = {
     Name   = format("%s-secondary-pip-ext-%s", local.instance_prefix, count.index)
     source = "terraform"

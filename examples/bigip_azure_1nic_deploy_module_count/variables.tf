@@ -18,6 +18,12 @@ variable availabilityZones {
   default     = [1]
 }
 
+variable availabilityZones_public_ip {
+  description = "The availability zone to allocate the Public IP in. Possible values are Zone-Redundant, 1, 2, 3, and No-Zone."
+  type        = string
+  default     = "Zone-Redundant"
+}
+
 variable AllowedIPs {}
 
 variable instance_count {

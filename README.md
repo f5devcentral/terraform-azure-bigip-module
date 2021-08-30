@@ -69,6 +69,7 @@ module bigip {
   mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true,"private_ip_primary" =  ""}]
   mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
   availabilityZones           =  var.availabilityZones
+  availabilityZones_public_ip = var.availabilityZones_public_ip
 }
 
 #
@@ -83,6 +84,7 @@ module bigip {
   external_subnet_ids         = [{"subnet_id" =  "subnet_id_external", "public_ip" = true,"private_ip_primary" = "", "private_ip_secondary" = "" }]
   external_securitygroup_ids  = ["securitygroup_id_external"]
   availabilityZones           =  var.availabilityZones
+  availabilityZones_public_ip = var.availabilityZones_public_ip
 }
 
 #
@@ -99,6 +101,7 @@ module bigip {
   internal_subnet_ids         = [{"subnet_id" =  "subnet_id_internal", "public_ip"=false, "private_ip_primary" = "" }]
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
+  availabilityZones_public_ip = var.availabilityZones_public_ip
 }
 #
 #Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnet_ids and securitygroupids)
@@ -114,6 +117,7 @@ module bigip {
   internal_subnet_ids         = [{"subnet_id" =  "subnet_id_internal", "public_ip"=false, "private_ip_primary" = "" }]
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
+  availabilityZones_public_ip = var.availabilityZones_public_ip
 }
 
 #
@@ -127,6 +131,7 @@ module bigip {
   mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true,"private_ip_primary" =  ""}]
   mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
   availabilityZones           = var.availabilityZones
+  availabilityZones_public_ip = var.availabilityZones_public_ip
 }
 ```
 
@@ -152,6 +157,7 @@ module bigip {
   internal_subnet_ids        = [{ "subnet_id" = data.azurerm_subnet.internal.id, "public_ip" = false, "private_ip_primary" = "10.2.3.40"}]
   internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones          = var.availabilityZones
+  availabilityZones_public_ip = var.availabilityZones_public_ip
 }
 ```
 
@@ -167,6 +173,7 @@ These variables must be set in the module block when using this module.
 | mgmt\_securitygroup\_ids | securitygroup\_ids for the management interface | `List` |
 | f5\_ssh\_publickey | public key to be used for ssh access to the VM,managing key is out of band module, user can reference this key from [azurerm_ssh_public_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/ssh_public_key) | `string` |  | 
 | availabilityZones | availabilityZones | `List` |
+| availabilityZones_public_ip | availabilityZones_public_ip | `string` |
 
 
 #### Optional Input Variables
