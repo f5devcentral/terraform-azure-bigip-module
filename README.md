@@ -36,6 +36,18 @@ This module is supported in the following bigip and terraform version
 |:point_up:  | To use Azure key vault  password,we have to enable the variable "az_key_vault_authentication" to true and supply the variables with key_valut name,secret along with resource group name where azure key vault is defined|
 |-----|----|
 
+## Depreciations
+
+* zones variable in azurerm_public_ip resource is depreciated to new variable “availability_zones". Hence we need to have new input variable for our module zone    assignment in public_ip resource and below is the new variable for it. We have updated our examples according to it.
+  
+  ```
+  variable availabilityZones_public_ip {
+  description = "The availability zone to allocate the Public IP in. Possible values are Zone-Redundant, 1, 2, 3, and No-Zone."
+  type        = string
+  default     = "Zone-Redundant"
+   }
+  ```
+
 ## Example Usage
 
 We have provided some common deployment [examples](https://github.com/f5devcentral/terraform-azure-bigip-module/tree/master/examples) 
