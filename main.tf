@@ -236,7 +236,7 @@ resource random_string password {
 
 data "template_file" "init_file1" {
   count    = var.az_key_vault_authentication ? 1 : 0
-  template = file("${path.module}/${var.script_name}.tpl")
+  template = file("${path.module}/${var.script_name}.tmpl")
   vars = {
     INIT_URL                    = var.INIT_URL
     DO_URL                      = var.DO_URL
@@ -258,7 +258,7 @@ data "template_file" "init_file1" {
   }
 }
 data "template_file" "init_file" {
-  count    = var.az_key_vault_authentication ? 0 : 1
+ // count    = var.az_key_vault_authentication ? 0 : 1
   template = file("${path.module}/${var.script_name}.tmpl")
   vars = {
     INIT_URL                    = var.INIT_URL
@@ -272,8 +272,8 @@ data "template_file" "init_file" {
     TS_VER                      = split("/", var.TS_URL)[7]
     CFE_VER                     = split("/", var.CFE_URL)[7]
     FAST_VER                    = split("/", var.FAST_URL)[7]
-    vault_url                   = ""
-    secret_id                   = ""
+    vault_url                   = var.az_key_vault_authentication ? data.azurerm_key_vault.keyvault[0].vault_uri : ""
+    secret_id                   = var.az_key_vault_authentication ? var.azure_keyvault_secret_name : ""
     az_key_vault_authentication = var.az_key_vault_authentication
     bigip_username              = var.f5_username
     ssh_keypair                 = var.f5_ssh_publickey
@@ -490,7 +490,9 @@ resource "azurerm_virtual_machine" "f5vm01" {
     computer_name  = "${local.instance_prefix}-f5vm01"
     admin_username = var.f5_username
     admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
-    custom_data    = var.az_key_vault_authentication ? data.template_file.init_file1[0].rendered : data.template_file.init_file[0].rendered
+    //custom_data    = var.az_key_vault_authentication ? data.template_file.init_file1[0].rendered : data.template_file.init_file[0].rendered
+    custom_data    = coalesce(var.custom_user_data, data.template_file.init_file.rendered)
+
   }
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key

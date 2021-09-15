@@ -31,4 +31,8 @@ variable instance_count {
   type        = number
 }
 
-
+variable custom_user_data {
+  description = "Provide a custom bash script or cloud-init script the BIG-IP will run on creation"
+  type        = string
+  default     = null
+}

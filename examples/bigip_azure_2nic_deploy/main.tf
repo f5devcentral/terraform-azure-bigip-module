@@ -40,6 +40,7 @@ module bigip {
   external_securitygroup_ids  = [module.external-network-security-group-public.network_security_group_id]
   availabilityZones           = var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
+  custom_user_data            = var.custom_user_data
 }
 
 
