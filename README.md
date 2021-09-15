@@ -47,6 +47,11 @@ This module is supported in the following bigip and terraform version
   default     = "Zone-Redundant"
    }
   ```
+## Custom User data
+
+* By default custom_user_data will be null,bigip module will use default f5_onboard.tmpl file contents for initial BIGIP onboard connfiguration
+
+* If users desire custom onboard configuration,we can use this variable and pass contents of custom script to the variable to have custom onboard bigip  configuration. ( some examples of custom runtime scripts are available in examples section )
 
 ## Example Usage
 
@@ -82,6 +87,7 @@ module bigip {
   mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
   availabilityZones           =  var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
+  custom_user_data            = var.custom_user_data
 }
 
 #
@@ -97,6 +103,7 @@ module bigip {
   external_securitygroup_ids  = ["securitygroup_id_external"]
   availabilityZones           =  var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
+  custom_user_data            = var.custom_user_data
 }
 
 #
@@ -114,6 +121,7 @@ module bigip {
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
+  custom_user_data            = var.custom_user_data
 }
 #
 #Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnet_ids and securitygroupids)
@@ -130,6 +138,7 @@ module bigip {
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
+  custom_user_data            = var.custom_user_data
 }
 
 #
@@ -144,6 +153,7 @@ module bigip {
   mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
   availabilityZones           = var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
+  custom_user_data            = var.custom_user_data
 }
 ```
 
@@ -170,6 +180,7 @@ module bigip {
   internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones          = var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
+  custom_user_data           = var.custom_user_data
 }
 ```
 
@@ -186,7 +197,7 @@ These variables must be set in the module block when using this module.
 | f5\_ssh\_publickey | public key to be used for ssh access to the VM,managing key is out of band module, user can reference this key from [azurerm_ssh_public_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/ssh_public_key) | `string` |  | 
 | availabilityZones | availabilityZones | `List` |
 | availabilityZones_public_ip | availabilityZones_public_ip | `string` |
-
+| custom\_user\-data | Provide a custom bash script or cloud-init script the BIG-IP will run on creation | string  |   null   |
 
 #### Optional Input Variables
 
