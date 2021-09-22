@@ -37,7 +37,6 @@ module bigip {
   mgmt_securitygroup_ids      = [module.mgmt-network-security-group.network_security_group_id]
   availabilityZones           = var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data            = var.custom_user_data
 }
 
 
