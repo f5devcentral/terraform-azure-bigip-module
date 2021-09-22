@@ -47,11 +47,67 @@ This module is supported in the following bigip and terraform version
   default     = "Zone-Redundant"
    }
   ```
+
+## BYOL Licensing
+
+This template uses PayGo BIG-IP image for the deployment (as default). If you would like to use BYOL licenses, then these following steps are needed:
+
+1.Find available images/versions with "byol" in SKU name using Azure CLI:
+  
+  ```
+        az vm image list -f BIG-IP --all
+
+        # example output...
+
+        {
+          "offer": "f5-big-ip-byol",
+          "publisher": "f5-networks",
+          "sku": "f5-big-ltm-2slot-byol",
+          "urn": "f5-networks:f5-big-ip-byol:f5-big-ltm-2slot-byol:15.1.201000",
+          "version": "15.1.201000"
+        },
+   ```
+2.In the "variables.tf", modify image_name and product with the SKU and offer from AZ CLI results
+
+    ```
+        # BIGIP Image
+        variable product_name { default = "f5-big-ip-byol" }
+        variable image_name { default = "f5-big-ltm-2slot-byol" }
+     ```
+3.Add the corresponding license key in DO declaration( Declarative Onboarding ), this DO can be added in custom run-time-int script ( as given in examples section ) or POST a Declarative Onboarding declaration as given in url. ( https://clouddocs.f5.com/products/extensions/f5-declarative-onboarding/latest/bigip-examples.html#standalone-declaration )
+   
+    ```
+          "myLicense": {
+          "class": "License",
+          "licenseType": "regKey",
+          "regKey": "${regKey}"
+      },
+    ```
+
 ## Custom User data
 
 * By default custom_user_data will be null,bigip module will use default f5_onboard.tmpl file contents for initial BIGIP onboard connfiguration
 
-* If users desire custom onboard configuration,we can use this variable and pass contents of custom script to the variable to have custom onboard bigip  configuration. ( some examples of custom runtime scripts are available in examples section )
+* If users desire custom onboard configuration,we can use this variable and pass contents of custom script to the variable to have custom onboard bigip  configuration.( An example is provided in examples section )
+
+
+#Example 3-NIC Deployment  Module usage
+
+module bigip {
+  source                      = "../../"
+  prefix                      = "bigip-azure-3nic"
+  resource_group_name         = "testbigip"
+  mgmt_subnet_ids             = [{"subnet_id" = "subnet_id_mgmt" , "public_ip" = true, "private_ip_primary" =  ""}]
+  mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
+  external_subnet_ids         = [{"subnet_id" =  "subnet_id_external", "public_ip" = true, "private_ip_primary" = "", "private_ip_secondary" = "" }]
+  external_securitygroup_ids  = ["securitygroup_id_external"]
+  internal_subnet_ids         = [{"subnet_id" =  "subnet_id_internal", "public_ip"=false, "private_ip_primary" = "" }]
+  internal_securitygroup_ids  = ["securitygropu_id_internal"]
+  availabilityZones           =  var.availabilityZones
+  availabilityZones_public_ip = var.availabilityZones_public_ip
+  custom_user_data            = var.custom_user_data
+}
+
 
 ## Example Usage
 
@@ -87,7 +143,6 @@ module bigip {
   mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
   availabilityZones           =  var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data            = var.custom_user_data
 }
 
 #
@@ -103,7 +158,6 @@ module bigip {
   external_securitygroup_ids  = ["securitygroup_id_external"]
   availabilityZones           =  var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data            = var.custom_user_data
 }
 
 #
@@ -121,7 +175,6 @@ module bigip {
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data            = var.custom_user_data
 }
 #
 #Example 4-NIC Deployment  Module usage(with 2 external public interfaces,one management and internal interface.There should be one to one mapping between subnet_ids and securitygroupids)
@@ -138,7 +191,6 @@ module bigip {
   internal_securitygroup_ids  = ["securitygropu_id_internal"]
   availabilityZones           =  var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data            = var.custom_user_data
 }
 
 #
@@ -153,7 +205,6 @@ module bigip {
   mgmt_securitygroup_ids      = ["securitygroup_id_mgmt"]
   availabilityZones           = var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data            = var.custom_user_data
 }
 ```
 
@@ -180,7 +231,6 @@ module bigip {
   internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones          = var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data           = var.custom_user_data
 }
 ```
 
@@ -197,7 +247,6 @@ These variables must be set in the module block when using this module.
 | f5\_ssh\_publickey | public key to be used for ssh access to the VM,managing key is out of band module, user can reference this key from [azurerm_ssh_public_key](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/ssh_public_key) | `string` |  | 
 | availabilityZones | availabilityZones | `List` |
 | availabilityZones_public_ip | availabilityZones_public_ip | `string` |
-| custom\_user\-data | Provide a custom bash script or cloud-init script the BIG-IP will run on creation | string  |   null   |
 
 #### Optional Input Variables
 
@@ -230,6 +279,7 @@ These variables have default values and don't have to be set to use this module.
 | internal\_subnet\_ids | List of maps of subnetids of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null,"private_ip_primary" = "" }] |
 | external\_securitygroup\_ids | List of network Security Groupids for external network | `List` | [] |
 | internal\_securitygroup\_ids | List of network Security Groupids for internal network | `List` | [] |
+| custom\_user\-data | Provide a custom bash script or cloud-init script the BIG-IP will run on creation | string  |   null   |
 
 #### Output Variables
 
