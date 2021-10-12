@@ -14,7 +14,6 @@ output "mgmtPort" {
   value       = local.total_nics > 1 ? "443" : "8443"
 }
 
-
 output "f5_username" {
   value = var.f5_username
 }
@@ -23,7 +22,7 @@ output "bigip_password" {
   description = <<-EOT
  "Password for bigip user ( if dynamic_password is choosen it will be random generated password or if azure_keyvault is choosen it will be key vault secret name )
   EOT
-  value       = (var.f5_password == "") ? (var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].name : random_string.password.result) : var.f5_password
+  value       = (var.custom_user_data == null) ? ((var.f5_password == "") ? (var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].name : random_string.password.result) : var.f5_password) : "Password as provided in custom runtime-init"
 }
 
 output "onboard_do" {

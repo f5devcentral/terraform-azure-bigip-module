@@ -42,7 +42,6 @@ module "bigip" {
   //internal_securitygroup_ids = [module.internal-network-security-group.network_security_group_id]
   availabilityZones           = var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data            = var.custom_user_data
 }
 
 #
