@@ -226,7 +226,7 @@ resource "azurerm_key_vault_access_policy" "example" {
 #
 # Create random password for BIG-IP
 #
-resource random_string password {
+resource "random_string" "password" {
   length      = 16
   min_upper   = 1
   min_lower   = 1
@@ -258,7 +258,7 @@ data "template_file" "init_file1" {
   }
 }
 data "template_file" "init_file" {
- // count    = var.az_key_vault_authentication ? 0 : 1
+  // count    = var.az_key_vault_authentication ? 0 : 1
   template = file("${path.module}/${var.script_name}.tmpl")
   vars = {
     INIT_URL                    = var.INIT_URL
@@ -491,13 +491,13 @@ resource "azurerm_virtual_machine" "f5vm01" {
     admin_username = var.f5_username
     admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
     //custom_data    = var.az_key_vault_authentication ? data.template_file.init_file1[0].rendered : data.template_file.init_file[0].rendered
-    custom_data    = coalesce(var.custom_user_data, data.template_file.init_file.rendered)
+    custom_data = coalesce(var.custom_user_data, data.template_file.init_file.rendered)
 
   }
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key
 
-    dynamic ssh_keys {
+    dynamic "ssh_keys" {
       for_each = var.enable_ssh_key ? [var.f5_ssh_publickey] : []
       content {
         path     = "/home/${var.f5_username}/.ssh/authorized_keys"
