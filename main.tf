@@ -329,7 +329,7 @@ resource "azurerm_public_ip" "secondary_external_public_ip" {
   allocation_method = "Static"   # Static is required due to the use of the Standard sku
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
   availability_zone = var.availabilityZones_public_ip
-  tags = merge(loca.tags,{
+  tags = merge(local.tags,{
     Name   = format("%s-secondary-pip-ext-%s", local.instance_prefix, count.index)
   }
   )
