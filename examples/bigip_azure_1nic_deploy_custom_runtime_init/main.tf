@@ -1,4 +1,4 @@
-provider azurerm {
+provider "azurerm" {
   //  version = "~>2.0"
   features {}
 }
@@ -6,19 +6,19 @@ provider azurerm {
 #
 # Create a random id
 #
-resource random_id id {
+resource "random_id" "id" {
   byte_length = 2
 }
 
 #
 # Create a resource group
 #
-resource azurerm_resource_group rg {
+resource "azurerm_resource_group" "rg" {
   name     = format("%s-rg-%s", var.prefix, random_id.id.hex)
   location = var.location
 }
 
-resource azurerm_ssh_public_key f5_key {
+resource "azurerm_ssh_public_key" "f5_key" {
   name                = format("%s-pubkey-%s", var.prefix, random_id.id.hex)
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -43,7 +43,7 @@ data "template_file" "user_data_vm0" {
 #
 #Create N-nic bigip
 #
-module bigip {
+module "bigip" {
   count                       = var.instance_count
   source                      = "../../"
   prefix                      = format("%s-1nic", var.prefix)
@@ -53,7 +53,7 @@ module bigip {
   mgmt_securitygroup_ids      = [module.mgmt-network-security-group.network_security_group_id]
   availabilityZones           = var.availabilityZones
   availabilityZones_public_ip = var.availabilityZones_public_ip
-  custom_user_data       = data.template_file.user_data_vm0.rendered
+  custom_user_data            = data.template_file.user_data_vm0.rendered
 }
 
 
@@ -100,7 +100,7 @@ data "azurerm_subnet" "mgmt" {
 #
 # Create the Network Security group Module to associate with BIGIP-Mgmt-Nic
 #
-module mgmt-network-security-group {
+module "mgmt-network-security-group" {
   source              = "Azure/network-security-group/azurerm"
   resource_group_name = azurerm_resource_group.rg.name
   security_group_name = format("%s-mgmt-nsg-%s", var.prefix, random_id.id.hex)

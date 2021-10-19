@@ -164,7 +164,7 @@ locals {
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
   gw_bytes_nic    = local.total_nics > 1 ? element(split("/", local.selfip_list[0]), 0) : ""
 
-  tags = merge(var.tags,{ 
+  tags = merge(var.tags, {
     Prefix = format("%s", local.instance_prefix)
     source = "terraform"
     }
@@ -188,11 +188,14 @@ data "azurerm_client_config" "current" {
 }
 
 resource "azurerm_user_assigned_identity" "user_identity" {
-  name                = "${local.instance_prefix}-ident"
+  name                = format("%s-ident", local.instance_prefix)
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   location            = data.azurerm_resource_group.bigiprg.location
+  tags = merge(local.tags, {
+    Name = format("%s-ident", local.instance_prefix)
+    }
+  )
 }
-
 
 data "azurerm_resource_group" "rg_keyvault" {
   name  = var.azure_secret_rg
@@ -230,7 +233,7 @@ resource "azurerm_key_vault_access_policy" "example" {
 #
 # Create random password for BIG-IP
 #
-resource random_string password {
+resource "random_string" "password" {
   length      = 16
   min_upper   = 1
   min_lower   = 1
@@ -262,7 +265,6 @@ data "template_file" "init_file1" {
   }
 }
 data "template_file" "init_file" {
- // count    = var.az_key_vault_authentication ? 0 : 1
   template = file("${path.module}/${var.script_name}.tmpl")
   vars = {
     INIT_URL                    = var.INIT_URL
@@ -295,9 +297,9 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   allocation_method   = "Static"   # Static is required due to the use of the Standard sku
   sku                 = "Standard" # the Standard sku is required due to the use of availability zones
   availability_zone   = var.availabilityZones_public_ip
-  tags = merge(local.tags,{
-    Name   = format("%s-pip-mgmt-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-pip-mgmt-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -312,9 +314,9 @@ resource "azurerm_public_ip" "external_public_ip" {
   allocation_method = "Static"   # Static is required due to the use of the Standard sku
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
   availability_zone = var.availabilityZones_public_ip
-  tags = merge(local.tags,{
-    Name   = format("%s-pip-ext-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-pip-ext-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -329,9 +331,9 @@ resource "azurerm_public_ip" "secondary_external_public_ip" {
   allocation_method = "Static"   # Static is required due to the use of the Standard sku
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
   availability_zone = var.availabilityZones_public_ip
-  tags = merge(local.tags,{
-    Name   = format("%s-secondary-pip-ext-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-secondary-pip-ext-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -350,9 +352,9 @@ resource "azurerm_network_interface" "mgmt_nic" {
     private_ip_address            = (length(local.mgmt_public_private_ip_primary[count.index]) > 0 ? local.mgmt_public_private_ip_primary[count.index] : null)
     public_ip_address_id          = local.bigip_map["mgmt_subnet_ids"][count.index]["public_ip"] ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
-  tags = merge(local.tags,{
-    Name   = format("%s-mgmt-nic-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-mgmt-nic-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -377,9 +379,9 @@ resource "azurerm_network_interface" "external_nic" {
     private_ip_address_allocation = (length(local.external_private_ip_secondary[count.index]) > 0 ? "Static" : "Dynamic")
     private_ip_address            = (length(local.external_private_ip_secondary[count.index]) > 0 ? local.external_private_ip_secondary[count.index] : null)
   }
-  tags = merge(local.tags,{
-    Name   = format("%s-ext-nic-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-ext-nic-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -405,9 +407,9 @@ resource "azurerm_network_interface" "external_public_nic" {
     private_ip_address            = (length(local.external_public_private_ip_secondary[count.index]) > 0 ? local.external_public_private_ip_secondary[count.index] : null)
     public_ip_address_id          = azurerm_public_ip.secondary_external_public_ip[count.index].id
   }
-  tags = merge(local.tags,{
-    Name   = format("%s-ext-public-nic-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-ext-public-nic-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -425,9 +427,9 @@ resource "azurerm_network_interface" "internal_nic" {
     private_ip_address            = (length(local.internal_private_ip_primary[count.index]) > 0 ? local.internal_private_ip_primary[count.index] : null)
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
-  tags = merge(local.tags,{
-    Name   = format("%s-internal-nic-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-internal-nic-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -495,13 +497,13 @@ resource "azurerm_virtual_machine" "f5vm01" {
     admin_username = var.f5_username
     admin_password = var.az_key_vault_authentication ? data.azurerm_key_vault_secret.bigip_admin_password[0].value : random_string.password.result
     //custom_data    = var.az_key_vault_authentication ? data.template_file.init_file1[0].rendered : data.template_file.init_file[0].rendered
-    custom_data    = coalesce(var.custom_user_data, data.template_file.init_file.rendered)
+    custom_data = coalesce(var.custom_user_data, data.template_file.init_file.rendered)
 
   }
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key
 
-    dynamic ssh_keys {
+    dynamic "ssh_keys" {
       for_each = var.enable_ssh_key ? [var.f5_ssh_publickey] : []
       content {
         path     = "/home/${var.f5_username}/.ssh/authorized_keys"
@@ -515,9 +517,9 @@ resource "azurerm_virtual_machine" "f5vm01" {
     product   = var.f5_product_name
   }
   zones = var.availabilityZones
-  tags = merge(local.tags,{
-    Name   = format("%s-f5vm01", local.instance_prefix)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-f5vm01", local.instance_prefix)
+    }
   )
   identity {
     type         = "UserAssigned"
@@ -546,7 +548,6 @@ SETTINGS
 
 # Getting Public IP Assigned to BIGIP
 data "azurerm_public_ip" "f5vm01mgmtpip" {
-  //   //count               = var.nb_public_ip
   name                = azurerm_public_ip.mgmt_public_ip[0].name
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   depends_on          = [azurerm_virtual_machine.f5vm01, azurerm_virtual_machine_extension.vmext, azurerm_public_ip.mgmt_public_ip[0]]
