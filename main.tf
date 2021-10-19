@@ -164,7 +164,7 @@ locals {
   instance_prefix = format("%s-%s", var.prefix, random_id.module_id.hex)
   gw_bytes_nic    = local.total_nics > 1 ? element(split("/", local.selfip_list[0]), 0) : ""
 
-  tags = merge(var.tags,{ 
+  tags = merge(var.tags, {
     Prefix = format("%s", local.instance_prefix)
     source = "terraform"
     }
@@ -191,6 +191,11 @@ resource "azurerm_user_assigned_identity" "user_identity" {
   name                = format("%s-ident", local.instance_prefix)
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   location            = data.azurerm_resource_group.bigiprg.location
+  tags = merge(var.tags, {
+    Prefix = format("%s", local.instance_prefix)
+    source = "terraform-azure-bigip-module"
+    }
+  )
 }
 
 data "azurerm_resource_group" "rg_keyvault" {
@@ -293,9 +298,9 @@ resource "azurerm_public_ip" "mgmt_public_ip" {
   allocation_method   = "Static"   # Static is required due to the use of the Standard sku
   sku                 = "Standard" # the Standard sku is required due to the use of availability zones
   availability_zone   = var.availabilityZones_public_ip
-  tags = merge(local.tags,{
-    Name   = format("%s-pip-mgmt-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-pip-mgmt-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -310,9 +315,9 @@ resource "azurerm_public_ip" "external_public_ip" {
   allocation_method = "Static"   # Static is required due to the use of the Standard sku
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
   availability_zone = var.availabilityZones_public_ip
-  tags = merge(local.tags,{
-    Name   = format("%s-pip-ext-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-pip-ext-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -327,9 +332,9 @@ resource "azurerm_public_ip" "secondary_external_public_ip" {
   allocation_method = "Static"   # Static is required due to the use of the Standard sku
   sku               = "Standard" # the Standard sku is required due to the use of availability zones
   availability_zone = var.availabilityZones_public_ip
-  tags = merge(local.tags,{
-    Name   = format("%s-secondary-pip-ext-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-secondary-pip-ext-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -348,9 +353,9 @@ resource "azurerm_network_interface" "mgmt_nic" {
     private_ip_address            = (length(local.mgmt_public_private_ip_primary[count.index]) > 0 ? local.mgmt_public_private_ip_primary[count.index] : null)
     public_ip_address_id          = local.bigip_map["mgmt_subnet_ids"][count.index]["public_ip"] ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
-  tags = merge(local.tags,{
-    Name   = format("%s-mgmt-nic-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-mgmt-nic-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -375,9 +380,9 @@ resource "azurerm_network_interface" "external_nic" {
     private_ip_address_allocation = (length(local.external_private_ip_secondary[count.index]) > 0 ? "Static" : "Dynamic")
     private_ip_address            = (length(local.external_private_ip_secondary[count.index]) > 0 ? local.external_private_ip_secondary[count.index] : null)
   }
-  tags = merge(local.tags,{
-    Name   = format("%s-ext-nic-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-ext-nic-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -403,9 +408,9 @@ resource "azurerm_network_interface" "external_public_nic" {
     private_ip_address            = (length(local.external_public_private_ip_secondary[count.index]) > 0 ? local.external_public_private_ip_secondary[count.index] : null)
     public_ip_address_id          = azurerm_public_ip.secondary_external_public_ip[count.index].id
   }
-  tags = merge(local.tags,{
-    Name   = format("%s-ext-public-nic-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-ext-public-nic-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -423,9 +428,9 @@ resource "azurerm_network_interface" "internal_nic" {
     private_ip_address            = (length(local.internal_private_ip_primary[count.index]) > 0 ? local.internal_private_ip_primary[count.index] : null)
     //public_ip_address_id          = length(azurerm_public_ip.mgmt_public_ip.*.id) > count.index ? azurerm_public_ip.mgmt_public_ip[count.index].id : ""
   }
-  tags = merge(local.tags,{
-    Name   = format("%s-internal-nic-%s", local.instance_prefix, count.index)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-internal-nic-%s", local.instance_prefix, count.index)
+    }
   )
 }
 
@@ -513,9 +518,9 @@ resource "azurerm_virtual_machine" "f5vm01" {
     product   = var.f5_product_name
   }
   zones = var.availabilityZones
-  tags = merge(local.tags,{
-    Name   = format("%s-f5vm01", local.instance_prefix)
-  }
+  tags = merge(local.tags, {
+    Name = format("%s-f5vm01", local.instance_prefix)
+    }
   )
   identity {
     type         = "UserAssigned"

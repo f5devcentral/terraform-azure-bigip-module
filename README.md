@@ -38,45 +38,48 @@ This module is supported in the following bigip and terraform version
 
 ## Depreciations
 
-* zones variable in azurerm_public_ip resource is depreciated to new variable “availability_zones". Hence we need to have new input variable for our module zone    assignment in public_ip resource and below is the new variable for it. We have updated our examples according to it.
++ zones variable in `azurerm_public_ip` resource is depreciated to new variable `availability_zones`. Hence we need to have new input variable for our module zone assignment in public_ip resource and below is the new variable for it. We have updated our examples according to it.
   
-  ```
+  ```hcl
   variable availabilityZones_public_ip {
-  description = "The availability zone to allocate the Public IP in. Possible values are Zone-Redundant, 1, 2, 3, and No-Zone."
-  type        = string
-  default     = "Zone-Redundant"
-   }
+      description = "The availability zone to allocate the Public IP in. Possible values are Zone-Redundant, 1, 2, 3, and No-Zone."
+      type        = string
+      default     = "Zone-Redundant"
+  }
   ```
 
 ## BYOL Licensing
 
 This template uses PayGo BIG-IP image for the deployment (as default). If you would like to use BYOL licenses, then these following steps are needed:
 
-1.Find available images/versions with "byol" in SKU name using Azure CLI:
-  
-  ```
-        az vm image list -f BIG-IP --all
+1. Find available images/versions with *BYOL* in SKU name using Azure CLI:
 
-        # example output...
+    ```bash
+    az vm image list -f BIG-IP --all
 
-        {
-          "offer": "f5-big-ip-byol",
-          "publisher": "f5-networks",
-          "sku": "f5-big-ltm-2slot-byol",
-          "urn": "f5-networks:f5-big-ip-byol:f5-big-ltm-2slot-byol:15.1.201000",
-          "version": "15.1.201000"
-        },
-   ```
-2.In the "variables.tf", modify image_name and product with the SKU and offer from AZ CLI results
+            # example output...
 
+            {
+              "offer": "f5-big-ip-byol",
+              "publisher": "f5-networks",
+              "sku": "f5-big-ltm-2slot-byol",
+              "urn": "f5-networks:f5-big-ip-byol:f5-big-ltm-2slot-byol:15.1.201000",
+              "version": "15.1.201000"
+            },
     ```
-        # BIGIP Image
-        variable product_name { default = "f5-big-ip-byol" }
-        variable image_name { default = "f5-big-ltm-2slot-byol" }
-     ```
-3.Add the corresponding license key in DO declaration( Declarative Onboarding ), this DO can be added in custom run-time-int script ( as given in examples section ) or POST a Declarative Onboarding declaration as given in url. ( https://clouddocs.f5.com/products/extensions/f5-declarative-onboarding/latest/bigip-examples.html#standalone-declaration )
-   
+
+2. In the `variables.tf`, modify `image_name` and `product_name` with the SKU and offer from AZ CLI results
+
+    ```hcl
+            # BIGIP Image
+            variable product_name { default = "f5-big-ip-byol" }
+            variable image_name { default = "f5-big-ltm-2slot-byol" }
     ```
+
+3. Add the corresponding license key in DO declaration( Declarative Onboarding ), this DO can be added in custom run-time-int script ( as given in examples section ) or POST a Declarative Onboarding declaration as given in url. 
+(<https://clouddocs.f5.com/products/extensions/f5-declarative-onboarding/latest/bigip-examples.html#standalone-declaration> )
+
+    ```shell
           "myLicense": {
           "class": "License",
           "licenseType": "regKey",
@@ -86,13 +89,13 @@ This template uses PayGo BIG-IP image for the deployment (as default). If you wo
 
 ## Custom User data
 
-* By default custom_user_data will be null,bigip module will use default f5_onboard.tmpl file contents for initial BIGIP onboard connfiguration
++ By default `custom_user_data` will be `null` , bigip module will use default `f5_onboard.tmpl` file contents for initial BIGIP onboard connfiguration
 
-* If users desire custom onboard configuration,we can use this variable and pass contents of custom script to the variable to have custom onboard bigip  configuration.( An example is provided in examples section )
++ If users desire custom onboard configuration,we can use this variable and pass contents of custom script to the variable to have custom onboard bigip  configuration.( An example is provided in examples section )
 
+### Example 3-NIC Deployment Module usage with `custom_user_data`
 
-#Example 3-NIC Deployment  Module usage
-
+```hcl
 module bigip {
   source                      = "../../"
   prefix                      = "bigip-azure-3nic"
@@ -107,6 +110,7 @@ module bigip {
   availabilityZones_public_ip = var.availabilityZones_public_ip
   custom_user_data            = var.custom_user_data
 }
+```
 
 
 ## Example Usage
@@ -279,7 +283,8 @@ These variables have default values and don't have to be set to use this module.
 | internal\_subnet\_ids | List of maps of subnetids of the virtual network where the virtual machines will reside | `List of Maps` | [{ "subnet_id" = null, "public_ip" = null,"private_ip_primary" = "" }] |
 | external\_securitygroup\_ids | List of network Security Groupids for external network | `List` | [] |
 | internal\_securitygroup\_ids | List of network Security Groupids for internal network | `List` | [] |
-| custom\_user\-data | Provide a custom bash script or cloud-init script the BIG-IP will run on creation | string  |   null   |
+| custom\_user\_data | Provide a custom bash script or cloud-init script the BIG-IP will run on creation | string  |   null   |
+| tags | `key:value` tags to apply to resources built by the module | map  |   {}   |
 
 #### Output Variables
 

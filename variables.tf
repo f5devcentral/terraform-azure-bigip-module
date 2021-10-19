@@ -210,8 +210,8 @@ variable "custom_user_data" {
   default     = null
 }
 
-variable tags {
+variable "tags" {
   description = "key:value tags to apply to resources built by the module"
-  type        = map
+  type        = map(any)
   default     = {}
 }
