@@ -191,9 +191,8 @@ resource "azurerm_user_assigned_identity" "user_identity" {
   name                = format("%s-ident", local.instance_prefix)
   resource_group_name = data.azurerm_resource_group.bigiprg.name
   location            = data.azurerm_resource_group.bigiprg.location
-  tags = merge(var.tags, {
-    Prefix = format("%s", local.instance_prefix)
-    source = "terraform-azure-bigip-module"
+  tags = merge(local.tags, {
+    Name = format("%s-ident", local.instance_prefix)
     }
   )
 }
