@@ -1,3 +1,6 @@
+## This Repo has been Archived, and moved to: https://github.com/F5Networks/terraform-azure-bigip-module for Supported Module
+
+
 ## Deploys BIG-IP in Azure Cloud
 
 This Terraform module deploys N-nic F5 BIG-IP in Azure cloud,and with module count feature we can also deploy multiple instances of BIG-IP.
